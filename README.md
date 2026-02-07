@@ -63,31 +63,31 @@ pnpm lint    # o: npm run lint
 
 ## Desplegar en Vercel
 
-1. **Sube el proyecto a GitHub** (si aún no está):
-   ```bash
-   git init
-   git add .
-   git commit -m "Initial commit"
-   git remote add origin https://github.com/TU_USUARIO/risessistem.git
-   git push -u origin main
-   ```
+El repo está en [github.com/AlexanderDeMatteo/risessystems](https://github.com/AlexanderDeMatteo/risessystems). Sigue estos pasos:
 
-2. **Conecta con Vercel:**
-   - Entra en [vercel.com](https://vercel.com) e inicia sesión (o con GitHub).
-   - **Add New** → **Project** y selecciona el repositorio `risessistem`.
-   - Vercel detectará Next.js automáticamente. No cambies el **Framework Preset**.
+1. **Conecta el repo con Vercel**
+   - Entra en [vercel.com/new](https://vercel.com/new) e inicia sesión (con GitHub es lo más rápido).
+   - En **Import Git Repository** elige **AlexanderDeMatteo/risessystems** (o busca `risessystems`).
+   - Si no lo ves, haz **Configure GitHub App** y autoriza el acceso al repo.
+   - Deja **Framework Preset: Next.js** y **Root Directory** vacío. Pulsa **Deploy** (puedes hacer el primer deploy sin variables para probar).
 
-3. **Variables de entorno (importante):**
-   - En la configuración del proyecto, ve a **Settings** → **Environment Variables**.
+2. **Añade la base de datos (necesario para login y datos)**
+   - En el proyecto de Vercel: **Settings** → **Environment Variables**.
    - Añade:
-     - **Name:** `DATABASE_URL`  
-     - **Value:** tu connection string de Neon (ej: `postgres://user:pass@host.neon.tech/neondb?sslmode=require`).  
-   - Asígnale **Production**, **Preview** y **Development** si quieres usarla en todos los entornos.
+     - **Name:** `DATABASE_URL`
+     - **Value:** tu connection string de Neon (desde [Neon Console](https://console.neon.tech) → tu proyecto → Connection string; suele terminar en `?sslmode=require`).
+   - Marca **Production**, **Preview** y **Development**.
+   - Guarda y en **Deployments** haz **Redeploy** del último deployment para que use la variable.
 
-4. **Deploy:**
-   - Pulsa **Deploy**. Cada push a `main` generará un nuevo despliegue.
+3. **Siguientes despliegues**
+   - Cada **push a la rama `main`** en GitHub dispara un deploy automático en Vercel.
 
-**Nota:** Si usas npm en lugar de pnpm, en Vercel puedes dejar el build por defecto (`npm run build`) o en **Settings** → **General** configurar **Package Manager** a `npm`.
+### Desplegar desde la terminal (CLI)
+
+1. Inicia sesión una vez: `npx vercel login` (se abre el navegador).
+2. Despliega a producción: `npx vercel --prod` o `npm run deploy`.
+3. Añadir `DATABASE_URL` por CLI (opcional):  
+   `npx vercel env add DATABASE_URL` → pega la connection string de Neon y elige Production, Preview y Development. Luego: **Deployments** → Redeploy.
 
 ---
 
