@@ -1,0 +1,32 @@
+---
+alwaysApply: true
+---
+
+# Reglas de Contexto del Proyecto
+
+## Documentación
+- La carpeta `memory-bank` contiene todos los archivos markdown de referencia del proyecto.
+- Todos los archivos de documentación deben guardarse en `memory-bank/`.
+- Documentos clave: `project-summary.md`, `architecture.md`, `screens-and-components.md`, `design-system.md`, `data-model.md`, `conventions.md`.
+- Antes de crear o modificar pantallas, componentes o estilos, consulta los documentos relevantes en `memory-bank/` para mantener consistencia.
+
+## Ubicación de pantallas y componentes
+- **Pantallas (rutas):** Cada pantalla es un `page.tsx` dentro de `app/`. Zonas principales: `app/dashboard/` (gym owner) y `app/admin/` (administración). Rutas públicas: `app/login/`, `app/register/`.
+- **Componentes por dominio:** En `components/` organizados por módulo: `dashboard/`, `admin/`, `members/`, `branches/`, `trainers/`, `accounting/`, `profile/`, `qr/`.
+- **Componentes base de UI:** En `components/ui/` (shadcn/ui + Radix). Son reutilizables; no modificar sin justificación.
+- Para entender o modificar una pantalla, escanear el `page.tsx` correspondiente y la carpeta de componentes del dominio en `components/`.
+
+## Imports y utilidades
+- Usar siempre el alias `@/` para imports: `@/components`, `@/lib`, `@/hooks`.
+- Para combinar clases CSS usar `cn()` de `@/lib/utils`.
+- Iconos: usar exclusivamente `lucide-react`.
+
+## Estilo y tema
+- Tema "Neon Rise": dark por defecto, colores definidos como variables CSS HSL en `app/globals.css`.
+- Usar siempre tokens semánticos de Tailwind: `bg-background`, `text-primary`, `border-border`, `bg-card`, etc. No colores hardcodeados.
+- Clases del tema: `neon-glow`, `neon-glow-sm`, `neon-border`, `card-cyber`, `card-cyber-active`, `text-neon`.
+- Fuentes: Inter (sans), JetBrains Mono (mono), definidas en `app/layout.tsx`.
+
+## Idioma
+- Código, nombres de variables, componentes y comentarios en inglés.
+- Documentación en `memory-bank/` en español.

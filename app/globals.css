@@ -1,0 +1,160 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+@layer base {
+  :root {
+    /* Neon Rise - Cyber-Industrial Premium */
+    /* Base: Zinc scale (grays with imperceptible blue tint) */
+    --background: 240 10% 3.6%;
+    --foreground: 0 0% 98%;
+    --card: 240 10% 7.8%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 7.8%;
+    --popover-foreground: 0 0% 98%;
+    
+    /* Primary: Acid Lime #a3e635 */
+    --primary: 84 81% 65%;
+    --primary-foreground: 0 0% 0%;
+    
+    /* Secondary: Zinc-800 for surfaces */
+    --secondary: 240 10% 15%;
+    --secondary-foreground: 0 0% 98%;
+    
+    /* Muted: Zinc-700 */
+    --muted: 240 10% 18%;
+    --muted-foreground: 0 0% 63%;
+    
+    /* Accent: Lime for emphasis */
+    --accent: 84 81% 65%;
+    --accent-foreground: 0 0% 0%;
+    
+    /* Semantic Colors */
+    --destructive: 354 96% 56%;
+    --destructive-foreground: 0 0% 98%;
+    
+    /* Success Green: Emerald-500 */
+    --success: 160 84% 39%;
+    --success-foreground: 0 0% 98%;
+    
+    /* Warning: Amber-500 */
+    --warning: 45 93% 56%;
+    --warning-foreground: 0 0% 0%;
+    
+    /* UI Elements */
+    --border: 240 10% 13%;
+    --input: 240 10% 13%;
+    --ring: 84 81% 65%;
+    
+    /* Charts */
+    --chart-1: 84 81% 65%;
+    --chart-2: 160 84% 39%;
+    --chart-3: 354 96% 56%;
+    --chart-4: 45 93% 56%;
+    --chart-5: 220 90% 56%;
+    
+    --radius: 0.5rem;
+    
+    /* Sidebar */
+    --sidebar-background: 240 10% 5.5%;
+    --sidebar-foreground: 0 0% 88%;
+    --sidebar-primary: 84 81% 65%;
+    --sidebar-primary-foreground: 0 0% 0%;
+    --sidebar-accent: 240 10% 15%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 240 10% 11%;
+    --sidebar-ring: 84 81% 65%;
+  }
+  .dark {
+    /* Neon Rise - Cyber-Industrial Premium */
+    --background: 240 10% 3.6%;
+    --foreground: 0 0% 98%;
+    --card: 240 10% 7.8%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 7.8%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 84 81% 65%;
+    --primary-foreground: 0 0% 0%;
+    --secondary: 240 10% 15%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 10% 18%;
+    --muted-foreground: 0 0% 63%;
+    --accent: 84 81% 65%;
+    --accent-foreground: 0 0% 0%;
+    --destructive: 354 96% 56%;
+    --destructive-foreground: 0 0% 98%;
+    --success: 160 84% 39%;
+    --success-foreground: 0 0% 98%;
+    --warning: 45 93% 56%;
+    --warning-foreground: 0 0% 0%;
+    --border: 240 10% 13%;
+    --input: 240 10% 13%;
+    --ring: 84 81% 65%;
+    --chart-1: 84 81% 65%;
+    --chart-2: 160 84% 39%;
+    --chart-3: 354 96% 56%;
+    --chart-4: 45 93% 56%;
+    --chart-5: 220 90% 56%;
+    --sidebar-background: 240 10% 5.5%;
+    --sidebar-foreground: 0 0% 88%;
+    --sidebar-primary: 84 81% 65%;
+    --sidebar-primary-foreground: 0 0% 0%;
+    --sidebar-accent: 240 10% 15%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 240 10% 11%;
+    --sidebar-ring: 84 81% 65%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  
+  /* Cyberpunk enhancements */
+  @layer components {
+    /* Neon glow effect */
+    .neon-glow {
+      @apply shadow-[0_0_20px_rgba(163,230,53,0.3)];
+    }
+    
+    .neon-glow-sm {
+      @apply shadow-[0_0_10px_rgba(163,230,53,0.2)];
+    }
+    
+    .neon-border {
+      @apply border border-primary/50 shadow-[inset_0_0_10px_rgba(163,230,53,0.1)];
+    }
+    
+    .neon-border-active {
+      @apply border border-primary shadow-[0_0_15px_rgba(163,230,53,0.4),inset_0_0_10px_rgba(163,230,53,0.1)];
+    }
+    
+    /* Text effects */
+    .text-neon {
+      @apply text-primary font-semibold tracking-wider;
+    }
+    
+    /* Card styles */
+    .card-cyber {
+      @apply bg-card border border-border/50 rounded-[0.5rem] transition-all duration-300 hover:border-primary/30 hover:shadow-[0_0_15px_rgba(163,230,53,0.1)];
+    }
+    
+    .card-cyber-active {
+      @apply bg-card border border-primary/60 rounded-[0.5rem] shadow-[0_0_20px_rgba(163,230,53,0.2),inset_0_0_10px_rgba(163,230,53,0.05)];
+    }
+  }
+}
