@@ -20,9 +20,9 @@ export function DashboardHeader() {
   const navItems = [
     { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/dashboard/members', label: 'Members', icon: Users },
+    { href: '/dashboard/plans', label: 'Plans', icon: CreditCard },
     { href: '/dashboard/trainers', label: 'Trainers', icon: Dumbbell },
     { href: '/dashboard/branches', label: 'Branches', icon: MapPin },
-    { href: '/dashboard/plans', label: 'Plans', icon: CreditCard },
     { href: '/dashboard/qr-scanner', label: 'QR Scanner', icon: Scan },
     { href: '/dashboard/accounting', label: 'Accounting', icon: DollarSign },
   ]
