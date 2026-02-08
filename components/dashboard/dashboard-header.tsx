@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Bell, User, Settings, LayoutDashboard, Users, Scan, DollarSign, LogOut, Dumbbell, MapPin } from 'lucide-react'
+import { Bell, User, Settings, LayoutDashboard, Users, Scan, DollarSign, LogOut, Dumbbell, MapPin, CreditCard } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -22,6 +22,7 @@ export function DashboardHeader() {
     { href: '/dashboard/members', label: 'Members', icon: Users },
     { href: '/dashboard/trainers', label: 'Trainers', icon: Dumbbell },
     { href: '/dashboard/branches', label: 'Branches', icon: MapPin },
+    { href: '/dashboard/plans', label: 'Plans', icon: CreditCard },
     { href: '/dashboard/qr-scanner', label: 'QR Scanner', icon: Scan },
     { href: '/dashboard/accounting', label: 'Accounting', icon: DollarSign },
   ]

@@ -49,6 +49,15 @@ Este documento mapea cada pantalla (ruta) con los componentes que la componen. U
   - `branches-grid.tsx` — Grid de tarjetas de sucursales.
   - `add-branch-dialog.tsx` — Diálogo para agregar sucursal.
 
+### Plans
+- **Página:** `app/dashboard/plans/page.tsx`
+- **Componentes en `components/plans/`:**
+  - `plans-header.tsx` — Header con búsqueda y botón "Add Plan".
+  - `plans-table.tsx` — Tabla de planes (nombre, descripción, precio, duración, estado).
+  - `add-plan-dialog.tsx` — Diálogo para crear plan (nombre, descripción, precio, duración).
+  - `edit-plan-dialog.tsx` — Diálogo para editar plan.
+  - `delete-plan-dialog.tsx` — Diálogo de confirmación para eliminar plan.
+
 ### QR Scanner
 - **Página:** `app/dashboard/qr-scanner/page.tsx`
 - **Componentes en `components/qr/`:**

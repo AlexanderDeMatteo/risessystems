@@ -66,6 +66,7 @@ risessistem/
 - `/dashboard/members` — CRUD de miembros del gimnasio.
 - `/dashboard/trainers` — Gestión de entrenadores.
 - `/dashboard/branches` — Sucursales del gimnasio.
+- `/dashboard/plans` — Planes de membresía y precios.
 - `/dashboard/qr-scanner` — Escaneo QR para check-in de miembros.
 - `/dashboard/accounting` — Contabilidad: pagos, ingresos, gráficos.
 - `/dashboard/profile` — Perfil del dueño.

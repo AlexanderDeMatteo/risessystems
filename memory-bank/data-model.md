@@ -135,6 +135,26 @@ members (1) ──→ (N) payments (nullable FK)
 
 ---
 
+## Tablas planeadas (no implementadas)
+
+### membership_plans
+Gestión de planes de membresía por gym owner. Diseñada para integración futura.
+
+| Columna | Tipo | Notas |
+|---------|------|-------|
+| id | SERIAL PK | — |
+| user_id | INTEGER FK → users(id) | ON DELETE CASCADE |
+| name | VARCHAR(100) | Nombre del plan |
+| description | TEXT | Opcional |
+| price | DECIMAL(10,2) | Precio |
+| duration_days | INTEGER | 30, 90, 365... |
+| is_active | BOOLEAN | Default true |
+| created_at, updated_at | TIMESTAMP | — |
+
+**Frontend:** La pestaña Plans (`/dashboard/plans`) usa datos mock. Ver `components/plans/`.
+
+---
+
 ## Notas
 - Todas las tablas usan `SERIAL` como PK (autoincremental).
 - Timestamps con `DEFAULT CURRENT_TIMESTAMP`.
