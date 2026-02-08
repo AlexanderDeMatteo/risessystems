@@ -10,16 +10,18 @@ export default function BranchesPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
   return (
-    <div className="space-y-6">
-      <BranchesHeader 
-        onAddClick={() => setIsDialogOpen(true)}
-        searchTerm={searchTerm}
-        onSearchChange={setSearchTerm}
-      />
+    <main className="p-6 lg:p-8">
+        <div className="max-w-7xl mx-auto space-y-6">
+          <BranchesHeader 
+            onAddClick={() => setIsDialogOpen(true)}
+            searchTerm={searchTerm}
+            onSearchChange={setSearchTerm}
+          />
 
-      <BranchesGrid searchTerm={searchTerm} />
+          <BranchesGrid searchTerm={searchTerm} />
 
-      <AddBranchDialog open={isDialogOpen} onOpenChange={setIsDialogOpen} />
-    </div>
+          <AddBranchDialog open={isDialogOpen} onOpenChange={setIsDialogOpen} />
+        </div>
+    </main>
   )
 }

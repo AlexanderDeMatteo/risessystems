@@ -1,7 +1,5 @@
-import Link from 'next/link'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Users, Dumbbell, MapPin, Scan, DollarSign, TrendingUp, LayoutDashboard } from 'lucide-react'
+import { Users, Scan, DollarSign, TrendingUp } from 'lucide-react'
 
 export default function DashboardPage() {
   const kpis = [
@@ -11,58 +9,8 @@ export default function DashboardPage() {
     { title: 'Growth', value: '23.5%', change: 3.8, icon: TrendingUp, color: 'text-primary' },
   ]
 
-  const navItems = [
-    { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { href: '/dashboard/members', label: 'Members', icon: Users },
-    { href: '/dashboard/trainers', label: 'Trainers', icon: Dumbbell },
-    { href: '/dashboard/branches', label: 'Branches', icon: MapPin },
-    { href: '/dashboard/qr-scanner', label: 'QR Scanner', icon: Scan },
-    { href: '/dashboard/accounting', label: 'Accounting', icon: DollarSign },
-  ]
-
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b border-border/50 bg-card shadow-[0_0_20px_rgba(163,230,53,0.1)]">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          {/* Top bar */}
-          <div className="py-4 flex items-center justify-between">
-            <Link href="/dashboard" className="flex items-center gap-3 group">
-              <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center shadow-[0_0_20px_rgba(163,230,53,0.3)] group-hover:shadow-[0_0_25px_rgba(163,230,53,0.4)] transition-all">
-                <span className="text-primary-foreground font-bold text-lg">R</span>
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-foreground tracking-wider">RISESYSTEM</h1>
-                <p className="text-xs text-muted-foreground uppercase tracking-widest">Gym Management</p>
-              </div>
-            </Link>
-          </div>
-
-          {/* Navigation */}
-          <nav className="flex gap-1 border-t border-border/30 pt-4 pb-0 overflow-x-auto">
-            {navItems.map((item) => {
-              const Icon = item.icon
-              const isActive = item.href === '/dashboard'
-              return (
-                <Link key={item.href} href={item.href}>
-                  <button
-                    className={`flex items-center gap-2 px-4 py-2 rounded-t-lg border-b-2 transition-all duration-300 uppercase tracking-wider text-xs font-semibold ${
-                      isActive
-                        ? 'bg-secondary/50 border-primary text-primary shadow-[0_0_10px_rgba(163,230,53,0.2)]'
-                        : 'border-transparent text-muted-foreground hover:text-primary hover:border-primary/50'
-                    }`}
-                  >
-                    <Icon className="w-4 h-4" />
-                    <span>{item.label}</span>
-                  </button>
-                </Link>
-              )
-            })}
-          </nav>
-        </div>
-      </header>
-
-      <main className="p-6 lg:p-8">
+    <main className="p-6 lg:p-8">
         <div className="max-w-7xl mx-auto space-y-8">
           {/* Title */}
           <div>
@@ -128,7 +76,6 @@ export default function DashboardPage() {
             </Card>
           </div>
         </div>
-      </main>
-    </div>
+    </main>
   )
 }

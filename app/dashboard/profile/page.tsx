@@ -1,6 +1,5 @@
 'use client'
 
-import { DashboardHeader } from '@/components/dashboard/dashboard-header'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Mail, Phone, MapPin, Building, Shield, CheckCircle } from 'lucide-react'
@@ -17,10 +16,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <DashboardHeader />
-
-      <main className="p-6 lg:p-8">
+    <main className="p-6 lg:p-8">
         <div className="max-w-4xl mx-auto space-y-8">
           {/* Header */}
           <div>
@@ -133,7 +129,6 @@ export default function ProfilePage() {
             </CardContent>
           </Card>
         </div>
-      </main>
-    </div>
+    </main>
   )
 }

@@ -1,6 +1,5 @@
 'use client'
 
-import { DashboardHeader } from '@/components/dashboard/dashboard-header'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
@@ -14,10 +13,7 @@ export default function SettingsPage() {
   const [twoFactor, setTwoFactor] = useState(false)
 
   return (
-    <div className="min-h-screen bg-background">
-      <DashboardHeader />
-
-      <main className="p-6 lg:p-8">
+    <main className="p-6 lg:p-8">
         <div className="max-w-4xl mx-auto space-y-8">
           {/* Header */}
           <div>
@@ -134,7 +130,6 @@ export default function SettingsPage() {
             </Button>
           </div>
         </div>
-      </main>
-    </div>
+    </main>
   )
 }

@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { DashboardHeader } from '@/components/dashboard/dashboard-header'
 import { MembersTable } from '@/components/members/members-table'
 import { MembersHeader } from '@/components/members/members-header'
 import { AddMemberDialog } from '@/components/members/add-member-dialog'
@@ -13,10 +12,7 @@ export default function MembersPage() {
   const [filterStatus, setFilterStatus] = useState('all')
 
   return (
-    <div className="min-h-screen bg-background">
-      <DashboardHeader />
-
-      <main className="p-6 lg:p-8">
+    <main className="p-6 lg:p-8">
         <div className="max-w-7xl mx-auto space-y-6">
           {/* Header */}
           <div className="flex justify-between items-start">
@@ -49,7 +45,6 @@ export default function MembersPage() {
             onOpenChange={setIsAddDialogOpen}
           />
         </div>
-      </main>
-    </div>
+    </main>
   )
 }

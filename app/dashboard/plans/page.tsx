@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { DashboardHeader } from '@/components/dashboard/dashboard-header'
 import { PlansHeader } from '@/components/plans/plans-header'
 import { PlansTable, MOCK_PLANS, type MembershipPlan } from '@/components/plans/plans-table'
 import { AddPlanDialog } from '@/components/plans/add-plan-dialog'
@@ -39,10 +38,7 @@ export default function PlansPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <DashboardHeader />
-
-      <main className="p-6 lg:p-8">
+    <main className="p-6 lg:p-8">
         <div className="max-w-7xl mx-auto space-y-6">
           <div className="flex justify-between items-start">
             <div>
@@ -82,7 +78,6 @@ export default function PlansPage() {
             onConfirm={handleConfirmDelete}
           />
         </div>
-      </main>
-    </div>
+    </main>
   )
 }

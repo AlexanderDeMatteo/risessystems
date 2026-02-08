@@ -13,25 +13,57 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Edit, Trash2, Star } from 'lucide-react'
-
-// Mock trainers data
-const mockTrainers = [
-  { id: 1, name: 'Carlos Martinez', email: 'carlos@gym.com', phone: '555-0001', specialties: 'CrossFit, Strength', status: 'active', isPrimary: true },
-  { id: 2, name: 'Ana Rodriguez', email: 'ana@gym.com', phone: '555-0002', specialties: 'Yoga, Pilates', status: 'active', isPrimary: false },
-  { id: 3, name: 'Jorge Silva', email: 'jorge@gym.com', phone: '555-0003', specialties: 'Boxing, Cardio', status: 'active', isPrimary: false },
-  { id: 4, name: 'Laura Gomez', email: 'laura@gym.com', phone: '555-0004', specialties: 'Personal Training', status: 'inactive', isPrimary: false },
-  { id: 5, name: 'Miguel Ruiz', email: 'miguel@gym.com', phone: '555-0005', specialties: 'Nutrition, Training', status: 'active', isPrimary: false },
-]
+import { EditTrainerDialog, type Trainer, type PrimaryTrainerByBranch } from './edit-trainer-dialog'
+import { DeleteTrainerDialog } from './delete-trainer-dialog'
 
 interface TrainersTableProps {
+  trainers: Trainer[]
+  onTrainersChange: (trainers: Trainer[]) => void
+  primaryTrainerByBranch: PrimaryTrainerByBranch
+  onSetPrimary: (branch: string, trainerId: number) => void
+  onClearPrimaryForBranch: (branch: string) => void
   searchTerm: string
   filterStatus: string
 }
 
-export function TrainersTable({ searchTerm, filterStatus }: TrainersTableProps) {
-  const [selectedPrimary, setSelectedPrimary] = useState(1)
+export function TrainersTable({
+  trainers,
+  onTrainersChange,
+  primaryTrainerByBranch,
+  onSetPrimary,
+  onClearPrimaryForBranch,
+  searchTerm,
+  filterStatus,
+}: TrainersTableProps) {
+  const [editDialogOpen, setEditDialogOpen] = useState(false)
+  const [trainerToEdit, setTrainerToEdit] = useState<Trainer | null>(null)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [trainerToDelete, setTrainerToDelete] = useState<Trainer | null>(null)
 
-  const filteredTrainers = mockTrainers.filter((trainer) => {
+  const handleEditClick = (trainer: Trainer) => {
+    setTrainerToEdit(trainer)
+    setEditDialogOpen(true)
+  }
+
+  const handleSaveEdit = (updatedTrainer: Trainer) => {
+    onTrainersChange(
+      trainers.map((t) => (t.id === updatedTrainer.id ? { ...t, ...updatedTrainer } : t))
+    )
+  }
+
+  const handleDeleteClick = (trainer: Trainer) => {
+    setTrainerToDelete(trainer)
+    setDeleteDialogOpen(true)
+  }
+
+  const handleConfirmDelete = (trainer: Trainer) => {
+    onTrainersChange(trainers.filter((t) => t.id !== trainer.id))
+    if (primaryTrainerByBranch[trainer.branch] === trainer.id) {
+      onClearPrimaryForBranch(trainer.branch)
+    }
+  }
+
+  const filteredTrainers = trainers.filter((trainer) => {
     const matchesSearch =
       trainer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       trainer.email.toLowerCase().includes(searchTerm.toLowerCase())
@@ -51,6 +83,7 @@ export function TrainersTable({ searchTerm, filterStatus }: TrainersTableProps) 
               <TableHead>Name</TableHead>
               <TableHead>Email</TableHead>
               <TableHead>Phone</TableHead>
+              <TableHead>Branch</TableHead>
               <TableHead>Specialties</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="text-right">Actions</TableHead>
@@ -61,18 +94,21 @@ export function TrainersTable({ searchTerm, filterStatus }: TrainersTableProps) 
               filteredTrainers.map((trainer) => (
                 <TableRow key={trainer.id} className="border-border hover:bg-secondary/50">
                   <TableCell>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setSelectedPrimary(trainer.id)}
-                      className={`p-0 ${selectedPrimary === trainer.id ? 'text-yellow-500' : 'text-muted-foreground hover:text-yellow-500'}`}
+                    <div
+                      className={`inline-flex p-1 ${primaryTrainerByBranch[trainer.branch] === trainer.id ? 'text-yellow-500' : 'text-muted-foreground'}`}
+                      title={primaryTrainerByBranch[trainer.branch] === trainer.id ? 'Primary trainer for this branch' : undefined}
                     >
-                      <Star className="w-4 h-4" fill={selectedPrimary === trainer.id ? 'currentColor' : 'none'} />
-                    </Button>
+                      <Star
+                        className="w-4 h-4"
+                        fill={primaryTrainerByBranch[trainer.branch] === trainer.id ? 'currentColor' : 'none'}
+                        aria-hidden
+                      />
+                    </div>
                   </TableCell>
                   <TableCell className="font-medium">{trainer.name}</TableCell>
                   <TableCell className="text-muted-foreground">{trainer.email}</TableCell>
                   <TableCell className="text-muted-foreground">{trainer.phone}</TableCell>
+                  <TableCell className="text-muted-foreground">{trainer.branch}</TableCell>
                   <TableCell className="text-sm text-muted-foreground">{trainer.specialties}</TableCell>
                   <TableCell>
                     {trainer.status === 'active' ? (
@@ -83,10 +119,22 @@ export function TrainersTable({ searchTerm, filterStatus }: TrainersTableProps) 
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
-                      <Button variant="ghost" size="sm" className="hover:bg-secondary">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="hover:bg-secondary"
+                        onClick={() => handleEditClick(trainer)}
+                        aria-label="Edit trainer"
+                      >
                         <Edit className="w-4 h-4" />
                       </Button>
-                      <Button variant="ghost" size="sm" className="hover:bg-destructive/20 text-destructive">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="hover:bg-destructive/20 text-destructive"
+                        onClick={() => handleDeleteClick(trainer)}
+                        aria-label="Delete trainer"
+                      >
                         <Trash2 className="w-4 h-4" />
                       </Button>
                     </div>
@@ -95,7 +143,7 @@ export function TrainersTable({ searchTerm, filterStatus }: TrainersTableProps) 
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
                   No trainers found
                 </TableCell>
               </TableRow>
@@ -103,6 +151,23 @@ export function TrainersTable({ searchTerm, filterStatus }: TrainersTableProps) 
           </TableBody>
         </Table>
       </div>
+
+      <EditTrainerDialog
+        open={editDialogOpen}
+        onOpenChange={setEditDialogOpen}
+        trainer={trainerToEdit}
+        primaryTrainerByBranch={primaryTrainerByBranch}
+        onSave={handleSaveEdit}
+        onSetPrimary={onSetPrimary}
+        onClearPrimaryForBranch={onClearPrimaryForBranch}
+      />
+
+      <DeleteTrainerDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        trainer={trainerToDelete}
+        onConfirm={handleConfirmDelete}
+      />
     </Card>
   )
 }

@@ -1,6 +1,5 @@
 'use client'
 
-import { DashboardHeader } from '@/components/dashboard/dashboard-header'
 import { RevenueStats } from '@/components/accounting/revenue-stats'
 import { PaymentsTable } from '@/components/accounting/payments-table'
 import { RevenueChart } from '@/components/accounting/revenue-chart'
@@ -8,10 +7,7 @@ import { Card } from '@/components/ui/card'
 
 export default function AccountingPage() {
   return (
-    <div className="min-h-screen bg-background">
-      <DashboardHeader />
-
-      <main className="p-6 lg:p-8">
+    <main className="p-6 lg:p-8">
         <div className="max-w-7xl mx-auto space-y-8">
           {/* Header */}
           <div>
@@ -63,7 +59,6 @@ export default function AccountingPage() {
           {/* Payments table */}
           <PaymentsTable />
         </div>
-      </main>
-    </div>
+    </main>
   )
 }
