@@ -11,17 +11,25 @@ import {
   TableRow,
 } from '@/components/ui/table'
 
-// Mock payments data
-const mockPayments = [
-  { id: 1, name: 'John Smith', amount: 150, payment_method: 'Card', status: 'completed', payment_date: new Date().toISOString() },
-  { id: 2, name: 'Sarah Johnson', amount: 500, payment_method: 'Cash', status: 'completed', payment_date: new Date(Date.now() - 86400000).toISOString() },
-  { id: 3, name: 'Mike Davis', amount: 75, payment_method: 'Bank Transfer', status: 'pending', payment_date: new Date(Date.now() - 172800000).toISOString() },
-  { id: 4, name: 'Emma Wilson', amount: 300, payment_method: 'Card', status: 'completed', payment_date: new Date(Date.now() - 259200000).toISOString() },
-  { id: 5, name: 'David Brown', amount: 200, payment_method: 'Card', status: 'completed', payment_date: new Date(Date.now() - 345600000).toISOString() },
-]
+export interface Payment {
+  id: number
+  name: string
+  amount: number
+  payment_method: string
+  status: string
+  payment_date: string
+}
 
-export function PaymentsTable() {
-  const payments = mockPayments; // Declare the payments variable
+interface PaymentsTableProps {
+  payments: Payment[]
+}
+
+function formatPaymentMethod(method: string): string {
+  if (method === 'bank_transfer') return 'Bank Transfer'
+  return method.charAt(0).toUpperCase() + method.slice(1)
+}
+
+export function PaymentsTable({ payments }: PaymentsTableProps) {
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -53,12 +61,12 @@ export function PaymentsTable() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {mockPayments.length > 0 ? (
-                mockPayments.map((payment: any) => (
+              {payments.length > 0 ? (
+                payments.map((payment) => (
                   <TableRow key={payment.id} className="border-border hover:bg-secondary/50">
                     <TableCell className="font-medium">{payment.name}</TableCell>
                     <TableCell className="font-medium text-primary">${payment.amount}</TableCell>
-                    <TableCell className="text-muted-foreground">{payment.payment_method}</TableCell>
+                    <TableCell className="text-muted-foreground">{formatPaymentMethod(payment.payment_method)}</TableCell>
                     <TableCell>{getStatusBadge(payment.status)}</TableCell>
                     <TableCell className="text-muted-foreground">
                       {new Date(payment.payment_date).toLocaleDateString()}

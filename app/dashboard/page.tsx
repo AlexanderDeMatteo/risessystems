@@ -1,5 +1,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Users, Scan, DollarSign, TrendingUp } from 'lucide-react'
+import { SalesChart } from '@/components/dashboard/sales-chart'
+import { MemberInsights } from '@/components/dashboard/member-insights'
+import { RevenueChart } from '@/components/accounting/revenue-chart'
+import { RecentActivity } from '@/components/dashboard/recent-activity'
+import { QuickActions } from '@/components/dashboard/quick-actions'
 
 export default function DashboardPage() {
   const kpis = [
@@ -45,6 +50,19 @@ export default function DashboardPage() {
             })}
           </div>
 
+          {/* Charts Row 1: Sales + Member Insights */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2">
+              <SalesChart />
+            </div>
+            <div>
+              <MemberInsights />
+            </div>
+          </div>
+
+          {/* Chart Row 2: Revenue Trend */}
+          <RevenueChart />
+
           {/* Summary Stats */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Card className="border border-border/50 hover:border-primary/30 hover:shadow-lg transition-all duration-300">
@@ -74,6 +92,12 @@ export default function DashboardPage() {
                 <p className="text-xs text-muted-foreground mt-2">Operational locations</p>
               </CardContent>
             </Card>
+          </div>
+
+          {/* Recent Activity + Quick Actions */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <RecentActivity />
+            <QuickActions />
           </div>
         </div>
     </main>

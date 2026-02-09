@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { PlansHeader } from '@/components/plans/plans-header'
 import { PlansTable, MOCK_PLANS, type MembershipPlan } from '@/components/plans/plans-table'
-import { AddPlanDialog } from '@/components/plans/add-plan-dialog'
+import { AddPlanDialog, type AddPlanFormData } from '@/components/plans/add-plan-dialog'
 import { EditPlanDialog } from '@/components/plans/edit-plan-dialog'
 import { DeletePlanDialog } from '@/components/plans/delete-plan-dialog'
 import { Card } from '@/components/ui/card'
@@ -37,6 +37,19 @@ export default function PlansPage() {
     setPlans((prev) => prev.filter((p) => p.id !== plan.id))
   }
 
+  const handleAddPlan = (data: AddPlanFormData) => {
+    const newId = plans.length > 0 ? Math.max(...plans.map((p) => p.id)) + 1 : 1
+    const newPlan: MembershipPlan = {
+      id: newId,
+      name: data.name,
+      description: data.description || null,
+      price: data.price,
+      duration_days: data.duration_days,
+      is_active: true,
+    }
+    setPlans((prev) => [...prev, newPlan])
+  }
+
   return (
     <main className="p-6 lg:p-8">
         <div className="max-w-7xl mx-auto space-y-6">
@@ -64,7 +77,7 @@ export default function PlansPage() {
             />
           </Card>
 
-          <AddPlanDialog isOpen={isAddDialogOpen} onOpenChange={setIsAddDialogOpen} />
+          <AddPlanDialog isOpen={isAddDialogOpen} onOpenChange={setIsAddDialogOpen} onPlanAdded={handleAddPlan} />
           <EditPlanDialog
             isOpen={isEditDialogOpen}
             onOpenChange={setIsEditDialogOpen}

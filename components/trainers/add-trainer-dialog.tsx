@@ -11,11 +11,12 @@ import { TrainerForm, type TrainerFormData } from './trainer-form'
 interface AddTrainerDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
+  onTrainerAdded?: (data: TrainerFormData) => void
 }
 
-export function AddTrainerDialog({ open, onOpenChange }: AddTrainerDialogProps) {
+export function AddTrainerDialog({ open, onOpenChange, onTrainerAdded }: AddTrainerDialogProps) {
   const handleSubmit = (data: TrainerFormData) => {
-    // Demo: just close the dialog (replace with API call when ready)
+    onTrainerAdded?.(data)
     onOpenChange(false)
   }
 

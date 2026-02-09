@@ -15,19 +15,30 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
+export interface AddMemberFormData {
+  firstName: string
+  lastName: string
+  email: string
+  phone: string
+  membershipType: string
+}
+
 interface AddMemberDialogProps {
   isOpen: boolean
   onOpenChange: (open: boolean) => void
+  onMemberAdded?: (data: AddMemberFormData) => void
 }
 
-export function AddMemberDialog({ isOpen, onOpenChange }: AddMemberDialogProps) {
-  const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
-    membershipType: 'standard',
-  })
+const initialFormData: AddMemberFormData = {
+  firstName: '',
+  lastName: '',
+  email: '',
+  phone: '',
+  membershipType: 'standard',
+}
+
+export function AddMemberDialog({ isOpen, onOpenChange, onMemberAdded }: AddMemberDialogProps) {
+  const [formData, setFormData] = useState<AddMemberFormData>(initialFormData)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -36,16 +47,9 @@ export function AddMemberDialog({ isOpen, onOpenChange }: AddMemberDialogProps) 
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    // In production, this would call the API
-    console.log('Adding member:', formData)
+    onMemberAdded?.(formData)
     onOpenChange(false)
-    setFormData({
-      firstName: '',
-      lastName: '',
-      email: '',
-      phone: '',
-      membershipType: 'standard',
-    })
+    setFormData(initialFormData)
   }
 
   return (

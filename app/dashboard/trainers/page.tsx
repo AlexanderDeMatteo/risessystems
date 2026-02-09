@@ -5,7 +5,9 @@ import { TrainersHeader } from '@/components/trainers/trainers-header'
 import { TrainersTable } from '@/components/trainers/trainers-table'
 import { AddTrainerDialog } from '@/components/trainers/add-trainer-dialog'
 import { PrimaryTrainerCard } from '@/components/trainers/primary-trainer-card'
+import { MOCK_BRANCHES } from '@/components/trainers/trainer-form'
 import type { Trainer } from '@/components/trainers/edit-trainer-dialog'
+import type { TrainerFormData } from '@/components/trainers/trainer-form'
 
 const initialTrainers: Trainer[] = [
   { id: 1, name: 'Carlos Martinez', email: 'carlos@gym.com', phone: '555-0001', specialties: 'CrossFit, Strength', branch: 'Downtown Branch', status: 'active', isPrimary: true },
@@ -36,6 +38,29 @@ export default function TrainersPage() {
       const next = { ...prev }
       delete next[branch]
       return next
+    })
+  }, [])
+
+  const handleTrainerAdded = useCallback((data: TrainerFormData) => {
+    const branchName = MOCK_BRANCHES.find((b) => b.id === data.branchId)?.name ?? ''
+    setTrainers((prev) => {
+      const nextId = Math.max(0, ...prev.map((t) => t.id)) + 1
+      const newTrainer: Trainer = {
+        id: nextId,
+        name: data.name,
+        email: data.email,
+        phone: data.phone,
+        specialties: data.specialties,
+        branch: branchName,
+        status: data.status,
+        isPrimary: data.isPrimaryForBranch,
+        hireDate: data.hireDate || undefined,
+        notes: data.notes || undefined,
+      }
+      if (data.isPrimaryForBranch && branchName) {
+        setPrimaryTrainerByBranch((p) => ({ ...p, [branchName]: nextId }))
+      }
+      return [...prev, newTrainer]
     })
   }, [])
 
@@ -70,7 +95,11 @@ export default function TrainersPage() {
             </div>
           </div>
 
-          <AddTrainerDialog open={isDialogOpen} onOpenChange={setIsDialogOpen} />
+          <AddTrainerDialog
+            open={isDialogOpen}
+            onOpenChange={setIsDialogOpen}
+            onTrainerAdded={handleTrainerAdded}
+          />
         </div>
     </main>
   )

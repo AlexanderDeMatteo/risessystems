@@ -12,22 +12,49 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Edit, Trash2 } from 'lucide-react'
 
+export interface Member {
+  id: number
+  name: string
+  email: string
+  phone: string
+  membership_type: string
+  status: string
+  /** ISO date YYYY-MM-DD */
+  join_date?: string
+  /** ISO date YYYY-MM-DD */
+  expiry_date?: string
+}
+
+/** Days until expiry; negative if already expired */
+export function getDaysRemaining(expiryDate?: string): number | null {
+  if (!expiryDate) return null
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const expiry = new Date(expiryDate)
+  expiry.setHours(0, 0, 0, 0)
+  return Math.ceil((expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+}
+
+export type RenewalPrediction = 'likely' | 'uncertain' | 'at_risk'
+
+/** Simple rules-based renewal prediction */
+export function getRenewalPrediction(member: Member): RenewalPrediction {
+  const days = getDaysRemaining(member.expiry_date)
+  if (days === null) return 'uncertain'
+  if (days < 0) return 'at_risk'
+  if (member.status === 'inactive') return 'at_risk'
+  if (days <= 7) return 'uncertain'
+  return 'likely'
+}
+
 interface MembersTableProps {
+  members: Member[]
   searchTerm: string
   filterStatus: string
 }
 
-// Mock members data
-const mockMembers = [
-  { id: 1, name: 'John Smith', email: 'john@example.com', phone: '555-0001', membership_type: 'premium', status: 'active' },
-  { id: 2, name: 'Sarah Johnson', email: 'sarah@example.com', phone: '555-0002', membership_type: 'standard', status: 'active' },
-  { id: 3, name: 'Mike Davis', email: 'mike@example.com', phone: '555-0003', membership_type: 'basic', status: 'suspended' },
-  { id: 4, name: 'Emma Wilson', email: 'emma@example.com', phone: '555-0004', membership_type: 'premium', status: 'active' },
-  { id: 5, name: 'David Brown', email: 'david@example.com', phone: '555-0005', membership_type: 'standard', status: 'inactive' },
-]
-
-export function MembersTable({ searchTerm, filterStatus }: MembersTableProps) {
-  const filteredMembers = mockMembers.filter((member: any) => {
+export function MembersTable({ members, searchTerm, filterStatus }: MembersTableProps) {
+  const filteredMembers = members.filter((member: Member) => {
     const matchesSearch =
       member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       member.email.toLowerCase().includes(searchTerm.toLowerCase())
@@ -64,6 +91,29 @@ export function MembersTable({ searchTerm, filterStatus }: MembersTableProps) {
     }
   }
 
+  const formatDaysRemaining = (expiryDate?: string) => {
+    const days = getDaysRemaining(expiryDate)
+    if (days === null) return '—'
+    if (days < 0) return <span className="text-destructive font-medium">Expired {Math.abs(days)}d ago</span>
+    if (days === 0) return <span className="text-amber-500 font-medium">Today</span>
+    if (days <= 7) return <span className="text-amber-500 font-medium">{days} days</span>
+    return <span className="text-muted-foreground">{days} days</span>
+  }
+
+  const getRenewalBadge = (member: Member) => {
+    const pred = getRenewalPrediction(member)
+    switch (pred) {
+      case 'likely':
+        return <Badge className="bg-green-900/80 text-green-100 border-green-600/50">Likely to renew</Badge>
+      case 'uncertain':
+        return <Badge className="bg-amber-900/80 text-amber-100 border-amber-600/50">Uncertain</Badge>
+      case 'at_risk':
+        return <Badge className="bg-red-900/80 text-red-100 border-red-600/50">At risk</Badge>
+      default:
+        return null
+    }
+  }
+
   return (
     <div className="overflow-x-auto rounded-lg border border-border/50">
       <Table>
@@ -74,18 +124,22 @@ export function MembersTable({ searchTerm, filterStatus }: MembersTableProps) {
             <TableHead className="uppercase text-xs tracking-wider text-muted-foreground">Phone</TableHead>
             <TableHead className="uppercase text-xs tracking-wider text-muted-foreground">Membership</TableHead>
             <TableHead className="uppercase text-xs tracking-wider text-muted-foreground">Status</TableHead>
+            <TableHead className="uppercase text-xs tracking-wider text-muted-foreground">Days left</TableHead>
+            <TableHead className="uppercase text-xs tracking-wider text-muted-foreground">Renewal</TableHead>
             <TableHead className="text-right uppercase text-xs tracking-wider text-muted-foreground">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {filteredMembers.length > 0 ? (
-            filteredMembers.map((member: any) => (
+            filteredMembers.map((member: Member) => (
               <TableRow key={member.id} className="border-border/50 hover:bg-secondary/30 transition-colors duration-200">
                 <TableCell className="font-medium font-mono">{member.name}</TableCell>
                 <TableCell className="text-muted-foreground font-mono text-sm">{member.email}</TableCell>
                 <TableCell className="text-muted-foreground font-mono text-sm">{member.phone || '-'}</TableCell>
                 <TableCell>{getMembershipBadge(member.membership_type)}</TableCell>
                 <TableCell>{getStatusBadge(member.status)}</TableCell>
+                <TableCell>{formatDaysRemaining(member.expiry_date)}</TableCell>
+                <TableCell>{getRenewalBadge(member)}</TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-2">
                     <Button variant="ghost" size="sm" className="hover:bg-secondary">
@@ -100,7 +154,7 @@ export function MembersTable({ searchTerm, filterStatus }: MembersTableProps) {
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+              <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
                 No members found
               </TableCell>
             </TableRow>

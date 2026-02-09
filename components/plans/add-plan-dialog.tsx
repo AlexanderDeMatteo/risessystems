@@ -14,9 +14,17 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
+export interface AddPlanFormData {
+  name: string
+  description: string
+  price: number
+  duration_days: number
+}
+
 interface AddPlanDialogProps {
   isOpen: boolean
   onOpenChange: (open: boolean) => void
+  onPlanAdded?: (data: AddPlanFormData) => void
 }
 
 const DURATION_OPTIONS = [
@@ -26,7 +34,7 @@ const DURATION_OPTIONS = [
   { value: 365, label: '1 year' },
 ]
 
-export function AddPlanDialog({ isOpen, onOpenChange }: AddPlanDialogProps) {
+export function AddPlanDialog({ isOpen, onOpenChange, onPlanAdded }: AddPlanDialogProps) {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -41,11 +49,13 @@ export function AddPlanDialog({ isOpen, onOpenChange }: AddPlanDialogProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    // Demo: would call API when backend is ready
-    console.log('Adding plan:', {
-      ...formData,
+    const payload: AddPlanFormData = {
+      name: formData.name.trim(),
+      description: formData.description.trim() || '',
       price: parseFloat(formData.price),
-    })
+      duration_days: formData.duration_days,
+    }
+    onPlanAdded?.(payload)
     onOpenChange(false)
     setFormData({
       name: '',

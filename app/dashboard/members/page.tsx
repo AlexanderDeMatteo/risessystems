@@ -1,15 +1,43 @@
 'use client'
 
-import { useState } from 'react'
-import { MembersTable } from '@/components/members/members-table'
+import { useState, useCallback } from 'react'
+import { MembersTable, type Member } from '@/components/members/members-table'
 import { MembersHeader } from '@/components/members/members-header'
-import { AddMemberDialog } from '@/components/members/add-member-dialog'
+import { AddMemberDialog, type AddMemberFormData } from '@/components/members/add-member-dialog'
 import { Card } from '@/components/ui/card'
+import { getInitialMembers } from '@/lib/initial-members'
+
+function addDays(isoDate: string, days: number): string {
+  const d = new Date(isoDate)
+  d.setDate(d.getDate() + days)
+  return d.toISOString().slice(0, 10)
+}
 
 export default function MembersPage() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
   const [filterStatus, setFilterStatus] = useState('all')
+  const [members, setMembers] = useState<Member[]>(() => getInitialMembers())
+
+  const handleMemberAdded = useCallback((data: AddMemberFormData) => {
+    setMembers((prev) => {
+      const nextId = Math.max(0, ...prev.map((m) => m.id)) + 1
+      const joinDate = new Date().toISOString().slice(0, 10)
+      const durationDays = data.membershipType === 'premium' ? 365 : data.membershipType === 'standard' ? 90 : 30
+      const expiryDate = addDays(joinDate, durationDays)
+      const newMember: Member = {
+        id: nextId,
+        name: [data.firstName, data.lastName].filter(Boolean).join(' ').trim() || 'Unknown',
+        email: data.email,
+        phone: data.phone || '',
+        membership_type: data.membershipType,
+        status: 'active',
+        join_date: joinDate,
+        expiry_date: expiryDate,
+      }
+      return [...prev, newMember]
+    })
+  }, [])
 
   return (
     <main className="p-6 lg:p-8">
@@ -34,6 +62,7 @@ export default function MembersPage() {
           {/* Members table */}
           <Card className="bg-card border-border">
             <MembersTable
+              members={members}
               searchTerm={searchTerm}
               filterStatus={filterStatus}
             />
@@ -43,6 +72,7 @@ export default function MembersPage() {
           <AddMemberDialog
             isOpen={isAddDialogOpen}
             onOpenChange={setIsAddDialogOpen}
+            onMemberAdded={handleMemberAdded}
           />
         </div>
     </main>

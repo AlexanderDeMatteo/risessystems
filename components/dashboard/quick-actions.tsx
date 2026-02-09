@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Plus, QrCode, Users, CreditCard } from 'lucide-react'
@@ -10,24 +11,28 @@ const actions = [
     label: 'Add Member',
     description: 'Register a new member',
     color: 'bg-blue-500/10 text-blue-400',
+    href: '/dashboard/members',
   },
   {
     icon: QrCode,
     label: 'QR Scanner',
     description: 'Scan member access',
     color: 'bg-emerald-500/10 text-emerald-400',
+    href: '/dashboard/qr-scanner',
   },
   {
     icon: CreditCard,
     label: 'Process Payment',
     description: 'Record a transaction',
     color: 'bg-purple-500/10 text-purple-400',
+    href: '/dashboard/accounting',
   },
   {
     icon: Users,
     label: 'View Reports',
     description: 'Access analytics',
     color: 'bg-amber-500/10 text-amber-400',
+    href: '/dashboard/accounting',
   },
 ]
 
@@ -42,19 +47,20 @@ export function QuickActions() {
           {actions.map((action, index) => {
             const Icon = action.icon
             return (
-              <Button
-                key={index}
-                variant="outline"
-                className="h-24 flex flex-col items-center justify-center gap-2 border-border hover:border-primary/50 hover:bg-secondary/50 transition-colors bg-transparent"
-              >
-                <div className={`p-2 rounded-lg ${action.color}`}>
-                  <Icon className="w-5 h-5" />
-                </div>
-                <div className="text-center">
-                  <p className="text-sm font-medium text-foreground">{action.label}</p>
-                  <p className="text-xs text-muted-foreground">{action.description}</p>
-                </div>
-              </Button>
+              <Link key={index} href={action.href}>
+                <Button
+                  variant="outline"
+                  className="h-24 w-full flex flex-col items-center justify-center gap-2 border-border hover:border-primary/50 hover:bg-secondary/50 transition-colors bg-transparent"
+                >
+                  <div className={`p-2 rounded-lg ${action.color}`}>
+                    <Icon className="w-5 h-5" />
+                  </div>
+                  <div className="text-center">
+                    <p className="text-sm font-medium text-foreground">{action.label}</p>
+                    <p className="text-xs text-muted-foreground">{action.description}</p>
+                  </div>
+                </Button>
+              </Link>
             )
           })}
         </div>
