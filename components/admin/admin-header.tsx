@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Bell, User, Settings, LayoutDashboard, Building2, BarChart3, DollarSign, LogOut } from 'lucide-react'
+import { Bell, User, Settings, LayoutDashboard, Building2, BarChart3, DollarSign, CreditCard, LogOut } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -20,6 +20,7 @@ export function AdminHeader() {
   const navItems = [
     { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/admin/clients', label: 'Clients', icon: Building2 },
+    { href: '/admin/plans', label: 'Plans & Pricing', icon: CreditCard },
     { href: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
     { href: '/admin/accounting', label: 'Accounting', icon: DollarSign },
   ]

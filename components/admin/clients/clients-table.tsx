@@ -12,59 +12,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Edit, Trash2 } from 'lucide-react'
-
-const mockClients = [
-  {
-    id: 1,
-    name: 'FitZone Gym',
-    email: 'admin@fitzone.com',
-    phone: '555-0001',
-    branches: 3,
-    activeUsers: 245,
-    status: 'active',
-    joinDate: '2023-01-15',
-  },
-  {
-    id: 2,
-    name: "Gold's Fitness",
-    email: 'admin@golds.com',
-    phone: '555-0002',
-    branches: 5,
-    activeUsers: 412,
-    status: 'active',
-    joinDate: '2022-06-20',
-  },
-  {
-    id: 3,
-    name: 'BodyPower Gym',
-    email: 'info@bodypower.com',
-    phone: '555-0003',
-    branches: 2,
-    activeUsers: 178,
-    status: 'active',
-    joinDate: '2023-03-10',
-  },
-  {
-    id: 4,
-    name: 'Elite Sports Club',
-    email: 'hello@elite.com',
-    phone: '555-0004',
-    branches: 4,
-    activeUsers: 389,
-    status: 'active',
-    joinDate: '2022-11-05',
-  },
-  {
-    id: 5,
-    name: 'CrossFit HQ',
-    email: 'contact@crossfit.com',
-    phone: '555-0005',
-    branches: 1,
-    activeUsers: 95,
-    status: 'inactive',
-    joinDate: '2024-01-01',
-  },
-]
+import { MOCK_CLIENTS } from '@/lib/mocks/clients'
 
 export function ClientsTable() {
   return (
@@ -83,7 +31,7 @@ export function ClientsTable() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {mockClients.map(client => (
+            {MOCK_CLIENTS.map(client => (
               <TableRow key={client.id} className="border-border hover:bg-secondary/50">
                 <TableCell className="font-medium">{client.name}</TableCell>
                 <TableCell className="text-muted-foreground text-sm">{client.email}</TableCell>

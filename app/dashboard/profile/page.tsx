@@ -2,7 +2,8 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Mail, Phone, MapPin, Building, Shield, CheckCircle } from 'lucide-react'
+import { Mail, Phone, MapPin, Building, Shield, CheckCircle, CreditCard, Calendar, Users } from 'lucide-react'
+import { getMySubscription } from '@/lib/mocks/platform-plans'
 
 export default function ProfilePage() {
   const user = {
@@ -11,9 +12,9 @@ export default function ProfilePage() {
     phone: '+1 (555) 123-4567',
     gym: 'Gymnastics Pro',
     location: 'New York, NY',
-    plan: 'Premium',
     joinDate: 'January 15, 2024',
   }
+  const subscription = getMySubscription()
 
   return (
     <main className="p-6 lg:p-8">
@@ -78,7 +79,33 @@ export default function ProfilePage() {
                       <Building className="w-5 h-5 text-success mt-1" />
                       <div>
                         <p className="text-xs text-muted-foreground uppercase tracking-wider">Plan</p>
-                        <p className="text-sm font-mono text-success mt-1">{user.plan}</p>
+                        <p className="text-sm font-mono text-success mt-1">{subscription.planName}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-4">
+                      <CreditCard className="w-5 h-5 text-success mt-1" />
+                      <div>
+                        <p className="text-xs text-muted-foreground uppercase tracking-wider">Price (monthly)</p>
+                        <p className="text-sm font-mono text-success mt-1">${subscription.priceMonthly}/mo</p>
+                        {subscription.priceBreakdown && subscription.priceBreakdown.overage > 0 && (
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            Base ${subscription.priceBreakdown.base} + ${subscription.priceBreakdown.overage} overage (users over 300)
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-4">
+                      <Calendar className="w-5 h-5 text-success mt-1" />
+                      <div>
+                        <p className="text-xs text-muted-foreground uppercase tracking-wider">Next billing</p>
+                        <p className="text-sm font-mono text-success mt-1">{subscription.nextBillingDate}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-4">
+                      <Users className="w-5 h-5 text-success mt-1" />
+                      <div>
+                        <p className="text-xs text-muted-foreground uppercase tracking-wider">Based on active members</p>
+                        <p className="text-sm font-mono text-success mt-1">{subscription.activeMembersCount} active members</p>
                       </div>
                     </div>
                     <div className="flex items-start gap-4">
