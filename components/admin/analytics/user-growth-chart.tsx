@@ -2,15 +2,7 @@
 
 import { Card } from '@/components/ui/card'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
-
-const data = [
-  { month: 'Jan', newUsers: 240, activeUsers: 1200, churn: 45 },
-  { month: 'Feb', newUsers: 280, activeUsers: 1450, churn: 52 },
-  { month: 'Mar', newUsers: 320, activeUsers: 1680, churn: 58 },
-  { month: 'Apr', newUsers: 350, activeUsers: 1920, churn: 62 },
-  { month: 'May', newUsers: 410, activeUsers: 2150, churn: 65 },
-  { month: 'Jun', newUsers: 480, activeUsers: 2451, churn: 68 },
-]
+import { MOCK_USER_GROWTH_DATA } from '@/lib/mocks/admin-charts'
 
 export function UserGrowthChart() {
   return (
@@ -22,7 +14,7 @@ export function UserGrowthChart() {
         </div>
 
         <ResponsiveContainer width="100%" height={350}>
-          <BarChart data={data} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
+          <BarChart data={MOCK_USER_GROWTH_DATA} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
             <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" />
             <YAxis stroke="hsl(var(--muted-foreground))" />

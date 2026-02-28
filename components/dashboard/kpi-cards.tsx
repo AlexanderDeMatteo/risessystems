@@ -54,7 +54,7 @@ export function KPICards() {
               <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
                 {kpi.title}
               </CardTitle>
-              <div className={`p-2 rounded-lg ${kpi.color} transition-all duration-300 group-hover:shadow-[0_0_12px_rgba(163,230,53,0.3)]`}>
+              <div className={`p-2 rounded-lg ${kpi.color} transition-all duration-300 group-hover:shadow-[0_0_12px_hsl(var(--primary)_/_0.3)]`}>
                 {kpi.icon}
               </div>
             </div>

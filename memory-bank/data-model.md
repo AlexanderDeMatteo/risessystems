@@ -1,30 +1,40 @@
 # Modelo de Datos — RisesSystem
 
 ## Proveedor
-**Neon** (PostgreSQL serverless). Paquete: `@neondatabase/serverless`.
+**Supabase** (PostgreSQL + Auth + Storage + Realtime). Clientes en `lib/supabase/` (browser, server, middleware). Autenticación con Supabase Auth; tabla `public.users` enlazada por `auth_user_id` a `auth.users`.
 
 ## Scripts de migración
-Ubicados en `scripts/`, numerados para ejecutar en orden:
+Ubicados en `scripts/`. Ejecutar en orden (ver `scripts/README.md`). No usar `04` (check_ins ya en 02).
 
-| Script | Tabla(s) |
-|--------|----------|
-| `01-create-users-table.sql` | `users`, `sessions` |
-| `02-create-members-table.sql` | `members`, `check_ins` |
-| `03-create-accounting-table.sql` | `payments`, `revenue_summary` |
-| `04-create-checkins-table.sql` | (Nota: `check_ins` ya está en 02; revisar si este script agrega algo adicional) |
+| Script | Tabla(s) / propósito |
+|--------|----------------------|
+| 01 | `users`, `sessions` |
+| 02 | `members`, `check_ins` |
+| 03 | `payments`, `revenue_summary` |
+| 05 | `branches` |
+| 06 | `trainers` |
+| 07 | `trainer_members` |
+| 08 | `membership_plans` |
+| 09 | ALTER `members`: branch_id, auth_user_id |
+| 10 | ALTER `trainers`: auth_user_id |
+| 11 | ALTER `users`: auth_user_id |
+| 13 | ALTER `users`: password_hash nullable |
+| 12 | RLS en todas las tablas |
+| 14 | Políticas Storage (avatars, exercises, progress-photos) |
 
 ---
 
 ## Tablas
 
 ### users
-Almacena dueños de gimnasios y administradores.
+Dueños de gimnasios y administradores. Vinculados a Supabase Auth por `auth_user_id` (UUID → auth.users.id).
 
 | Columna | Tipo | Notas |
 |---------|------|-------|
 | id | SERIAL PK | — |
+| auth_user_id | UUID UNIQUE | FK implícita a auth.users (opcional) |
 | email | VARCHAR(255) UNIQUE | Login principal |
-| password_hash | VARCHAR(255) | Hash con bcrypt |
+| password_hash | VARCHAR(255) | Nullable si solo se usa Auth |
 | name | VARCHAR(255) | Nombre completo |
 | gym_name | VARCHAR(255) | Nombre del gimnasio (nullable) |
 | role | VARCHAR(50) | `'owner'` (default) o `'admin'` |
@@ -32,7 +42,7 @@ Almacena dueños de gimnasios y administradores.
 | created_at | TIMESTAMP | — |
 | updated_at | TIMESTAMP | — |
 
-**Índice:** `idx_users_email` sobre `email`.
+**Índices:** `idx_users_email`, `idx_users_auth_user_id`.
 
 ### sessions
 Sesiones de autenticación.
@@ -63,11 +73,13 @@ Miembros del gimnasio. Cada miembro pertenece a un user (gym owner).
 | join_date | DATE | — |
 | expiry_date | DATE | Nullable |
 | qr_code | VARCHAR(255) UNIQUE | Código QR para check-in |
+| branch_id | INTEGER FK → branches(id) | Opcional (script 09) |
+| auth_user_id | UUID | Opcional, para app móvil (script 09) |
 | notes | TEXT | — |
 | created_at | TIMESTAMP | — |
 | updated_at | TIMESTAMP | — |
 
-**Índices:** `idx_members_user_id`, `idx_members_qr_code`, `idx_members_status`.
+**Índices:** `idx_members_user_id`, `idx_members_qr_code`, `idx_members_status`, `idx_members_branch_id`.
 
 ### check_ins
 Registro de entradas/salidas de miembros.
@@ -84,7 +96,7 @@ Registro de entradas/salidas de miembros.
 **Índices:** `idx_checkins_member_id`, `idx_checkins_time`.
 
 ### payments
-Pagos individuales.
+Pagos individuales. Usado por el dashboard (overview y accounting) vía `app/actions/payments.ts` (`getPayments`, `createPayment`). Join a `members` por `member_id` para mostrar nombre en listados.
 
 | Columna | Tipo | Notas |
 |---------|------|-------|
@@ -120,6 +132,45 @@ Resumen diario de ingresos por gym owner.
 **Constraint:** UNIQUE(user_id, summary_date).
 **Índices:** `idx_revenue_user_id`, `idx_revenue_date`.
 
+### branches
+Sedes del gimnasio (script 05).
+
+| Columna | Tipo | Notas |
+|---------|------|-------|
+| id | SERIAL PK | — |
+| user_id | INTEGER FK → users(id) | ON DELETE CASCADE |
+| name | VARCHAR(255) | — |
+| address | TEXT | Nullable |
+| phone | VARCHAR(50) | Nullable |
+| email | VARCHAR(255) | Nullable |
+| is_active | BOOLEAN | Default true |
+| created_at, updated_at | TIMESTAMP | — |
+
+### trainers
+Entrenadores (script 06). Opcionalmente asignados a una sede.
+
+| Columna | Tipo | Notas |
+|---------|------|-------|
+| id | SERIAL PK | — |
+| user_id | INTEGER FK → users(id) | ON DELETE CASCADE |
+| branch_id | INTEGER FK → branches(id) | ON DELETE SET NULL, nullable |
+| name | VARCHAR(255) | — |
+| email | VARCHAR(255) | — |
+| phone | VARCHAR(50) | Nullable |
+| specialties | TEXT | Nullable |
+| status | VARCHAR(50) | Default 'active' |
+| is_primary | BOOLEAN | Default false |
+| hire_date | DATE | Nullable |
+| avatar_url | TEXT | Nullable (Storage) |
+| auth_user_id | UUID | Opcional (script 10) |
+| created_at, updated_at | TIMESTAMP | — |
+
+### trainer_members
+Asignación miembro–entrenador (script 07). UNIQUE(trainer_id, member_id).
+
+### membership_plans
+Planes de membresía por gym owner (script 08). Conectado a `/dashboard/plans`.
+
 ---
 
 ## Diagrama de relaciones
@@ -129,34 +180,28 @@ users (1) ──→ (N) sessions
 users (1) ──→ (N) members
 users (1) ──→ (N) payments
 users (1) ──→ (N) revenue_summary
+users (1) ──→ (N) branches
+users (1) ──→ (N) trainers
+users (1) ──→ (N) membership_plans
 members (1) ──→ (N) check_ins
 members (1) ──→ (N) payments (nullable FK)
+members ──→ branch_id (nullable)
+trainers ──→ branch_id (nullable)
+trainer_members: trainers ↔ members
 ```
 
 ---
 
-## Tablas planeadas (no implementadas)
+## Seguridad y servicios
 
-### membership_plans
-Gestión de planes de membresía por gym owner. Diseñada para integración futura.
-
-| Columna | Tipo | Notas |
-|---------|------|-------|
-| id | SERIAL PK | — |
-| user_id | INTEGER FK → users(id) | ON DELETE CASCADE |
-| name | VARCHAR(100) | Nombre del plan |
-| description | TEXT | Opcional |
-| price | DECIMAL(10,2) | Precio |
-| duration_days | INTEGER | 30, 90, 365... |
-| is_active | BOOLEAN | Default true |
-| created_at, updated_at | TIMESTAMP | — |
-
-**Frontend:** La pestaña Plans (`/dashboard/plans`) usa datos mock. Ver `components/plans/`.
+- **RLS:** Todas las tablas tienen RLS (script 12). Función `get_my_user_id()` devuelve `users.id` del `auth.uid()` actual.
+- **Storage:** Buckets `avatars`, `exercises`, `progress-photos` con políticas por carpeta `auth.uid()` (script 14). Ver `memory-bank/storage-setup.md`.
+- **Realtime:** Suscripción a `check_ins` para historial en vivo en QR Scanner. Habilitar en Dashboard → Database → Replication. Ver `memory-bank/realtime-setup.md`.
 
 ---
 
 ## Notas
-- Todas las tablas usan `SERIAL` como PK (autoincremental).
+- Todas las tablas usan `SERIAL` como PK.
 - Timestamps con `DEFAULT CURRENT_TIMESTAMP`.
-- Las relaciones usan `ON DELETE CASCADE` salvo `payments.member_id` que usa `ON DELETE SET NULL`.
-- Nuevas tablas deben seguir el mismo patrón: script numerado en `scripts/`, FK con cascada, índices en columnas de búsqueda frecuente.
+- Relaciones con `ON DELETE CASCADE` salvo donde se indica SET NULL.
+- Tipos TypeScript en `lib/types/`. Server Actions en `app/actions/`.

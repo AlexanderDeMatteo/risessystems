@@ -13,13 +13,9 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Checkbox } from '@/components/ui/checkbox'
+import { MOCK_BRANCHES } from '@/lib/mocks/branches'
 
-export const MOCK_BRANCHES = [
-  { id: '1', name: 'Downtown Branch' },
-  { id: '2', name: 'Westside Branch' },
-  { id: '3', name: 'Airport Branch' },
-  { id: '4', name: 'North Branch' },
-] as const
+export type BranchOption = { id: string; name: string }
 
 export interface TrainerFormData {
   name: string
@@ -52,6 +48,7 @@ interface TrainerFormProps {
   onSubmit: (data: TrainerFormData) => void
   onCancel: () => void
   submitLabel: string
+  branchOptions?: BranchOption[]
 }
 
 export function TrainerForm({
@@ -60,7 +57,9 @@ export function TrainerForm({
   onSubmit,
   onCancel,
   submitLabel,
+  branchOptions,
 }: TrainerFormProps) {
+  const branches = branchOptions ?? MOCK_BRANCHES
   const [formData, setFormData] = useState<TrainerFormData>({
     ...emptyFormData,
     ...initialData,
@@ -143,7 +142,7 @@ export function TrainerForm({
             <SelectValue placeholder="Select branch" />
           </SelectTrigger>
           <SelectContent>
-            {MOCK_BRANCHES.map((branch) => (
+            {branches.map((branch) => (
               <SelectItem key={branch.id} value={branch.id}>
                 {branch.name}
               </SelectItem>

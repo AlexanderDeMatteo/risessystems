@@ -3,14 +3,18 @@
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend } from 'recharts'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
-const membershipData = [
-  { name: 'Premium', value: 340, color: '#3B82F6' },
-  { name: 'Standard', value: 380, color: '#10B981' },
-  { name: 'Basic', value: 127, color: '#F59E0B' },
-]
+export type MembershipPieSegment = {
+  name: string
+  value: number
+  color: string
+}
 
-export function MemberInsights() {
-  const total = membershipData.reduce((sum, item) => sum + item.value, 0)
+interface MemberInsightsProps {
+  data?: MembershipPieSegment[]
+}
+
+export function MemberInsights({ data = [] }: MemberInsightsProps) {
+  const total = data.reduce((sum, item) => sum + item.value, 0)
 
   return (
     <Card className="bg-card border-border">
@@ -22,7 +26,7 @@ export function MemberInsights() {
           <ResponsiveContainer width="100%" height={200}>
             <PieChart>
               <Pie
-                data={membershipData}
+                data={data}
                 cx="50%"
                 cy="50%"
                 innerRadius={50}
@@ -30,7 +34,7 @@ export function MemberInsights() {
                 paddingAngle={2}
                 dataKey="value"
               >
-                {membershipData.map((entry, index) => (
+                {data.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={entry.color} />
                 ))}
               </Pie>
@@ -38,7 +42,7 @@ export function MemberInsights() {
           </ResponsiveContainer>
 
           <div className="space-y-3">
-            {membershipData.map((item, index) => (
+            {data.map((item, index) => (
               <div key={index} className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <div

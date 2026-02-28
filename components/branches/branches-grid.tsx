@@ -5,54 +5,25 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { MapPin, Phone, Mail, Users, Edit, Trash2 } from 'lucide-react'
 
-// Mock branches data
-const mockBranches = [
-  {
-    id: 1,
-    name: 'Downtown Branch',
-    address: '123 Main St, City Center',
-    phone: '555-0100',
-    email: 'downtown@gym.com',
-    members: 345,
-    status: 'active',
-  },
-  {
-    id: 2,
-    name: 'Westside Branch',
-    address: '456 West Ave, West District',
-    phone: '555-0101',
-    email: 'westside@gym.com',
-    members: 287,
-    status: 'active',
-  },
-  {
-    id: 3,
-    name: 'Airport Branch',
-    address: '789 Airport Rd, Near Terminal',
-    phone: '555-0102',
-    email: 'airport@gym.com',
-    members: 156,
-    status: 'active',
-  },
-  {
-    id: 4,
-    name: 'North Branch',
-    address: '321 North Blvd, North Zone',
-    phone: '555-0103',
-    email: 'north@gym.com',
-    members: 198,
-    status: 'active',
-  },
-]
+export interface BranchGridItem {
+  id: number
+  name: string
+  address: string | null
+  phone: string | null
+  email: string | null
+  status: string
+  members?: number
+}
 
 interface BranchesGridProps {
+  branches: BranchGridItem[]
   searchTerm: string
 }
 
-export function BranchesGrid({ searchTerm }: BranchesGridProps) {
-  const filteredBranches = mockBranches.filter((branch) =>
+export function BranchesGrid({ branches, searchTerm }: BranchesGridProps) {
+  const filteredBranches = branches.filter((branch) =>
     branch.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    branch.address.toLowerCase().includes(searchTerm.toLowerCase())
+    (branch.address ?? '').toLowerCase().includes(searchTerm.toLowerCase())
   )
 
   return (
@@ -74,19 +45,19 @@ export function BranchesGrid({ searchTerm }: BranchesGridProps) {
               {/* Address */}
               <div className="flex items-start gap-3">
                 <MapPin className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                <p className="text-sm text-muted-foreground">{branch.address}</p>
+                <p className="text-sm text-muted-foreground">{branch.address ?? '—'}</p>
               </div>
 
               {/* Contact Info */}
               <div className="space-y-2 border-t border-border/50 pt-4">
                 <div className="flex items-center gap-3">
                   <Phone className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-sm text-muted-foreground">{branch.phone}</span>
+                  <span className="text-sm text-muted-foreground">{branch.phone ?? '—'}</span>
                 </div>
 
                 <div className="flex items-center gap-3">
                   <Mail className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-sm text-muted-foreground break-all">{branch.email}</span>
+                  <span className="text-sm text-muted-foreground break-all">{branch.email ?? '—'}</span>
                 </div>
               </div>
 
@@ -94,7 +65,7 @@ export function BranchesGrid({ searchTerm }: BranchesGridProps) {
               <div className="bg-secondary/30 rounded-lg p-3 flex items-center gap-3">
                 <Users className="w-5 h-5 text-primary" />
                 <div>
-                  <p className="text-2xl font-bold text-foreground">{branch.members}</p>
+                  <p className="text-2xl font-bold text-foreground">{branch.members ?? 0}</p>
                   <p className="text-xs text-muted-foreground">Active Members</p>
                 </div>
               </div>

@@ -8,18 +8,15 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Scan, CheckCircle, AlertTriangle } from 'lucide-react'
-
-const mockMembers = {
-  '12345': 'John Smith',
-  '67890': 'Sarah Johnson',
-  'ABCDE': 'Mike Davis',
-}
+import { MOCK_QR_MEMBERS } from '@/lib/mocks/qr-members'
 
 interface QRScannerProps {
-  onScan?: (memberData: any) => void
+  onScan?: (memberData: { id: string; name: string }) => void
+  /** When provided, used instead of mock lookup (e.g. findMemberByQrOrId + createCheckIn). */
+  resolveScan?: (value: string) => Promise<{ id: string; name: string } | null>
 }
 
-export function QRScanner({ onScan }: QRScannerProps) {
+export function QRScanner({ onScan, resolveScan }: QRScannerProps) {
   const [qrInput, setQrInput] = useState('')
   const [scanResult, setScanResult] = useState<{ type: 'success' | 'error' | null; message: string }>({
     type: null,
@@ -28,40 +25,39 @@ export function QRScanner({ onScan }: QRScannerProps) {
   const inputRef = useRef<HTMLInputElement>(null)
   const [isProcessing, setIsProcessing] = useState(false)
 
-  const handleScan = (memberId: string) => {
+  const handleScan = async (value: string) => {
     setIsProcessing(true)
-    const memberName = mockMembers[memberId as keyof typeof mockMembers]
-    if (memberName) {
+    let member: { id: string; name: string } | null = null
+    if (resolveScan) {
+      member = await resolveScan(value)
+    } else {
+      const name = MOCK_QR_MEMBERS[value]
+      if (name) member = { id: value, name }
+    }
+    if (member) {
       setScanResult({
         type: 'success',
-        message: `Welcome, ${memberName}!`,
+        message: `Welcome, ${member.name}!`,
       })
-      if (onScan) {
-        onScan({ id: memberId, name: memberName })
-      }
-
-      setTimeout(() => {
-        setQrInput('')
-        setScanResult({ type: null, message: '' })
-        setIsProcessing(false)
-        inputRef.current?.focus()
-      }, 2000)
+      onScan?.({ id: member.id, name: member.name })
     } else {
       setScanResult({
         type: 'error',
         message: 'Member not found. Please try again.',
       })
-      setTimeout(() => {
-        setScanResult({ type: null, message: '' })
-        setIsProcessing(false)
-      }, 2000)
     }
+    setTimeout(() => {
+      setQrInput('')
+      setScanResult({ type: null, message: '' })
+      setIsProcessing(false)
+      inputRef.current?.focus()
+    }, 2000)
   }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (qrInput.trim()) {
-      handleScan(qrInput)
+      void handleScan(qrInput.trim())
     }
   }
 

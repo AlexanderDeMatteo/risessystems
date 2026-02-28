@@ -1,27 +1,21 @@
-'use client'
+import { getBranches } from '@/app/actions/branches'
+import { BranchesPageClient } from './branches-page-client'
+import type { BranchGridItem } from '@/components/branches/branches-grid'
 
-import { useState } from 'react'
-import { BranchesHeader } from '@/components/branches/branches-header'
-import { BranchesGrid } from '@/components/branches/branches-grid'
-import { AddBranchDialog } from '@/components/branches/add-branch-dialog'
+function toGridItem(r: { id: number; name: string; address: string | null; phone: string | null; email: string | null; is_active: boolean }): BranchGridItem {
+  return {
+    id: r.id,
+    name: r.name,
+    address: r.address,
+    phone: r.phone,
+    email: r.email,
+    status: r.is_active ? 'active' : 'inactive',
+    members: 0,
+  }
+}
 
-export default function BranchesPage() {
-  const [searchTerm, setSearchTerm] = useState('')
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
-
-  return (
-    <main className="p-6 lg:p-8">
-        <div className="max-w-7xl mx-auto space-y-6">
-          <BranchesHeader 
-            onAddClick={() => setIsDialogOpen(true)}
-            searchTerm={searchTerm}
-            onSearchChange={setSearchTerm}
-          />
-
-          <BranchesGrid searchTerm={searchTerm} />
-
-          <AddBranchDialog open={isDialogOpen} onOpenChange={setIsDialogOpen} />
-        </div>
-    </main>
-  )
+export default async function BranchesPage() {
+  const branches = await getBranches()
+  const gridBranches = branches.map(toGridItem)
+  return <BranchesPageClient initialBranches={gridBranches} />
 }

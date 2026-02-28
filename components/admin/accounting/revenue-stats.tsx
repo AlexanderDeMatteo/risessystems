@@ -1,37 +1,11 @@
 import { Card } from '@/components/ui/card'
 import { DollarSign, TrendingUp, Calendar, Target } from 'lucide-react'
+import { MOCK_ADMIN_REVENUE_STATS } from '@/lib/mocks/admin-charts'
+
+const revenueStatIconMap = { DollarSign, TrendingUp, Target, Calendar } as const
 
 export function RevenueStats() {
-  const stats = [
-    {
-      label: 'Total Revenue',
-      value: '$524,600',
-      change: '+12.5% vs last month',
-      icon: DollarSign,
-      color: 'bg-green-500/20 text-green-400',
-    },
-    {
-      label: 'Monthly Recurring',
-      value: '$84,200',
-      change: 'From active subscriptions',
-      icon: TrendingUp,
-      color: 'bg-blue-500/20 text-blue-400',
-    },
-    {
-      label: 'Avg. Client Value',
-      value: '$21,858',
-      change: 'Per gym client',
-      icon: Target,
-      color: 'bg-purple-500/20 text-purple-400',
-    },
-    {
-      label: 'Pending Payments',
-      value: '$8,450',
-      change: 'Awaiting settlement',
-      icon: Calendar,
-      color: 'bg-orange-500/20 text-orange-400',
-    },
-  ]
+  const stats = MOCK_ADMIN_REVENUE_STATS.map((s) => ({ ...s, icon: revenueStatIconMap[s.iconKey as keyof typeof revenueStatIconMap] }))
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">

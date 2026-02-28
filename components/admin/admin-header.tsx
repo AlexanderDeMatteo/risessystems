@@ -62,7 +62,7 @@ export function AdminHeader() {
                   <DropdownMenuItem>Settings</DropdownMenuItem>
                 </Link>
                 <DropdownMenuSeparator className="bg-border" />
-                <Link href="/login">
+                <Link href="/logout">
                   <DropdownMenuItem className="text-destructive">
                     <LogOut className="w-4 h-4 mr-2" />
                     Logout

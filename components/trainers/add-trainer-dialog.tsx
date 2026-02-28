@@ -6,15 +6,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { TrainerForm, type TrainerFormData } from './trainer-form'
+import { TrainerForm, type TrainerFormData, type BranchOption } from './trainer-form'
 
 interface AddTrainerDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   onTrainerAdded?: (data: TrainerFormData) => void
+  branchOptions?: BranchOption[]
 }
 
-export function AddTrainerDialog({ open, onOpenChange, onTrainerAdded }: AddTrainerDialogProps) {
+export function AddTrainerDialog({ open, onOpenChange, onTrainerAdded, branchOptions }: AddTrainerDialogProps) {
   const handleSubmit = (data: TrainerFormData) => {
     onTrainerAdded?.(data)
     onOpenChange(false)
@@ -32,6 +33,7 @@ export function AddTrainerDialog({ open, onOpenChange, onTrainerAdded }: AddTrai
           onSubmit={handleSubmit}
           onCancel={() => onOpenChange(false)}
           submitLabel="Add Trainer"
+          branchOptions={branchOptions}
         />
       </DialogContent>
     </Dialog>

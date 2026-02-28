@@ -17,9 +17,10 @@ import { Textarea } from '@/components/ui/textarea'
 interface AddBranchDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
+  onBranchAdded?: (data: { name: string; address: string; phone: string; email: string }) => void | Promise<void>
 }
 
-export function AddBranchDialog({ open, onOpenChange }: AddBranchDialogProps) {
+export function AddBranchDialog({ open, onOpenChange, onBranchAdded }: AddBranchDialogProps) {
   const [formData, setFormData] = useState({
     name: '',
     address: '',
@@ -32,9 +33,9 @@ export function AddBranchDialog({ open, onOpenChange }: AddBranchDialogProps) {
     setFormData(prev => ({ ...prev, [name]: value }))
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Demo: just close the dialog
+    await onBranchAdded?.(formData)
     onOpenChange(false)
     setFormData({ name: '', address: '', phone: '', email: '' })
   }

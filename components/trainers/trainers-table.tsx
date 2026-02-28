@@ -24,6 +24,9 @@ interface TrainersTableProps {
   onClearPrimaryForBranch: (branch: string) => void
   searchTerm: string
   filterStatus: string
+  onSaveTrainer?: (trainer: Trainer) => void | Promise<void>
+  onDeleteTrainer?: (trainer: Trainer) => void | Promise<void>
+  branchOptions?: { id: string; name: string }[]
 }
 
 export function TrainersTable({
@@ -34,6 +37,9 @@ export function TrainersTable({
   onClearPrimaryForBranch,
   searchTerm,
   filterStatus,
+  onSaveTrainer,
+  onDeleteTrainer,
+  branchOptions,
 }: TrainersTableProps) {
   const [editDialogOpen, setEditDialogOpen] = useState(false)
   const [trainerToEdit, setTrainerToEdit] = useState<Trainer | null>(null)
@@ -45,7 +51,8 @@ export function TrainersTable({
     setEditDialogOpen(true)
   }
 
-  const handleSaveEdit = (updatedTrainer: Trainer) => {
+  const handleSaveEdit = async (updatedTrainer: Trainer) => {
+    await onSaveTrainer?.(updatedTrainer)
     onTrainersChange(
       trainers.map((t) => (t.id === updatedTrainer.id ? { ...t, ...updatedTrainer } : t))
     )
@@ -56,7 +63,8 @@ export function TrainersTable({
     setDeleteDialogOpen(true)
   }
 
-  const handleConfirmDelete = (trainer: Trainer) => {
+  const handleConfirmDelete = async (trainer: Trainer) => {
+    await onDeleteTrainer?.(trainer)
     onTrainersChange(trainers.filter((t) => t.id !== trainer.id))
     if (primaryTrainerByBranch[trainer.branch] === trainer.id) {
       onClearPrimaryForBranch(trainer.branch)
@@ -160,6 +168,7 @@ export function TrainersTable({
         onSave={handleSaveEdit}
         onSetPrimary={onSetPrimary}
         onClearPrimaryForBranch={onClearPrimaryForBranch}
+        branchOptions={branchOptions}
       />
 
       <DeleteTrainerDialog

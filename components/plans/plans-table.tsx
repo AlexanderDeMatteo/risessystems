@@ -11,25 +11,10 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Edit, Trash2, CreditCard } from 'lucide-react'
+import { MOCK_PLANS, type MembershipPlan } from '@/lib/mocks/plans'
 
-export interface MembershipPlan {
-  id: number
-  name: string
-  description: string | null
-  price: number
-  duration_days: number
-  is_active: boolean
-}
-
-// Default mock plans (used when no plans prop is passed)
-const defaultMockPlans: MembershipPlan[] = [
-  { id: 1, name: 'Monthly', description: 'Full gym access, 1 month', price: 49.99, duration_days: 30, is_active: true },
-  { id: 2, name: 'Quarterly', description: 'Full gym access, 3 months', price: 129.99, duration_days: 90, is_active: true },
-  { id: 3, name: 'Annual Premium', description: 'Full access + personal trainer sessions', price: 399.99, duration_days: 365, is_active: true },
-  { id: 4, name: 'Basic', description: 'Gym floor only', price: 29.99, duration_days: 30, is_active: true },
-]
-
-export const MOCK_PLANS: MembershipPlan[] = [...defaultMockPlans]
+export { MOCK_PLANS }
+export type { MembershipPlan }
 
 interface PlansTableProps {
   searchTerm: string
@@ -46,7 +31,7 @@ function formatDuration(days: number): string {
   return `${days} days`
 }
 
-export function PlansTable({ searchTerm, plans = defaultMockPlans, onEditClick, onDeleteClick }: PlansTableProps) {
+export function PlansTable({ searchTerm, plans = MOCK_PLANS, onEditClick, onDeleteClick }: PlansTableProps) {
   const filteredPlans = plans.filter(
     (plan) =>
       plan.name.toLowerCase().includes(searchTerm.toLowerCase()) ||

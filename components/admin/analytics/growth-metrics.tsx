@@ -1,37 +1,11 @@
 import { Card } from '@/components/ui/card'
 import { TrendingUp, Users, Calendar, AlertCircle } from 'lucide-react'
+import { MOCK_GROWTH_METRICS } from '@/lib/mocks/admin-charts'
+
+const growthIconMap = { TrendingUp, Users, Calendar, AlertCircle } as const
 
 export function GrowthMetrics() {
-  const metrics = [
-    {
-      label: 'Monthly Growth',
-      value: '+15.3%',
-      icon: TrendingUp,
-      color: 'bg-green-500/20 text-green-400',
-      description: 'New registrations vs last month'
-    },
-    {
-      label: 'Retention Rate',
-      value: '92.4%',
-      icon: Users,
-      color: 'bg-blue-500/20 text-blue-400',
-      description: 'Active returning users'
-    },
-    {
-      label: 'Avg. Session Time',
-      value: '45m',
-      icon: Calendar,
-      color: 'bg-purple-500/20 text-purple-400',
-      description: 'Per user per day'
-    },
-    {
-      label: 'Churn Rate',
-      value: '8.2%',
-      icon: AlertCircle,
-      color: 'bg-orange-500/20 text-orange-400',
-      description: 'Monthly user churn'
-    },
-  ]
+  const metrics = MOCK_GROWTH_METRICS.map((m) => ({ ...m, icon: growthIconMap[m.iconKey as keyof typeof growthIconMap] }))
 
   return (
     <div className="space-y-3">

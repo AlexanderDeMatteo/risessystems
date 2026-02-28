@@ -10,14 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-
-const mockPayments = [
-  { id: 1, clientName: 'FitZone Gym', amount: 2500, paymentMethod: 'Card', status: 'completed', paymentDate: new Date().toISOString() },
-  { id: 2, clientName: "Gold's Fitness", amount: 5000, paymentMethod: 'Bank Transfer', status: 'completed', paymentDate: new Date(Date.now() - 86400000).toISOString() },
-  { id: 3, clientName: 'BodyPower Gym', amount: 1500, paymentMethod: 'Card', status: 'pending', paymentDate: new Date(Date.now() - 172800000).toISOString() },
-  { id: 4, clientName: 'Elite Sports Club', amount: 3200, paymentMethod: 'Bank Transfer', status: 'completed', paymentDate: new Date(Date.now() - 259200000).toISOString() },
-  { id: 5, clientName: 'CrossFit HQ', amount: 800, paymentMethod: 'Card', status: 'completed', paymentDate: new Date(Date.now() - 345600000).toISOString() },
-]
+import { MOCK_ADMIN_PAYMENTS } from '@/lib/mocks/payments'
 
 export function PaymentsTable() {
   const getStatusBadge = (status: string) => {
@@ -51,7 +44,7 @@ export function PaymentsTable() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {mockPayments.map(payment => (
+            {MOCK_ADMIN_PAYMENTS.map((payment) => (
               <TableRow key={payment.id} className="border-border hover:bg-secondary/50">
                 <TableCell className="font-medium">{payment.clientName}</TableCell>
                 <TableCell className="font-medium text-primary">${payment.amount}</TableCell>

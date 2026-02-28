@@ -60,11 +60,19 @@ interface AddPaymentDialogProps {
   onPaymentAdded?: (data: PaymentFormData) => void
 }
 
-const emptyFormData = {
+const emptyFormData: {
+  memberId: string
+  memberName: string
+  amount: string
+  payment_method: 'cash' | 'card' | 'bank_transfer'
+  planId: string
+  planName: string
+  description: string
+} = {
   memberId: '',
   memberName: '',
   amount: '',
-  payment_method: 'card' as const,
+  payment_method: 'card',
   planId: '',
   planName: '',
   description: '',

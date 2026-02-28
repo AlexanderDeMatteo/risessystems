@@ -98,12 +98,12 @@ risessistem/
   └── accounting
 ```
 
-## Capas (futuro)
+## Capas y datos
 
-Cuando se implementen API routes y conexión a BD:
+**Dashboard (gym owner) y Accounting:** Server Components cargan datos con Server Actions (`app/actions/dashboard.ts`, `app/actions/payments.ts`, etc.) que consultan Supabase. Los componentes reciben datos por props; no usan mocks.
 
 ```
-page.tsx (UI) → components/ (presentación) → app/api/ (route handlers) → lib/db (Neon) → PostgreSQL
+page.tsx (async Server Component) → getDashboardCounts/getPayments/… (app/actions/) → Supabase (PostgreSQL)
 ```
 
-Actualmente todo es frontend con datos de demo.
+Profile/Subscription y admin pueden seguir con mocks o APIs propias hasta integrar billing/platform.

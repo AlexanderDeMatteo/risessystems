@@ -23,11 +23,11 @@ RisesSystem es una plataforma SaaS de gestión de gimnasios. Permite a dueños d
 | Package manager | pnpm | — |
 
 ## Estado actual
-- **Frontend funcional** con páginas de dashboard (gym owner) y admin, ambas con datos de demo (hardcoded).
-- **Login y registro** son solo UI; redirigen según tipo de usuario sin autenticación real.
-- **No hay API routes** (`app/api/`) todavía.
-- **Scripts SQL** para la base de datos están en `scripts/` (01 a 04), listos para ejecutar en Neon pero no conectados al frontend.
-- **ThemeProvider** existe en `components/theme-provider.tsx` pero no está integrado en el layout raíz (dark está fijado por clase en `<html>`).
+- **Dashboard (gym owner)** y **Accounting** consumen datos reales de Supabase vía Server Actions (`app/actions/payments.ts`, `app/actions/dashboard.ts`): KPIs, gráficos (ventas, membresías, ingresos), actividad reciente y lista de pagos. Overview y contabilidad ya no usan mocks.
+- **Otras pantallas** (Members, Branches, Trainers, Plans, Check-ins) también conectadas a Supabase con Server Actions en `app/actions/`.
+- **Admin** y **login/registro**: según implementación actual (Auth con Supabase; admin puede usar datos de demo o propios).
+- **Scripts SQL** en `scripts/`; RLS (script 12) incluye `payments` y tablas del dashboard.
+- **ThemeProvider** existe en `components/theme-provider.tsx`; tema dark por defecto en `<html>`.
 
 ## Configuración relevante
 - `tsconfig.json`: alias `@/*` → `./*`, target ES6, strict mode.

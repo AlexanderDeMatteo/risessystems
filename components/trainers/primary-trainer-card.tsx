@@ -13,22 +13,25 @@ import {
 } from '@/components/ui/select'
 import { Star, Mail, Phone, MapPin } from 'lucide-react'
 import type { Trainer } from './edit-trainer-dialog'
-import { MOCK_BRANCHES } from './trainer-form'
+import { MOCK_BRANCHES } from '@/lib/mocks/branches'
 
 interface PrimaryTrainerCardProps {
   trainers: Trainer[]
   primaryTrainerByBranch: Record<string, number>
+  branchOptions?: { id: string; name: string }[]
 }
 
 export function PrimaryTrainerCard({
   trainers,
   primaryTrainerByBranch,
+  branchOptions,
 }: PrimaryTrainerCardProps) {
-  const branchesWithPrimaries = MOCK_BRANCHES.filter(
+  const branches = branchOptions ?? MOCK_BRANCHES
+  const branchesWithPrimaries = branches.filter(
     (b) => primaryTrainerByBranch[b.name] != null
   )
-  const defaultBranch = branchesWithPrimaries[0]?.name ?? MOCK_BRANCHES[0]?.name ?? ''
-  const [selectedBranch, setSelectedBranch] = useState(defaultBranch)
+  const defaultBranch = branchesWithPrimaries[0]?.name ?? branches[0]?.name ?? ''
+  const [selectedBranch, setSelectedBranch] = useState<string>(defaultBranch)
 
   const primaryTrainerId = primaryTrainerByBranch[selectedBranch]
   const primaryTrainer = trainers.find((t) => t.id === primaryTrainerId)
@@ -50,7 +53,7 @@ export function PrimaryTrainerCard({
               <SelectValue placeholder="Branch" />
             </SelectTrigger>
             <SelectContent>
-              {MOCK_BRANCHES.map((branch) => (
+              {branches.map((branch) => (
                 <SelectItem key={branch.id} value={branch.name}>
                   {branch.name}
                 </SelectItem>

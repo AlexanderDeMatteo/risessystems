@@ -1,13 +1,6 @@
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-
-const clients = [
-  { id: 1, name: 'FitZone Gym', branches: 3, activeUsers: 245, status: 'active' },
-  { id: 2, name: 'Gold\'s Fitness', branches: 5, activeUsers: 412, status: 'active' },
-  { id: 3, name: 'BodyPower Gym', branches: 2, activeUsers: 178, status: 'active' },
-  { id: 4, name: 'Elite Sports Club', branches: 4, activeUsers: 389, status: 'active' },
-  { id: 5, name: 'CrossFit HQ', branches: 1, activeUsers: 95, status: 'inactive' },
-]
+import { MOCK_CLIENTS } from '@/lib/mocks/clients'
 
 export function ClientsOverview() {
   return (
@@ -19,7 +12,7 @@ export function ClientsOverview() {
         </div>
 
         <div className="space-y-3">
-          {clients.slice(0, 5).map((client) => (
+          {MOCK_CLIENTS.slice(0, 5).map((client) => (
             <div key={client.id} className="flex items-center justify-between p-3 bg-secondary/50 rounded-lg border border-border/50">
               <div className="flex-1">
                 <p className="font-medium text-foreground text-sm">{client.name}</p>

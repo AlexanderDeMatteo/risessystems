@@ -6,7 +6,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { TrainerForm, MOCK_BRANCHES, type TrainerFormData } from './trainer-form'
+import { TrainerForm, type TrainerFormData } from './trainer-form'
+import { MOCK_BRANCHES } from '@/lib/mocks/branches'
+
+const defaultBranches = MOCK_BRANCHES
 
 export interface Trainer {
   id: number
@@ -31,10 +34,11 @@ interface EditTrainerDialogProps {
   onSave?: (updatedTrainer: Trainer) => void
   onSetPrimary?: (branch: string, trainerId: number) => void
   onClearPrimaryForBranch?: (branch: string) => void
+  branchOptions?: { id: string; name: string }[]
 }
 
-function getBranchIdFromName(branchName: string): string {
-  const branch = MOCK_BRANCHES.find((b) => b.name === branchName)
+function getBranchIdFromName(branchName: string, branches: { id: string; name: string }[]): string {
+  const branch = branches.find((b) => b.name === branchName)
   return branch?.id ?? ''
 }
 
@@ -46,13 +50,15 @@ export function EditTrainerDialog({
   onSave,
   onSetPrimary,
   onClearPrimaryForBranch,
+  branchOptions,
 }: EditTrainerDialogProps) {
+  const branches = branchOptions ?? defaultBranches
   const initialData: Partial<TrainerFormData> | undefined = trainer
     ? {
         name: trainer.name,
         email: trainer.email,
         phone: trainer.phone,
-        branchId: getBranchIdFromName(trainer.branch),
+        branchId: getBranchIdFromName(trainer.branch, branches),
         specialties: trainer.specialties,
         status: trainer.status,
         hireDate: trainer.hireDate ?? '',
@@ -65,7 +71,7 @@ export function EditTrainerDialog({
     if (!trainer) return
 
     const branchName =
-      MOCK_BRANCHES.find((b) => b.id === data.branchId)?.name ?? trainer.branch
+      branches.find((b) => b.id === data.branchId)?.name ?? trainer.branch
 
     const updatedTrainer = {
       ...trainer,
@@ -108,6 +114,7 @@ export function EditTrainerDialog({
             onSubmit={handleSubmit}
             onCancel={() => onOpenChange(false)}
             submitLabel="Save Changes"
+            branchOptions={branchOptions}
           />
         )}
       </DialogContent>

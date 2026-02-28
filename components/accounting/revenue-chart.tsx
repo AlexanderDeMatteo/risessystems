@@ -12,34 +12,18 @@ import {
   ResponsiveContainer,
 } from 'recharts'
 
-const data = [
-  {
-    name: 'Week 1',
-    memberships: 2800,
-    training: 1398,
-    other: 400,
-  },
-  {
-    name: 'Week 2',
-    memberships: 3200,
-    training: 1500,
-    other: 500,
-  },
-  {
-    name: 'Week 3',
-    memberships: 2800,
-    training: 1200,
-    other: 350,
-  },
-  {
-    name: 'Week 4',
-    memberships: 3500,
-    training: 1800,
-    other: 450,
-  },
-]
+export type RevenueChartPoint = {
+  name: string
+  memberships: number
+  training: number
+  other: number
+}
 
-export function RevenueChart() {
+interface RevenueChartProps {
+  data?: RevenueChartPoint[]
+}
+
+export function RevenueChart({ data = [] }: RevenueChartProps) {
   return (
     <Card className="bg-card border-border p-6">
       <div className="space-y-4">

@@ -56,7 +56,7 @@ export function DashboardHeader() {
                   <User className="w-5 h-5" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="bg-card border-border/50 shadow-[0_0_20px_rgba(163,230,53,0.1)]">
+              <DropdownMenuContent align="end" className="bg-card border-border/50 shadow-[0_0_20px_hsl(var(--primary)_/_0.1)]">
                 <Link href="/dashboard/profile">
                   <DropdownMenuItem className="uppercase text-xs tracking-wider cursor-pointer hover:bg-secondary/50 hover:text-primary transition-colors">
                     Profile
@@ -68,7 +68,7 @@ export function DashboardHeader() {
                   </DropdownMenuItem>
                 </Link>
                 <DropdownMenuSeparator className="bg-border/30" />
-                <Link href="/login">
+                <Link href="/logout">
                   <DropdownMenuItem className="text-destructive uppercase text-xs tracking-wider cursor-pointer hover:bg-destructive/10 transition-colors">
                     <LogOut className="w-4 h-4 mr-2" />
                     Logout
@@ -89,7 +89,7 @@ export function DashboardHeader() {
                 href={item.href}
                 className={`flex items-center gap-2 px-4 py-2 rounded-t-lg border-b-2 transition-all duration-300 uppercase tracking-wider text-xs font-semibold ${
                   isActive(item.href)
-                    ? 'bg-secondary/50 border-primary text-primary shadow-[0_0_10px_rgba(163,230,53,0.2)]'
+                    ? 'bg-secondary/50 border-primary text-primary shadow-[0_0_10px_hsl(var(--primary)_/_0.2)]'
                     : 'border-transparent text-muted-foreground hover:text-primary hover:border-primary/50'
                 }`}
               >

@@ -2,15 +2,7 @@
 
 import { Card } from '@/components/ui/card'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
-
-const chartData = [
-  { month: 'Jan', users: 1200, activeRate: 45 },
-  { month: 'Feb', users: 1450, activeRate: 52 },
-  { month: 'Mar', users: 1680, activeRate: 58 },
-  { month: 'Apr', users: 1920, activeRate: 62 },
-  { month: 'May', users: 2150, activeRate: 65 },
-  { month: 'Jun', users: 2451, activeRate: 68 },
-]
+import { MOCK_ACTIVE_USERS_CHART_DATA } from '@/lib/mocks/admin-charts'
 
 export function ActiveUsersChart() {
   return (
@@ -22,7 +14,7 @@ export function ActiveUsersChart() {
         </div>
 
         <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={chartData} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
+          <LineChart data={MOCK_ACTIVE_USERS_CHART_DATA} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
             <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" />
             <YAxis stroke="hsl(var(--muted-foreground))" />
