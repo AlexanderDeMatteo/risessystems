@@ -1,9 +1,25 @@
 'use client'
 
 import { Card } from '@/components/ui/card'
-import { TrendingUp, CreditCard, DollarSign, Wallet } from 'lucide-react'
+import { TrendingUp, TrendingDown, CreditCard, DollarSign, Wallet } from 'lucide-react'
+import type { AccountingStats } from '@/app/actions/payments'
 
-export function RevenueStats() {
+function formatCurrency(value: number): string {
+  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(value)
+}
+
+interface RevenueStatsProps {
+  stats: AccountingStats
+  activeMembersCount: number
+}
+
+export function RevenueStats({ stats, activeMembersCount }: RevenueStatsProps) {
+  const changeLabel =
+    stats.revenueChangePercent >= 0
+      ? `+${stats.revenueChangePercent}% from last month`
+      : `${stats.revenueChangePercent}% from last month`
+  const changePositive = stats.revenueChangePercent >= 0
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       {/* Total Revenue */}
@@ -15,10 +31,10 @@ export function RevenueStats() {
               <DollarSign className="w-4 h-4 text-primary" />
             </div>
           </div>
-          <p className="text-2xl font-bold text-foreground">$12,850</p>
-          <p className="text-xs text-green-500 flex items-center gap-1">
-            <TrendingUp className="w-3 h-3" />
-            +12% from last month
+          <p className="text-2xl font-bold text-foreground">{formatCurrency(stats.totalRevenueThisMonth)}</p>
+          <p className={`text-xs flex items-center gap-1 ${changePositive ? 'text-green-500' : 'text-red-500'}`}>
+            {changePositive ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+            {changeLabel}
           </p>
         </div>
       </Card>
@@ -32,8 +48,8 @@ export function RevenueStats() {
               <CreditCard className="w-4 h-4 text-accent" />
             </div>
           </div>
-          <p className="text-2xl font-bold text-foreground">$8,400</p>
-          <p className="text-xs text-muted-foreground">45 active members</p>
+          <p className="text-2xl font-bold text-foreground">{formatCurrency(stats.membershipFeesThisMonth)}</p>
+          <p className="text-xs text-muted-foreground">{activeMembersCount} active members</p>
         </div>
       </Card>
 
@@ -46,8 +62,8 @@ export function RevenueStats() {
               <Wallet className="w-4 h-4 text-chart-2" />
             </div>
           </div>
-          <p className="text-2xl font-bold text-foreground">$2,950</p>
-          <p className="text-xs text-muted-foreground">12 sessions this week</p>
+          <p className="text-2xl font-bold text-foreground">{formatCurrency(stats.personalTrainingThisMonth)}</p>
+          <p className="text-xs text-muted-foreground">{stats.personalTrainingCountThisWeek} sessions this week</p>
         </div>
       </Card>
 
@@ -60,8 +76,8 @@ export function RevenueStats() {
               <TrendingUp className="w-4 h-4 text-yellow-500" />
             </div>
           </div>
-          <p className="text-2xl font-bold text-foreground">$1,500</p>
-          <p className="text-xs text-muted-foreground">3 pending invoices</p>
+          <p className="text-2xl font-bold text-foreground">{formatCurrency(stats.pendingAmount)}</p>
+          <p className="text-xs text-muted-foreground">{stats.pendingCount} pending invoices</p>
         </div>
       </Card>
     </div>

@@ -1,20 +1,17 @@
 import { redirect } from 'next/navigation'
 import { getCurrentUserProfile } from '@/app/actions/profile'
 import { getDashboardCounts } from '@/app/actions/dashboard'
-import { getMySubscription } from '@/lib/mocks/platform-plans'
+import { getMySubscriptionInfo } from '@/app/actions/subscription'
 import { ProfilePageClient } from './profile-page-client'
 
 export default async function ProfilePage() {
-  const [userProfile, counts] = await Promise.all([
+  const [userProfile, countsResult] = await Promise.all([
     getCurrentUserProfile(),
     getDashboardCounts(),
   ])
   if (!userProfile) redirect('/login')
 
-  const subscription = {
-    ...getMySubscription(),
-    activeMembersCount: counts.memberCount,
-  }
+  const subscription = await getMySubscriptionInfo(countsResult.counts.memberCount)
 
   return (
     <ProfilePageClient

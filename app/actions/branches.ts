@@ -13,17 +13,21 @@ export type BranchRow = {
   is_active: boolean
 }
 
-export async function getBranches(): Promise<BranchRow[]> {
+export type GetBranchesResult =
+  | { branches: BranchRow[]; error: null }
+  | { branches: BranchRow[]; error: string }
+
+export async function getBranches(): Promise<GetBranchesResult> {
   const userId = await getCurrentAppUserId()
-  if (!userId) return []
+  if (!userId) return { branches: [], error: 'Not authenticated' }
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('branches')
     .select('id, name, address, phone, email, is_active')
     .eq('user_id', userId)
     .order('id', { ascending: true })
-  if (error) return []
-  return (data ?? []).map((r) => ({
+  if (error) return { branches: [], error: error.message }
+  const branches = (data ?? []).map((r) => ({
     id: r.id,
     name: r.name,
     address: r.address ?? null,
@@ -31,6 +35,7 @@ export async function getBranches(): Promise<BranchRow[]> {
     email: r.email ?? null,
     is_active: r.is_active ?? true,
   }))
+  return { branches, error: null }
 }
 
 export type CreateBranchInput = {

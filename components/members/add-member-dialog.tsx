@@ -20,13 +20,14 @@ export interface AddMemberFormData {
   lastName: string
   email: string
   phone: string
-  membershipType: string
+  planId: number | null
 }
 
 interface AddMemberDialogProps {
   isOpen: boolean
   onOpenChange: (open: boolean) => void
   onMemberAdded?: (data: AddMemberFormData) => void
+  plans: { id: number; name: string; duration_days: number }[]
 }
 
 const initialFormData: AddMemberFormData = {
@@ -34,10 +35,10 @@ const initialFormData: AddMemberFormData = {
   lastName: '',
   email: '',
   phone: '',
-  membershipType: 'standard',
+  planId: null,
 }
 
-export function AddMemberDialog({ isOpen, onOpenChange, onMemberAdded }: AddMemberDialogProps) {
+export function AddMemberDialog({ isOpen, onOpenChange, onMemberAdded, plans }: AddMemberDialogProps) {
   const [formData, setFormData] = useState<AddMemberFormData>(initialFormData)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -47,6 +48,7 @@ export function AddMemberDialog({ isOpen, onOpenChange, onMemberAdded }: AddMemb
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    if (!formData.planId) return
     onMemberAdded?.(formData)
     onOpenChange(false)
     setFormData(initialFormData)
@@ -113,15 +115,22 @@ export function AddMemberDialog({ isOpen, onOpenChange, onMemberAdded }: AddMemb
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="membershipType">Membership Type</Label>
-            <Select value={formData.membershipType} onValueChange={(value) => setFormData(prev => ({ ...prev, membershipType: value }))}>
+            <Label htmlFor="plan">Membership Plan</Label>
+            <Select
+              value={formData.planId?.toString() ?? ''}
+              onValueChange={(value) =>
+                setFormData(prev => ({ ...prev, planId: Number(value) }))
+              }
+            >
               <SelectTrigger>
-                <SelectValue />
+                <SelectValue placeholder={plans.length ? 'Select a plan' : 'Create a plan in Plans first'} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="basic">Basic</SelectItem>
-                <SelectItem value="standard">Standard</SelectItem>
-                <SelectItem value="premium">Premium</SelectItem>
+                {plans.map((plan) => (
+                  <SelectItem key={plan.id} value={plan.id.toString()}>
+                    {plan.name}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -130,7 +139,7 @@ export function AddMemberDialog({ isOpen, onOpenChange, onMemberAdded }: AddMemb
             <Button variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
-            <Button type="submit">
+            <Button type="submit" disabled={!formData.planId || plans.length === 0}>
               Add Member
             </Button>
           </div>

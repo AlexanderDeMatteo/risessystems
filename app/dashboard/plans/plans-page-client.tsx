@@ -8,13 +8,16 @@ import { AddPlanDialog, type AddPlanFormData } from '@/components/plans/add-plan
 import { EditPlanDialog } from '@/components/plans/edit-plan-dialog'
 import { DeletePlanDialog } from '@/components/plans/delete-plan-dialog'
 import { Card } from '@/components/ui/card'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { AlertCircle } from 'lucide-react'
 import { createPlan, updatePlan, deletePlan } from '@/app/actions/plans'
 
 interface PlansPageClientProps {
   initialPlans: MembershipPlan[]
+  plansError?: string
 }
 
-export function PlansPageClient({ initialPlans }: PlansPageClientProps) {
+export function PlansPageClient({ initialPlans, plansError }: PlansPageClientProps) {
   const router = useRouter()
   const [plans, setPlans] = useState<MembershipPlan[]>(initialPlans)
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
@@ -76,6 +79,13 @@ export function PlansPageClient({ initialPlans }: PlansPageClientProps) {
   return (
     <main className="p-6 lg:p-8">
       <div className="max-w-7xl mx-auto space-y-6">
+        {plansError && (
+          <Alert variant="destructive" className="border-destructive/50">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Could not load plans</AlertTitle>
+            <AlertDescription>{plansError}</AlertDescription>
+          </Alert>
+        )}
         <div className="flex justify-between items-start">
           <div>
             <h1 className="text-3xl font-bold text-foreground">Plans</h1>

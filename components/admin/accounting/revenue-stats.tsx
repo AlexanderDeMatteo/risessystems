@@ -1,15 +1,19 @@
 import { Card } from '@/components/ui/card'
 import { DollarSign, TrendingUp, Calendar, Target } from 'lucide-react'
-import { MOCK_ADMIN_REVENUE_STATS } from '@/lib/mocks/admin-charts'
+import type { AdminRevenueStat } from '@/app/actions/admin'
 
 const revenueStatIconMap = { DollarSign, TrendingUp, Target, Calendar } as const
 
-export function RevenueStats() {
-  const stats = MOCK_ADMIN_REVENUE_STATS.map((s) => ({ ...s, icon: revenueStatIconMap[s.iconKey as keyof typeof revenueStatIconMap] }))
+interface RevenueStatsProps {
+  stats: AdminRevenueStat[]
+}
+
+export function RevenueStats({ stats }: RevenueStatsProps) {
+  const statsWithIcons = stats.map((s) => ({ ...s, icon: revenueStatIconMap[s.iconKey as keyof typeof revenueStatIconMap] }))
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-      {stats.map((stat) => {
+      {statsWithIcons.map((stat) => {
         const Icon = stat.icon
         return (
           <Card key={stat.label} className="bg-card border-border p-6">

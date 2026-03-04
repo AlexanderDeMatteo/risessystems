@@ -16,7 +16,10 @@ Run in **Supabase Dashboard → SQL Editor** in this order:
 | 10 | `11-alter-users-for-supabase.sql` | users: auth_user_id (for RLS + Auth) |
 | 11 | `13-alter-users-password-optional.sql` | users: password_hash nullable (for Supabase Auth) |
 | 12 | `12-enable-rls.sql` | RLS + policies (run after Auth is configured) |
-| 13 | `14-storage-policies.sql` | Storage RLS for avatars, exercises, progress-photos |
+| 13 | `15-add-admin-rls.sql` | Admin read access: is_admin(), SELECT policies for admin role |
+| 14 | `16-create-platform-plans.sql` | platform_plans table and RLS (admin manage, authenticated read) |
+| 15 | `17-platform-subscriptions.sql` | platform_subscriptions, platform_payments (gym→platform revenue) |
+| 16 | `14-storage-policies.sql` | Storage RLS for avatars, exercises, progress-photos |
 
 **Note:** `04-create-checkins-table.sql` is not used; check_ins is already created in `02-create-members-table.sql`. Skip script 04.
 

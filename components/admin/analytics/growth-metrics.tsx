@@ -1,15 +1,19 @@
 import { Card } from '@/components/ui/card'
 import { TrendingUp, Users, Calendar, AlertCircle } from 'lucide-react'
-import { MOCK_GROWTH_METRICS } from '@/lib/mocks/admin-charts'
+import type { GrowthMetric } from '@/app/actions/admin'
 
 const growthIconMap = { TrendingUp, Users, Calendar, AlertCircle } as const
 
-export function GrowthMetrics() {
-  const metrics = MOCK_GROWTH_METRICS.map((m) => ({ ...m, icon: growthIconMap[m.iconKey as keyof typeof growthIconMap] }))
+interface GrowthMetricsProps {
+  metrics: GrowthMetric[]
+}
+
+export function GrowthMetrics({ metrics }: GrowthMetricsProps) {
+  const metricsWithIcons = metrics.map((m) => ({ ...m, icon: growthIconMap[m.iconKey as keyof typeof growthIconMap] }))
 
   return (
     <div className="space-y-3">
-      {metrics.map((metric) => {
+      {metricsWithIcons.map((metric) => {
         const Icon = metric.icon
         return (
           <Card key={metric.label} className="bg-card border-border p-4">

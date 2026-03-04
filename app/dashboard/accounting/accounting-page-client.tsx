@@ -5,42 +5,50 @@ import { useRouter } from 'next/navigation'
 import { RevenueStats } from '@/components/accounting/revenue-stats'
 import { PaymentsTable, type Payment } from '@/components/accounting/payments-table'
 import { AddPaymentDialog, type PaymentFormData, type MemberOption, type PreselectedMember, type PlanOption } from '@/components/accounting/add-payment-dialog'
-import { RenewalsTable, type RenewalFilter } from '@/components/accounting/renewals-table'
+import { RenewalsTable } from '@/components/accounting/renewals-table'
+import { PendingActivationTable } from '@/components/accounting/pending-activation-table'
 import { RevenueChart } from '@/components/accounting/revenue-chart'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Label } from '@/components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import { Plus } from 'lucide-react'
+import { Plus, AlertCircle } from 'lucide-react'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import { createPayment } from '@/app/actions/payments'
 import type { Member } from '@/components/members/members-table'
+import type { AccountingStats } from '@/app/actions/payments'
 
 interface AccountingPageClientProps {
   initialPayments: Payment[]
   memberOptions: MemberOption[]
   planOptions: PlanOption[]
+  inactiveMembers: Member[]
   membersForRenewals: Member[]
   revenueChartData?: { name: string; memberships: number; training: number; other: number }[]
+  accountingStats: AccountingStats
+  activeMembersCount: number
+  paymentMethodPercents: { cash: number; card: number; bank_transfer: number }
+  statsError?: string | null
+  paymentsError?: string
+  plansError?: string
 }
 
 export function AccountingPageClient({
   initialPayments,
   memberOptions,
   planOptions,
+  inactiveMembers,
   membersForRenewals,
   revenueChartData = [],
+  accountingStats,
+  activeMembersCount,
+  paymentMethodPercents,
+  statsError = null,
+  paymentsError,
+  plansError,
 }: AccountingPageClientProps) {
   const router = useRouter()
   const [payments, setPayments] = useState<Payment[]>(initialPayments)
   const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false)
   const [preselectedMember, setPreselectedMember] = useState<PreselectedMember | null>(null)
-  const [renewalFilter, setRenewalFilter] = useState<RenewalFilter>('30')
 
   useEffect(() => {
     setPayments(initialPayments)
@@ -58,6 +66,13 @@ export function AccountingPageClient({
         payment_type: paymentType,
         payment_method: data.payment_method,
         description: data.description ?? undefined,
+        update_member:
+          data.new_expiry_date || data.member_status_update
+            ? {
+                status: data.member_status_update,
+                new_expiry_date: data.new_expiry_date,
+              }
+            : undefined,
       })
       if (result.ok) {
         setPreselectedMember(null)
@@ -68,8 +83,14 @@ export function AccountingPageClient({
     [router]
   )
 
-  const openDialogForMember = useCallback((member: { id: number; name: string; membership_type?: string }) => {
-    setPreselectedMember({ id: member.id, name: member.name, membership_type: member.membership_type })
+  const openDialogForMember = useCallback((member: Member) => {
+    setPreselectedMember({
+      id: member.id,
+      name: member.name,
+      membership_type: member.membership_type,
+      status: member.status,
+      expiry_date: member.expiry_date,
+    })
     setIsPaymentDialogOpen(true)
   }, [])
 
@@ -86,6 +107,24 @@ export function AccountingPageClient({
   return (
     <main className="p-6 lg:p-8">
       <div className="max-w-7xl mx-auto space-y-8">
+        {statsError && (
+          <Alert variant="destructive" className="border-destructive/50">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>Could not load accounting stats: {statsError}</AlertDescription>
+          </Alert>
+        )}
+        {paymentsError && (
+          <Alert variant="destructive" className="border-destructive/50">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>Could not load payments: {paymentsError}</AlertDescription>
+          </Alert>
+        )}
+        {plansError && (
+          <Alert variant="destructive" className="border-destructive/50">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>Could not load plans: {plansError}</AlertDescription>
+          </Alert>
+        )}
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
             <h1 className="text-3xl font-bold text-foreground">Accounting</h1>
@@ -97,29 +136,23 @@ export function AccountingPageClient({
           </Button>
         </div>
 
-        <div className="space-y-3">
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
-            <Label className="text-sm font-medium text-foreground">Show members to renew</Label>
-            <Select value={renewalFilter} onValueChange={(v: RenewalFilter) => setRenewalFilter(v)}>
-              <SelectTrigger className="w-full sm:w-48 bg-secondary/50 border-border">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="expired">Expired only</SelectItem>
-                <SelectItem value="7">Expiring in 7 days</SelectItem>
-                <SelectItem value="14">Expiring in 14 days</SelectItem>
-                <SelectItem value="30">Expiring in 30 days</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <RenewalsTable
-            members={membersForRenewals}
-            filter={renewalFilter}
-            onRecordPayment={openDialogForMember}
-          />
-        </div>
+        <RevenueStats
+          stats={accountingStats}
+          activeMembersCount={activeMembersCount}
+        />
 
-        <RevenueStats />
+        {inactiveMembers.length > 0 && (
+          <PendingActivationTable
+            members={inactiveMembers}
+            onActivate={openDialogForMember}
+          />
+        )}
+
+        <RenewalsTable
+          members={membersForRenewals}
+          defaultFilter="30"
+          onRecordPayment={openDialogForMember}
+        />
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2">
@@ -130,24 +163,24 @@ export function AccountingPageClient({
             <div className="space-y-3">
               <div className="flex justify-between items-center">
                 <span className="text-muted-foreground">Cash</span>
-                <span className="font-medium text-foreground">35%</span>
+                <span className="font-medium text-foreground">{paymentMethodPercents.cash}%</span>
               </div>
               <div className="bg-secondary h-2 rounded-full overflow-hidden">
-                <div className="bg-primary h-full w-[35%]" />
+                <div className="bg-primary h-full" style={{ width: `${paymentMethodPercents.cash}%` }} />
               </div>
               <div className="flex justify-between items-center pt-2">
                 <span className="text-muted-foreground">Card</span>
-                <span className="font-medium text-foreground">55%</span>
+                <span className="font-medium text-foreground">{paymentMethodPercents.card}%</span>
               </div>
               <div className="bg-secondary h-2 rounded-full overflow-hidden">
-                <div className="bg-accent h-full w-[55%]" />
+                <div className="bg-accent h-full" style={{ width: `${paymentMethodPercents.card}%` }} />
               </div>
               <div className="flex justify-between items-center pt-2">
                 <span className="text-muted-foreground">Bank Transfer</span>
-                <span className="font-medium text-foreground">10%</span>
+                <span className="font-medium text-foreground">{paymentMethodPercents.bank_transfer}%</span>
               </div>
               <div className="bg-secondary h-2 rounded-full overflow-hidden">
-                <div className="bg-chart-2 h-full w-[10%]" />
+                <div className="bg-chart-2 h-full" style={{ width: `${paymentMethodPercents.bank_transfer}%` }} />
               </div>
             </div>
           </Card>

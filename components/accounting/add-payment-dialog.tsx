@@ -8,6 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import { getDaysRemaining } from '@/components/members/members-table'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -28,6 +29,9 @@ export interface PaymentFormData {
   planId?: string
   planName?: string
   description?: string
+  /** Computed when selecting plan (activation or renewal) */
+  new_expiry_date?: string
+  member_status_update?: 'active' | 'inactive' | 'suspended'
 }
 
 export interface MemberOption {
@@ -40,12 +44,15 @@ export interface PreselectedMember {
   id: number
   name: string
   membership_type?: string
+  status?: string
+  expiry_date?: string
 }
 
 export interface PlanOption {
   id: number
   name: string
   price?: number
+  duration_days?: number
   is_active?: boolean
 }
 
@@ -60,6 +67,40 @@ interface AddPaymentDialogProps {
   onPaymentAdded?: (data: PaymentFormData) => void
 }
 
+function addDays(date: Date, days: number): Date {
+  const d = new Date(date)
+  d.setDate(d.getDate() + days)
+  return d
+}
+
+function toISODate(d: Date): string {
+  return d.toISOString().slice(0, 10)
+}
+
+function computeNewExpiry(member: PreselectedMember, plan: PlanOption): string | undefined {
+  const duration = plan.duration_days
+  if (duration == null) return undefined
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const isInactive = member.status === 'inactive'
+  const noExpiry = !member.expiry_date
+  const daysRemaining = getDaysRemaining(member.expiry_date)
+  const isExpired = daysRemaining !== null && daysRemaining < 0
+  let baseDate: Date
+  if (isInactive || noExpiry || isExpired) {
+    baseDate = today
+  } else {
+    baseDate = new Date(member.expiry_date!)
+    baseDate.setHours(0, 0, 0, 0)
+  }
+  return toISODate(addDays(baseDate, duration))
+}
+
+function formatExpiryDisplay(isoDate: string): string {
+  const d = new Date(isoDate + 'T12:00:00')
+  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+}
+
 const emptyFormData: {
   memberId: string
   memberName: string
@@ -68,6 +109,8 @@ const emptyFormData: {
   planId: string
   planName: string
   description: string
+  new_expiry_date?: string
+  member_status_update?: 'active' | 'inactive' | 'suspended'
 } = {
   memberId: '',
   memberName: '',
@@ -92,13 +135,23 @@ export function AddPaymentDialog({
 
   useEffect(() => {
     if (open && preselectedMember) {
-      const firstPlan = plans.filter((p) => p.is_active !== false)[0]
+      const activePlansList = plans.filter((p) => p.is_active !== false)
+      const matchingPlan =
+        activePlansList.find(
+          (p) => p.name?.toLowerCase() === preselectedMember.membership_type?.toLowerCase()
+        ) ?? activePlansList[0]
+      const newExpiry = matchingPlan ? computeNewExpiry(preselectedMember, matchingPlan) : undefined
+      const statusUpdate =
+        preselectedMember.status === 'inactive' ? ('active' as const) : undefined
       setFormData({
         ...emptyFormData,
         memberId: String(preselectedMember.id),
         memberName: preselectedMember.name,
-        planId: firstPlan ? String(firstPlan.id) : '',
-        planName: firstPlan?.name ?? '',
+        planId: matchingPlan ? String(matchingPlan.id) : '',
+        planName: matchingPlan?.name ?? '',
+        amount: matchingPlan?.price != null ? String(matchingPlan.price) : '',
+        new_expiry_date: newExpiry,
+        member_status_update: statusUpdate,
       })
     } else if (open && !preselectedMember) {
       setFormData(emptyFormData)
@@ -114,6 +167,8 @@ export function AddPaymentDialog({
       memberName,
       planId: formData.planId || undefined,
       planName: selectedPlan?.name ?? formData.planName,
+      new_expiry_date: formData.new_expiry_date,
+      member_status_update: formData.member_status_update,
     })
     onOpenChange(false)
     setFormData(emptyFormData)
@@ -210,7 +265,17 @@ export function AddPaymentDialog({
               value={formData.planId || (activePlans[0] ? String(activePlans[0].id) : '')}
               onValueChange={(value) => {
                 const plan = activePlans.find((p) => String(p.id) === value)
-                setFormData((prev) => ({ ...prev, planId: value, planName: plan?.name ?? '' }))
+                const next: typeof formData = {
+                  ...formData,
+                  planId: value,
+                  planName: plan?.name ?? '',
+                }
+                if (preselectedMember && plan) {
+                  next.new_expiry_date = computeNewExpiry(preselectedMember, plan)
+                  next.member_status_update =
+                    preselectedMember.status === 'inactive' ? 'active' : formData.member_status_update
+                }
+                setFormData(next)
               }}
               required
             >
@@ -227,6 +292,11 @@ export function AddPaymentDialog({
               </SelectContent>
             </Select>
             <p className="text-xs text-muted-foreground">Membership plan this payment applies to</p>
+            {isPreselected && formData.new_expiry_date && (
+              <p className="text-xs text-muted-foreground">
+                New expiry: {formatExpiryDisplay(formData.new_expiry_date)}
+              </p>
+            )}
           </div>
 
           <div className="space-y-2">

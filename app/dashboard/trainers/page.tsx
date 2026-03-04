@@ -21,9 +21,18 @@ function toTrainer(
 }
 
 export default async function TrainersPage() {
-  const [trainers, branches] = await Promise.all([getTrainers(), getBranches()])
+  const [trainersResult, branchesResult] = await Promise.all([getTrainers(), getBranches()])
+  const trainers = trainersResult.trainers
+  const branches = branchesResult.branches
   const branchNameById = new Map(branches.map((b) => [b.id, b.name]))
   const trainerList = trainers.map((t) => toTrainer(t, branchNameById))
   const branchOptions = branches.map((b) => ({ id: String(b.id), name: b.name }))
-  return <TrainersPageClient initialTrainers={trainerList} branchOptions={branchOptions} />
+  return (
+    <TrainersPageClient
+      initialTrainers={trainerList}
+      branchOptions={branchOptions}
+      trainersError={trainersResult.error ?? undefined}
+      branchesError={branchesResult.error ?? undefined}
+    />
+  )
 }

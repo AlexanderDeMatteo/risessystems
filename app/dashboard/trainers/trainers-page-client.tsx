@@ -6,6 +6,8 @@ import { TrainersHeader } from '@/components/trainers/trainers-header'
 import { TrainersTable } from '@/components/trainers/trainers-table'
 import { AddTrainerDialog } from '@/components/trainers/add-trainer-dialog'
 import { PrimaryTrainerCard } from '@/components/trainers/primary-trainer-card'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { AlertCircle } from 'lucide-react'
 import type { Trainer } from '@/components/trainers/edit-trainer-dialog'
 import type { TrainerFormData } from '@/components/trainers/trainer-form'
 import { createTrainer, updateTrainer, deleteTrainer } from '@/app/actions/trainers'
@@ -18,9 +20,11 @@ interface BranchOption {
 interface TrainersPageClientProps {
   initialTrainers: Trainer[]
   branchOptions: BranchOption[]
+  trainersError?: string
+  branchesError?: string
 }
 
-export function TrainersPageClient({ initialTrainers, branchOptions }: TrainersPageClientProps) {
+export function TrainersPageClient({ initialTrainers, branchOptions, trainersError, branchesError }: TrainersPageClientProps) {
   const router = useRouter()
   const [trainers, setTrainers] = useState<Trainer[]>(initialTrainers)
   const [searchTerm, setSearchTerm] = useState('')
@@ -99,6 +103,20 @@ export function TrainersPageClient({ initialTrainers, branchOptions }: TrainersP
   return (
     <main className="p-6 lg:p-8">
       <div className="max-w-7xl mx-auto space-y-6">
+        {trainersError && (
+          <Alert variant="destructive" className="border-destructive/50">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Could not load trainers</AlertTitle>
+            <AlertDescription>{trainersError}</AlertDescription>
+          </Alert>
+        )}
+        {branchesError && (
+          <Alert variant="destructive" className="border-destructive/50">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Could not load branches</AlertTitle>
+            <AlertDescription>{branchesError}</AlertDescription>
+          </Alert>
+        )}
         <TrainersHeader
           onAddClick={() => setIsDialogOpen(true)}
           searchTerm={searchTerm}

@@ -1,15 +1,19 @@
 import { Card } from '@/components/ui/card'
 import { TrendingUp, Building2, Users, DollarSign } from 'lucide-react'
-import { MOCK_ADMIN_KPIS } from '@/lib/mocks/admin-kpis'
+import type { AdminKpi } from '@/app/actions/admin'
 
 const adminIconMap = { Building2, TrendingUp, Users, DollarSign } as const
 
-export function AdminKPICards() {
-  const kpis = MOCK_ADMIN_KPIS.map((k) => ({ ...k, icon: adminIconMap[k.iconKey] }))
+interface AdminKPICardsProps {
+  kpis: AdminKpi[]
+}
+
+export function AdminKPICards({ kpis }: AdminKPICardsProps) {
+  const kpisWithIcons = kpis.map((k) => ({ ...k, icon: adminIconMap[k.iconKey] }))
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-      {kpis.map((kpi) => {
+      {kpisWithIcons.map((kpi) => {
         const Icon = kpi.icon
         return (
           <Card key={kpi.label} className="bg-card border-border p-6">

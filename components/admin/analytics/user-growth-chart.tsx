@@ -2,9 +2,13 @@
 
 import { Card } from '@/components/ui/card'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
-import { MOCK_USER_GROWTH_DATA } from '@/lib/mocks/admin-charts'
+import type { UserGrowthPoint } from '@/app/actions/admin'
 
-export function UserGrowthChart() {
+interface UserGrowthChartProps {
+  data: UserGrowthPoint[]
+}
+
+export function UserGrowthChart({ data }: UserGrowthChartProps) {
   return (
     <Card className="bg-card border-border p-6">
       <div className="space-y-6">
@@ -14,7 +18,7 @@ export function UserGrowthChart() {
         </div>
 
         <ResponsiveContainer width="100%" height={350}>
-          <BarChart data={MOCK_USER_GROWTH_DATA} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
+          <BarChart data={data} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
             <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" />
             <YAxis stroke="hsl(var(--muted-foreground))" />
@@ -25,8 +29,8 @@ export function UserGrowthChart() {
               }}
             />
             <Legend />
-            <Bar dataKey="newUsers" fill="hsl(220 90% 56%)" radius={[8, 8, 0, 0]} />
-            <Bar dataKey="activeUsers" fill="hsl(39 89% 49%)" radius={[8, 8, 0, 0]} />
+            <Bar dataKey="newUsers" name="New Gym Owners" fill="hsl(220 90% 56%)" radius={[8, 8, 0, 0]} />
+            <Bar dataKey="newAffiliados" name="New Affiliados" fill="hsl(39 89% 49%)" radius={[8, 8, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </div>

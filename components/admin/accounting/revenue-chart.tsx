@@ -2,9 +2,13 @@
 
 import { Card } from '@/components/ui/card'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
-import { MOCK_ADMIN_REVENUE_CHART_DATA } from '@/lib/mocks/admin-charts'
+import type { AdminRevenueChartPoint } from '@/app/actions/admin'
 
-export function RevenueChart() {
+interface RevenueChartProps {
+  data: AdminRevenueChartPoint[]
+}
+
+export function RevenueChart({ data }: RevenueChartProps) {
   return (
     <Card className="bg-card border-border p-6">
       <div className="space-y-6">
@@ -14,7 +18,7 @@ export function RevenueChart() {
         </div>
 
         <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={MOCK_ADMIN_REVENUE_CHART_DATA} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
+          <LineChart data={data} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
             <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" />
             <YAxis stroke="hsl(var(--muted-foreground))" />

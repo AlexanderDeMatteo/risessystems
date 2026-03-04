@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Users, Scan, DollarSign, TrendingUp } from 'lucide-react'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { Users, Scan, DollarSign, TrendingUp, AlertCircle } from 'lucide-react'
 import { SalesChart } from '@/components/dashboard/sales-chart'
 import { MemberInsights } from '@/components/dashboard/member-insights'
 import { RevenueChart } from '@/components/accounting/revenue-chart'
@@ -17,13 +18,20 @@ const iconMap = { DollarSign, Users, Scan, TrendingUp } as const
 type IconKey = keyof typeof iconMap
 
 export default async function DashboardPage() {
-  const [counts, salesData, membershipData, revenueData, activities] = await Promise.all([
+  const [countsResult, salesResult, membershipResult, revenueResult, activities] = await Promise.all([
     getDashboardCounts(),
     getSalesChartData(30),
     getMembershipDistribution(),
     getRevenueChartData(6),
     getRecentActivity(10),
   ])
+  const counts = countsResult.counts
+  const countsError = countsResult.error
+  const salesData = salesResult.data
+  const membershipData = membershipResult.data
+  const revenueData = revenueResult.data
+  const chartErrors = [salesResult.error, membershipResult.error, revenueResult.error].filter(Boolean) as string[]
+  const chartsError = chartErrors.length > 0 ? chartErrors.join('; ') : null
 
   const growthPct =
     counts.revenueLastMonth > 0
@@ -64,6 +72,20 @@ export default async function DashboardPage() {
   return (
     <main className="p-6 lg:p-8">
       <div className="max-w-7xl mx-auto space-y-8">
+        {countsError && (
+          <Alert variant="destructive" className="border-destructive/50">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Could not load overview</AlertTitle>
+            <AlertDescription>{countsError}</AlertDescription>
+          </Alert>
+        )}
+        {chartsError && (
+          <Alert variant="destructive" className="border-destructive/50">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Could not load some charts</AlertTitle>
+            <AlertDescription>{chartsError}</AlertDescription>
+          </Alert>
+        )}
         <div>
           <h2 className="text-4xl font-bold text-foreground tracking-wider">OVERVIEW</h2>
           <p className="text-muted-foreground mt-2 uppercase text-xs tracking-widest">Welcome back to your gym management hub</p>

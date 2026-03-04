@@ -2,14 +2,15 @@
 
 import { Card } from '@/components/ui/card'
 import { getPlanForActiveCount, getMonthlyPriceBreakdown } from '@/lib/mocks/platform-plans'
-import { MOCK_CLIENTS } from '@/lib/mocks/clients'
 import type { PlatformPlan } from '@/lib/types/platform-plans'
+import type { AdminClient } from '@/app/actions/admin'
 
 interface ClientsByPlanProps {
   tiers: PlatformPlan[]
+  clients: AdminClient[]
 }
 
-export function ClientsByPlan({ tiers }: ClientsByPlanProps) {
+export function ClientsByPlan({ tiers, clients }: ClientsByPlanProps) {
   return (
     <Card className="bg-card border-border p-6">
       <div className="space-y-4">
@@ -32,7 +33,7 @@ export function ClientsByPlan({ tiers }: ClientsByPlanProps) {
               </tr>
             </thead>
             <tbody>
-              {MOCK_CLIENTS.map(client => {
+              {clients.length > 0 ? clients.map((client) => {
                 const plan = getPlanForActiveCount(client.activeUsers, tiers)
                 const breakdown = plan
                   ? getMonthlyPriceBreakdown(plan, client.activeUsers)
@@ -67,7 +68,13 @@ export function ClientsByPlan({ tiers }: ClientsByPlanProps) {
                     </td>
                   </tr>
                 )
-              })}
+              }) : (
+                <tr>
+                  <td colSpan={4} className="py-6 text-center text-muted-foreground">
+                    No clients yet
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

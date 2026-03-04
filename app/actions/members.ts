@@ -15,17 +15,21 @@ export type MemberRow = {
   expiry_date?: string
 }
 
-export async function getMembers(): Promise<MemberRow[]> {
+export type GetMembersResult =
+  | { members: MemberRow[]; error: null }
+  | { members: MemberRow[]; error: string }
+
+export async function getMembers(): Promise<GetMembersResult> {
   const userId = await getCurrentAppUserId()
-  if (!userId) return []
+  if (!userId) return { members: [], error: 'Not authenticated' }
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('members')
     .select('id, first_name, last_name, email, phone, membership_type, status, join_date, expiry_date')
     .eq('user_id', userId)
     .order('id', { ascending: true })
-  if (error) return []
-  return (data ?? []).map((r) => ({
+  if (error) return { members: [], error: error.message }
+  const members = (data ?? []).map((r) => ({
     id: r.id,
     name: [r.first_name, r.last_name].filter(Boolean).join(' ').trim() || 'Unknown',
     email: r.email ?? '',
@@ -35,6 +39,26 @@ export async function getMembers(): Promise<MemberRow[]> {
     join_date: r.join_date,
     expiry_date: r.expiry_date ?? undefined,
   }))
+  return { members, error: null }
+}
+
+/** Returns member count per branch_id for the current user. Keys are branch ids, value is count. */
+export async function getMemberCountByBranch(): Promise<Record<number, number>> {
+  const userId = await getCurrentAppUserId()
+  if (!userId) return {}
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('members')
+    .select('branch_id')
+    .eq('user_id', userId)
+    .not('branch_id', 'is', null)
+  if (error) return {}
+  const countByBranch: Record<number, number> = {}
+  for (const row of data ?? []) {
+    const bid = row.branch_id as number
+    countByBranch[bid] = (countByBranch[bid] ?? 0) + 1
+  }
+  return countByBranch
 }
 
 export type CreateMemberInput = {
@@ -61,7 +85,7 @@ export async function createMember(input: CreateMemberInput): Promise<{ ok: true
       email: input.email || null,
       phone: input.phone || null,
       membership_type: input.membership_type,
-      status: 'active',
+      status: input.status ?? 'inactive',
       join_date: input.join_date,
       expiry_date: input.expiry_date || null,
     })

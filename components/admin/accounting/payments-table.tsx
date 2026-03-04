@@ -10,9 +10,13 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { MOCK_ADMIN_PAYMENTS } from '@/lib/mocks/payments'
+import type { AdminPayment } from '@/app/actions/admin'
 
-export function PaymentsTable() {
+interface PaymentsTableProps {
+  payments: AdminPayment[]
+}
+
+export function PaymentsTable({ payments }: PaymentsTableProps) {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'completed':
@@ -44,17 +48,25 @@ export function PaymentsTable() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {MOCK_ADMIN_PAYMENTS.map((payment) => (
-              <TableRow key={payment.id} className="border-border hover:bg-secondary/50">
-                <TableCell className="font-medium">{payment.clientName}</TableCell>
-                <TableCell className="font-medium text-primary">${payment.amount}</TableCell>
-                <TableCell className="text-muted-foreground text-sm">{payment.paymentMethod}</TableCell>
-                <TableCell>{getStatusBadge(payment.status)}</TableCell>
-                <TableCell className="text-muted-foreground text-sm">
-                  {new Date(payment.paymentDate).toLocaleDateString()}
+            {payments.length > 0 ? (
+              payments.map((payment) => (
+                <TableRow key={payment.id} className="border-border hover:bg-secondary/50">
+                  <TableCell className="font-medium">{payment.clientName}</TableCell>
+                  <TableCell className="font-medium text-primary">${payment.amount}</TableCell>
+                  <TableCell className="text-muted-foreground text-sm">{payment.paymentMethod}</TableCell>
+                  <TableCell>{getStatusBadge(payment.status)}</TableCell>
+                  <TableCell className="text-muted-foreground text-sm">
+                    {new Date(payment.paymentDate).toLocaleDateString()}
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                  No payments found
                 </TableCell>
               </TableRow>
-            ))}
+            )}
           </TableBody>
         </Table>
       </div>

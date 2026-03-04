@@ -11,7 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { AlertCircle, Dumbbell } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
-import { createUserProfile } from '@/app/actions/auth'
+import { createUserProfile, getRedirectPathAfterLogin } from '@/app/actions/auth'
 
 function GoogleIcon({ className }: { className?: string }) {
   return (
@@ -97,7 +97,8 @@ export default function RegisterPage() {
           setLoading(false)
           return
         }
-        router.push('/dashboard')
+        const path = await getRedirectPathAfterLogin()
+        router.push(path)
         router.refresh()
       }
     } catch {

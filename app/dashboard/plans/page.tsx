@@ -14,7 +14,12 @@ function toPlan(r: { id: number; name: string; description: string | null; price
 }
 
 export default async function PlansPage() {
-  const rows = await getMembershipPlans()
-  const plans = rows.map(toPlan)
-  return <PlansPageClient initialPlans={plans} />
+  const result = await getMembershipPlans()
+  const plans = result.plans.map(toPlan)
+  return (
+    <PlansPageClient
+      initialPlans={plans}
+      plansError={result.error ?? undefined}
+    />
+  )
 }

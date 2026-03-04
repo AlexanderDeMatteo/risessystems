@@ -1,8 +1,12 @@
 import { getBranches } from '@/app/actions/branches'
+import { getMemberCountByBranch } from '@/app/actions/members'
 import { BranchesPageClient } from './branches-page-client'
 import type { BranchGridItem } from '@/components/branches/branches-grid'
 
-function toGridItem(r: { id: number; name: string; address: string | null; phone: string | null; email: string | null; is_active: boolean }): BranchGridItem {
+function toGridItem(
+  r: { id: number; name: string; address: string | null; phone: string | null; email: string | null; is_active: boolean },
+  memberCountByBranch: Record<number, number>
+): BranchGridItem {
   return {
     id: r.id,
     name: r.name,
@@ -10,12 +14,14 @@ function toGridItem(r: { id: number; name: string; address: string | null; phone
     phone: r.phone,
     email: r.email,
     status: r.is_active ? 'active' : 'inactive',
-    members: 0,
+    members: memberCountByBranch[r.id] ?? 0,
   }
 }
 
 export default async function BranchesPage() {
-  const branches = await getBranches()
-  const gridBranches = branches.map(toGridItem)
-  return <BranchesPageClient initialBranches={gridBranches} />
+  const [branchesResult, memberCountByBranch] = await Promise.all([getBranches(), getMemberCountByBranch()])
+  const gridBranches = branchesResult.branches.map((r) => toGridItem(r, memberCountByBranch))
+  return (
+    <BranchesPageClient initialBranches={gridBranches} branchesError={branchesResult.error ?? undefined} />
+  )
 }

@@ -5,13 +5,16 @@ import { useRouter } from 'next/navigation'
 import { BranchesHeader } from '@/components/branches/branches-header'
 import { BranchesGrid, type BranchGridItem } from '@/components/branches/branches-grid'
 import { AddBranchDialog } from '@/components/branches/add-branch-dialog'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { AlertCircle } from 'lucide-react'
 import { createBranch } from '@/app/actions/branches'
 
 interface BranchesPageClientProps {
   initialBranches: BranchGridItem[]
+  branchesError?: string
 }
 
-export function BranchesPageClient({ initialBranches }: BranchesPageClientProps) {
+export function BranchesPageClient({ initialBranches, branchesError }: BranchesPageClientProps) {
   const router = useRouter()
   const [searchTerm, setSearchTerm] = useState('')
   const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -32,6 +35,13 @@ export function BranchesPageClient({ initialBranches }: BranchesPageClientProps)
   return (
     <main className="p-6 lg:p-8">
       <div className="max-w-7xl mx-auto space-y-6">
+        {branchesError && (
+          <Alert variant="destructive" className="border-destructive/50">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Could not load branches</AlertTitle>
+            <AlertDescription>{branchesError}</AlertDescription>
+          </Alert>
+        )}
         <BranchesHeader
           onAddClick={() => setIsDialogOpen(true)}
           searchTerm={searchTerm}

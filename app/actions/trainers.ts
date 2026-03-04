@@ -17,17 +17,21 @@ export type TrainerRow = {
   avatar_url: string | null
 }
 
-export async function getTrainers(): Promise<TrainerRow[]> {
+export type GetTrainersResult =
+  | { trainers: TrainerRow[]; error: null }
+  | { trainers: TrainerRow[]; error: string }
+
+export async function getTrainers(): Promise<GetTrainersResult> {
   const userId = await getCurrentAppUserId()
-  if (!userId) return []
+  if (!userId) return { trainers: [], error: 'Not authenticated' }
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('trainers')
     .select('id, name, email, phone, specialties, branch_id, status, is_primary, hire_date, avatar_url')
     .eq('user_id', userId)
     .order('id', { ascending: true })
-  if (error) return []
-  return (data ?? []).map((r) => ({
+  if (error) return { trainers: [], error: error.message }
+  const trainers = (data ?? []).map((r) => ({
     id: r.id,
     name: r.name,
     email: r.email,
@@ -39,6 +43,7 @@ export async function getTrainers(): Promise<TrainerRow[]> {
     hire_date: r.hire_date ?? null,
     avatar_url: r.avatar_url ?? null,
   }))
+  return { trainers, error: null }
 }
 
 export type CreateTrainerInput = {

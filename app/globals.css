@@ -23,7 +23,7 @@ body {
     --popover: 240 10% 7.8%;
     --popover-foreground: 0 0% 98%;
     
-    /* Primary: Acid Lime #a3e635 */
+    /* Primary: Acid Lime #a3e635 (default) */
     --primary: 84 81% 65%;
     --primary-foreground: 0 0% 0%;
     
@@ -75,6 +75,35 @@ body {
     --sidebar-border: 240 10% 11%;
     --sidebar-ring: 84 81% 65%;
   }
+
+  /* Color Scheme Variants */
+  [data-color-scheme="emerald"] {
+    --primary: 160 84% 39%;
+    --accent: 160 84% 39%;
+    --ring: 160 84% 39%;
+    --chart-1: 160 84% 39%;
+    --sidebar-primary: 160 84% 39%;
+    --sidebar-ring: 160 84% 39%;
+  }
+
+  [data-color-scheme="blue"] {
+    --primary: 217 91% 60%;
+    --accent: 217 91% 60%;
+    --ring: 217 91% 60%;
+    --chart-1: 217 91% 60%;
+    --sidebar-primary: 217 91% 60%;
+    --sidebar-ring: 217 91% 60%;
+  }
+
+  [data-color-scheme="orange"] {
+    --primary: 25 95% 53%;
+    --accent: 25 95% 53%;
+    --ring: 25 95% 53%;
+    --chart-1: 25 95% 53%;
+    --sidebar-primary: 25 95% 53%;
+    --sidebar-ring: 25 95% 53%;
+  }
+
   .dark {
     /* Neon Rise - Cyber-Industrial Premium */
     --background: 240 10% 3.6%;
@@ -114,6 +143,34 @@ body {
     --sidebar-border: 240 10% 11%;
     --sidebar-ring: 84 81% 65%;
   }
+
+  /* Color Scheme Variants for dark mode */
+  .dark[data-color-scheme="emerald"] {
+    --primary: 160 84% 39%;
+    --accent: 160 84% 39%;
+    --ring: 160 84% 39%;
+    --chart-1: 160 84% 39%;
+    --sidebar-primary: 160 84% 39%;
+    --sidebar-ring: 160 84% 39%;
+  }
+
+  .dark[data-color-scheme="blue"] {
+    --primary: 217 91% 60%;
+    --accent: 217 91% 60%;
+    --ring: 217 91% 60%;
+    --chart-1: 217 91% 60%;
+    --sidebar-primary: 217 91% 60%;
+    --sidebar-ring: 217 91% 60%;
+  }
+
+  .dark[data-color-scheme="orange"] {
+    --primary: 25 95% 53%;
+    --accent: 25 95% 53%;
+    --ring: 25 95% 53%;
+    --chart-1: 25 95% 53%;
+    --sidebar-primary: 25 95% 53%;
+    --sidebar-ring: 25 95% 53%;
+  }
 }
 
 @layer base {
@@ -123,38 +180,40 @@ body {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+@layer components {
+  .neon-glow {
+    box-shadow: 0 0 20px hsl(var(--primary) / 0.3);
+  }
   
-  /* Cyberpunk enhancements */
-  @layer components {
-    /* Neon glow effect */
-    .neon-glow {
-      @apply shadow-[0_0_20px_rgba(163,230,53,0.3)];
+  .neon-glow-sm {
+    box-shadow: 0 0 10px hsl(var(--primary) / 0.2);
+  }
+  
+  .neon-border {
+    @apply border border-primary/50;
+    box-shadow: inset 0 0 10px hsl(var(--primary) / 0.1);
+  }
+  
+  .neon-border-active {
+    @apply border border-primary;
+    box-shadow: 0 0 15px hsl(var(--primary) / 0.4), inset 0 0 10px hsl(var(--primary) / 0.1);
+  }
+  
+  .text-neon {
+    @apply text-primary font-semibold tracking-wider;
+  }
+  
+  .card-cyber {
+    @apply bg-card border border-border/50 rounded-[0.5rem] transition-all duration-300 hover:border-primary/30;
+    &:hover {
+      box-shadow: 0 0 15px hsl(var(--primary) / 0.1);
     }
-    
-    .neon-glow-sm {
-      @apply shadow-[0_0_10px_rgba(163,230,53,0.2)];
-    }
-    
-    .neon-border {
-      @apply border border-primary/50 shadow-[inset_0_0_10px_rgba(163,230,53,0.1)];
-    }
-    
-    .neon-border-active {
-      @apply border border-primary shadow-[0_0_15px_rgba(163,230,53,0.4),inset_0_0_10px_rgba(163,230,53,0.1)];
-    }
-    
-    /* Text effects */
-    .text-neon {
-      @apply text-primary font-semibold tracking-wider;
-    }
-    
-    /* Card styles */
-    .card-cyber {
-      @apply bg-card border border-border/50 rounded-[0.5rem] transition-all duration-300 hover:border-primary/30 hover:shadow-[0_0_15px_rgba(163,230,53,0.1)];
-    }
-    
-    .card-cyber-active {
-      @apply bg-card border border-primary/60 rounded-[0.5rem] shadow-[0_0_20px_rgba(163,230,53,0.2),inset_0_0_10px_rgba(163,230,53,0.05)];
-    }
+  }
+  
+  .card-cyber-active {
+    @apply bg-card border border-primary/60 rounded-[0.5rem];
+    box-shadow: 0 0 20px hsl(var(--primary) / 0.2), inset 0 0 10px hsl(var(--primary) / 0.05);
   }
 }

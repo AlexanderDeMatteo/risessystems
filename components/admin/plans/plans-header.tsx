@@ -5,9 +5,10 @@ import { Button } from '@/components/ui/button'
 import { Plus } from 'lucide-react'
 import { AddPlanTierDialog } from './add-plan-tier-dialog'
 import type { PlatformPlan } from '@/lib/types/platform-plans'
+import type { CreatePlatformPlanInput } from '@/app/actions/platform-plans'
 
 interface PlansHeaderProps {
-  onTierAdded: (tier: PlatformPlan) => void
+  onTierAdded: (data: CreatePlatformPlanInput) => void
   currentTiers: PlatformPlan[]
 }
 

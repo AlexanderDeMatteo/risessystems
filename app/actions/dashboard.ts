@@ -6,18 +6,22 @@ import type { DashboardCounts, SalesChartPoint, MembershipPieSegment, RevenueCha
 import { getCheckIns } from './check-ins'
 import { getPayments } from './payments'
 
-export async function getDashboardCounts(): Promise<DashboardCounts> {
+const emptyCounts: DashboardCounts = {
+  memberCount: 0,
+  trainerCount: 0,
+  branchCount: 0,
+  checkInsToday: 0,
+  revenueThisMonth: 0,
+  revenueLastMonth: 0,
+  membersThisMonth: 0,
+}
+
+export type GetDashboardCountsResult = { counts: DashboardCounts; error: null } | { counts: DashboardCounts; error: string }
+
+export async function getDashboardCounts(): Promise<GetDashboardCountsResult> {
   const userId = await getCurrentAppUserId()
   if (!userId) {
-    return {
-      memberCount: 0,
-      trainerCount: 0,
-      branchCount: 0,
-      checkInsToday: 0,
-      revenueThisMonth: 0,
-      revenueLastMonth: 0,
-      membersThisMonth: 0,
-    }
+    return { counts: emptyCounts, error: null }
   }
   const supabase = await createClient()
   const now = new Date()
@@ -37,9 +41,14 @@ export async function getDashboardCounts(): Promise<DashboardCounts> {
     supabase.from('members').select('id', { count: 'exact', head: true }).eq('user_id', userId).gte('join_date', monthStart.slice(0, 10)).lt('join_date', monthEnd.slice(0, 10)),
   ])
 
+  if (membersRes.error || trainersRes.error || branchesRes.error || paymentsThisMonthRes.error || paymentsLastMonthRes.error || membersThisMonthRes.error) {
+    const err = membersRes.error || trainersRes.error || branchesRes.error || paymentsThisMonthRes.error || membersThisMonthRes.error
+    return { counts: emptyCounts, error: err?.message ?? 'Failed to load dashboard counts' }
+  }
+
   const checkInsToday = await (async () => {
     const memberIds = await supabase.from('members').select('id').eq('user_id', userId)
-    if (!memberIds.data?.length) return 0
+    if (memberIds.error || !memberIds.data?.length) return 0
     const ids = memberIds.data.map((r) => r.id)
     const { count } = await supabase
       .from('check_ins')
@@ -54,13 +63,16 @@ export async function getDashboardCounts(): Promise<DashboardCounts> {
   const revenueLastMonth = (paymentsLastMonthRes.data ?? []).reduce((s, r) => s + Number(r.amount), 0)
 
   return {
-    memberCount: membersRes.count ?? 0,
-    trainerCount: trainersRes.count ?? 0,
-    branchCount: branchesRes.count ?? 0,
-    checkInsToday,
-    revenueThisMonth,
-    revenueLastMonth,
-    membersThisMonth: membersThisMonthRes.count ?? 0,
+    counts: {
+      memberCount: membersRes.count ?? 0,
+      trainerCount: trainersRes.count ?? 0,
+      branchCount: branchesRes.count ?? 0,
+      checkInsToday,
+      revenueThisMonth,
+      revenueLastMonth,
+      membersThisMonth: membersThisMonthRes.count ?? 0,
+    },
+    error: null,
   }
 }
 
@@ -70,9 +82,13 @@ function formatShortDate(d: Date): string {
   return `${MONTH_NAMES[d.getMonth()]} ${d.getDate()}`
 }
 
-export async function getSalesChartData(days = 30): Promise<SalesChartPoint[]> {
+export type GetSalesChartResult =
+  | { data: SalesChartPoint[]; error: null }
+  | { data: SalesChartPoint[]; error: string }
+
+export async function getSalesChartData(days = 30): Promise<GetSalesChartResult> {
   const userId = await getCurrentAppUserId()
-  if (!userId) return []
+  if (!userId) return { data: [], error: 'Not authenticated' }
   const supabase = await createClient()
   const end = new Date()
   const start = new Date(end)
@@ -81,42 +97,47 @@ export async function getSalesChartData(days = 30): Promise<SalesChartPoint[]> {
   const endStr = end.toISOString()
 
   const memberIds = await supabase.from('members').select('id').eq('user_id', userId)
+  if (memberIds.error) return { data: [], error: memberIds.error.message }
   const ids = (memberIds.data ?? []).map((r) => r.id)
+  let data: SalesChartPoint[]
   if (ids.length === 0) {
-    return Array.from({ length: Math.min(days, 7) }, (_, i) => {
+    data = Array.from({ length: Math.min(days, 7) }, (_, i) => {
       const d = new Date(end)
       d.setDate(d.getDate() - (days - 1 - i))
       return { date: formatShortDate(d), sales: 0, members: 0, checkins: 0 }
     })
+  } else {
+    const [paymentsRes, checkInsRes] = await Promise.all([
+      supabase.from('payments').select('amount, paid_at').eq('user_id', userId).eq('status', 'completed').gte('paid_at', startStr).lte('paid_at', endStr),
+      supabase.from('check_ins').select('check_in_time').in('member_id', ids).gte('check_in_time', startStr).lte('check_in_time', endStr),
+    ])
+    if (paymentsRes.error || checkInsRes.error) {
+      const err = paymentsRes.error || checkInsRes.error
+      return { data: [], error: err?.message ?? 'Failed to load sales chart data' }
+    }
+    const byDate: Record<string, { sales: number; checkins: number }> = {}
+    for (let i = 0; i < days; i++) {
+      const d = new Date(start)
+      d.setDate(d.getDate() + i)
+      const key = d.toISOString().slice(0, 10)
+      byDate[key] = { sales: 0, checkins: 0 }
+    }
+    for (const p of paymentsRes.data ?? []) {
+      const key = (p.paid_at as string).slice(0, 10)
+      if (byDate[key]) byDate[key].sales += Number(p.amount)
+    }
+    for (const c of checkInsRes.data ?? []) {
+      const key = (c.check_in_time as string).slice(0, 10)
+      if (byDate[key]) byDate[key].checkins += 1
+    }
+    data = Object.entries(byDate)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([key, v]) => {
+        const d = new Date(key)
+        return { date: formatShortDate(d), sales: v.sales, members: 0, checkins: v.checkins }
+      })
   }
-
-  const [paymentsRes, checkInsRes] = await Promise.all([
-    supabase.from('payments').select('amount, paid_at').eq('user_id', userId).eq('status', 'completed').gte('paid_at', startStr).lte('paid_at', endStr),
-    supabase.from('check_ins').select('check_in_time').in('member_id', ids).gte('check_in_time', startStr).lte('check_in_time', endStr),
-  ])
-
-  const byDate: Record<string, { sales: number; checkins: number }> = {}
-  for (let i = 0; i < days; i++) {
-    const d = new Date(start)
-    d.setDate(d.getDate() + i)
-    const key = d.toISOString().slice(0, 10)
-    byDate[key] = { sales: 0, checkins: 0 }
-  }
-  for (const p of paymentsRes.data ?? []) {
-    const key = (p.paid_at as string).slice(0, 10)
-    if (byDate[key]) byDate[key].sales += Number(p.amount)
-  }
-  for (const c of checkInsRes.data ?? []) {
-    const key = (c.check_in_time as string).slice(0, 10)
-    if (byDate[key]) byDate[key].checkins += 1
-  }
-
-  return Object.entries(byDate)
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([key, v]) => {
-      const d = new Date(key)
-      return { date: formatShortDate(d), sales: v.sales, members: 0, checkins: v.checkins }
-    })
+  return { data, error: null }
 }
 
 const MEMBERSHIP_COLORS: Record<string, string> = {
@@ -125,31 +146,40 @@ const MEMBERSHIP_COLORS: Record<string, string> = {
   basic: '#F59E0B',
 }
 
-export async function getMembershipDistribution(): Promise<MembershipPieSegment[]> {
+export type GetMembershipDistResult =
+  | { data: MembershipPieSegment[]; error: null }
+  | { data: MembershipPieSegment[]; error: string }
+
+export async function getMembershipDistribution(): Promise<GetMembershipDistResult> {
   const userId = await getCurrentAppUserId()
-  if (!userId) return []
+  if (!userId) return { data: [], error: 'Not authenticated' }
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('members')
     .select('membership_type')
     .eq('user_id', userId)
     .eq('status', 'active')
-  if (error) return []
+  if (error) return { data: [], error: error.message }
   const byType: Record<string, number> = {}
   for (const r of data ?? []) {
     const t = (r.membership_type as string)?.toLowerCase() ?? 'other'
     byType[t] = (byType[t] ?? 0) + 1
   }
-  return Object.entries(byType).map(([name, value]) => ({
+  const result = Object.entries(byType).map(([name, value]) => ({
     name: name.charAt(0).toUpperCase() + name.slice(1),
     value,
     color: MEMBERSHIP_COLORS[name] ?? '#6B7280',
   }))
+  return { data: result, error: null }
 }
 
-export async function getRevenueChartData(months = 6): Promise<RevenueChartPoint[]> {
+export type GetRevenueChartResult =
+  | { data: RevenueChartPoint[]; error: null }
+  | { data: RevenueChartPoint[]; error: string }
+
+export async function getRevenueChartData(months = 6): Promise<GetRevenueChartResult> {
   const userId = await getCurrentAppUserId()
-  if (!userId) return []
+  if (!userId) return { data: [], error: 'Not authenticated' }
   const supabase = await createClient()
   const end = new Date()
   const start = new Date(end.getFullYear(), end.getMonth() - months, 1)
@@ -160,7 +190,7 @@ export async function getRevenueChartData(months = 6): Promise<RevenueChartPoint
     .eq('status', 'completed')
     .gte('paid_at', start.toISOString())
     .lte('paid_at', end.toISOString())
-  if (error) return []
+  if (error) return { data: [], error: error.message }
   const byMonth: Record<string, { memberships: number; training: number; other: number }> = {}
   for (let i = 0; i < months; i++) {
     const d = new Date(end.getFullYear(), end.getMonth() - (months - 1 - i), 1)
@@ -175,13 +205,14 @@ export async function getRevenueChartData(months = 6): Promise<RevenueChartPoint
     else if (type === 'personal_training') byMonth[key].training += amount
     else byMonth[key].other += amount
   }
-  return Object.entries(byMonth)
+  const result = Object.entries(byMonth)
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([key, v]) => {
       const [y, m] = key.split('-')
       const name = MONTH_NAMES[parseInt(m, 10) - 1]
       return { name, ...v }
     })
+  return { data: result, error: null }
 }
 
 function timeAgo(iso: string): string {
@@ -197,7 +228,9 @@ function timeAgo(iso: string): string {
 export async function getRecentActivity(limit = 10): Promise<RecentActivityItem[]> {
   const userId = await getCurrentAppUserId()
   if (!userId) return []
-  const [checkIns, payments] = await Promise.all([getCheckIns(limit), getPayments(limit)])
+  const [checkInsResult, paymentsResult] = await Promise.all([getCheckIns(limit), getPayments(limit)])
+  const checkIns = checkInsResult.checkIns
+  const payments = paymentsResult.payments
   const items: (RecentActivityItem & { _ts: string })[] = []
   for (const c of checkIns) {
     items.push({

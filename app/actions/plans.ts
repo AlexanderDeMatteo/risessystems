@@ -13,17 +13,21 @@ export type PlanRow = {
   is_active: boolean
 }
 
-export async function getMembershipPlans(): Promise<PlanRow[]> {
+export type GetMembershipPlansResult =
+  | { plans: PlanRow[]; error: null }
+  | { plans: PlanRow[]; error: string }
+
+export async function getMembershipPlans(): Promise<GetMembershipPlansResult> {
   const userId = await getCurrentAppUserId()
-  if (!userId) return []
+  if (!userId) return { plans: [], error: 'Not authenticated' }
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('membership_plans')
     .select('id, name, description, price, duration_days, is_active')
     .eq('user_id', userId)
     .order('id', { ascending: true })
-  if (error) return []
-  return (data ?? []).map((r) => ({
+  if (error) return { plans: [], error: error.message }
+  const plans = (data ?? []).map((r) => ({
     id: r.id,
     name: r.name,
     description: r.description ?? null,
@@ -31,6 +35,7 @@ export async function getMembershipPlans(): Promise<PlanRow[]> {
     duration_days: r.duration_days,
     is_active: r.is_active ?? true,
   }))
+  return { plans, error: null }
 }
 
 export type CreatePlanInput = {

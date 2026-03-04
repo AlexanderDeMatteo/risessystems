@@ -1,4 +1,4 @@
-'use client'
+ 'use client'
 
 import {
   Table,
@@ -51,9 +51,10 @@ interface MembersTableProps {
   members: Member[]
   searchTerm: string
   filterStatus: string
+  onEdit?: (member: Member) => void
 }
 
-export function MembersTable({ members, searchTerm, filterStatus }: MembersTableProps) {
+export function MembersTable({ members, searchTerm, filterStatus, onEdit }: MembersTableProps) {
   const filteredMembers = members.filter((member: Member) => {
     const matchesSearch =
       member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -78,18 +79,11 @@ export function MembersTable({ members, searchTerm, filterStatus }: MembersTable
     }
   }
 
-  const getMembershipBadge = (type: string) => {
-    switch (type) {
-      case 'premium':
-        return <Badge className="bg-primary/30 text-primary border border-primary/50">Premium</Badge>
-      case 'standard':
-        return <Badge className="bg-success/20 text-success border border-success/50">Standard</Badge>
-      case 'basic':
-        return <Badge className="bg-muted/50 text-muted-foreground border border-border">Basic</Badge>
-      default:
-        return <Badge>Unknown</Badge>
-    }
-  }
+  const getMembershipBadge = (type: string) => (
+    <Badge className="bg-secondary/40 text-foreground border border-border font-mono text-xs">
+      {type || 'Unknown'}
+    </Badge>
+  )
 
   const formatDaysRemaining = (expiryDate?: string) => {
     const days = getDaysRemaining(expiryDate)
@@ -142,7 +136,12 @@ export function MembersTable({ members, searchTerm, filterStatus }: MembersTable
                 <TableCell>{getRenewalBadge(member)}</TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-2">
-                    <Button variant="ghost" size="sm" className="hover:bg-secondary">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="hover:bg-secondary"
+                      onClick={() => onEdit?.(member)}
+                    >
                       <Edit className="w-4 h-4" />
                     </Button>
                     <Button variant="ghost" size="sm" className="hover:bg-destructive/20 text-destructive">
@@ -164,3 +163,4 @@ export function MembersTable({ members, searchTerm, filterStatus }: MembersTable
     </div>
   )
 }
+

@@ -2,8 +2,9 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Bell, User, Settings, LayoutDashboard, Users, Scan, DollarSign, LogOut, Dumbbell, MapPin, CreditCard } from 'lucide-react'
+import { User, LayoutDashboard, Users, Scan, DollarSign, LogOut, Dumbbell, MapPin, CreditCard } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { NotificationsPopover } from '@/components/dashboard/notifications-popover'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -43,12 +44,7 @@ export function DashboardHeader() {
           </Link>
 
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon">
-              <Bell className="w-5 h-5" />
-            </Button>
-            <Button variant="ghost" size="icon">
-              <Settings className="w-5 h-5" />
-            </Button>
+            <NotificationsPopover />
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

@@ -22,6 +22,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import type { PlatformPlan } from '@/lib/types/platform-plans'
+import type { CreatePlatformPlanInput } from '@/app/actions/platform-plans'
 
 const formSchema = z
   .object({
@@ -49,7 +50,7 @@ type FormValues = z.infer<typeof formSchema>
 interface AddPlanTierDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  onAdded: (tier: PlatformPlan) => void
+  onAdded: (data: CreatePlatformPlanInput) => void
   currentTiers: PlatformPlan[]
 }
 
@@ -86,21 +87,20 @@ export function AddPlanTierDialog({
       values.overage_threshold === ''
         ? null
         : (values.overage_threshold as number)
-    const tier: PlatformPlan = {
-      id: Date.now(),
+    const data: CreatePlatformPlanInput = {
       name: values.name,
       min_active_users: values.min_active_users,
       max_active_users: max,
       price_monthly: values.price_monthly,
       is_active: values.is_active,
       sort_order: nextSortOrder(currentTiers),
-      overage_threshold: overageThreshold ?? undefined,
+      overage_threshold: overageThreshold,
       overage_price_per_user:
         overageThreshold != null && values.overage_price_per_user > 0
           ? values.overage_price_per_user
-          : undefined,
+          : null,
     }
-    onAdded(tier)
+    onAdded(data)
     form.reset()
     onOpenChange(false)
   }

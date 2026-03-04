@@ -10,7 +10,7 @@ export function useRealtimeCheckIns(initialCheckIns: CheckInRow[] = []) {
 
   useEffect(() => {
     let mounted = true
-    const refetch = () => getCheckIns(50).then((data) => mounted && setCheckIns(data))
+    const refetch = () => getCheckIns(50).then((r) => mounted && setCheckIns(r.checkIns))
 
     refetch()
 
@@ -20,6 +20,11 @@ export function useRealtimeCheckIns(initialCheckIns: CheckInRow[] = []) {
       .on(
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'check_ins' },
+        () => refetch()
+      )
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'check_ins' },
         () => refetch()
       )
       .subscribe()

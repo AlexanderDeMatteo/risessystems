@@ -11,6 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { AlertCircle, Dumbbell } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { getRedirectPathAfterLogin } from '@/app/actions/auth'
 
 function GoogleIcon({ className }: { className?: string }) {
   return (
@@ -29,7 +30,6 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const [userType, setUserType] = useState<'gym' | 'admin'>('gym')
 
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -72,11 +72,8 @@ export default function LoginPage() {
         return
       }
       if (data.user) {
-        if (userType === 'admin') {
-          router.push('/admin')
-        } else {
-          router.push('/dashboard')
-        }
+        const path = await getRedirectPathAfterLogin()
+        router.push(path)
         router.refresh()
       }
     } catch {
@@ -115,28 +112,6 @@ export default function LoginPage() {
                   <AlertDescription>{error}</AlertDescription>
                 </Alert>
               )}
-
-              <div className="space-y-2">
-                <Label className="uppercase text-xs tracking-wider">User Type</Label>
-                <div className="flex gap-2">
-                  <Button
-                    type="button"
-                    variant={userType === 'gym' ? 'default' : 'outline'}
-                    className="flex-1"
-                    onClick={() => setUserType('gym')}
-                  >
-                    Gym Owner
-                  </Button>
-                  <Button
-                    type="button"
-                    variant={userType === 'admin' ? 'default' : 'outline'}
-                    className="flex-1"
-                    onClick={() => setUserType('admin')}
-                  >
-                    Administrator
-                  </Button>
-                </div>
-              </div>
 
               <div className="space-y-2">
                 <Label htmlFor="email" className="uppercase text-xs tracking-wider">Email</Label>

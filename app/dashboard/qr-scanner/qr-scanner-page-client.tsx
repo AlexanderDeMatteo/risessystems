@@ -1,6 +1,8 @@
 'use client'
 
 import { Card } from '@/components/ui/card'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { AlertCircle } from 'lucide-react'
 import { QRScanner } from '@/components/qr/qr-scanner'
 import { CheckInHistory } from '@/components/qr/check-in-history'
 import { useRealtimeCheckIns } from '@/hooks/use-realtime-check-ins'
@@ -9,11 +11,18 @@ import type { CheckInRow } from '@/app/actions/check-ins'
 
 interface QRScannerPageClientProps {
   initialCheckIns: CheckInRow[]
+  checkInsError?: string
 }
 
-export function QRScannerPageClient({ initialCheckIns }: QRScannerPageClientProps) {
+export function QRScannerPageClient({ initialCheckIns, checkInsError }: QRScannerPageClientProps) {
   const { checkIns } = useRealtimeCheckIns(initialCheckIns)
-  const checkInItems = checkIns.map((r) => ({ id: r.id, check_in_time: r.check_in_time, member_name: r.member_name }))
+  const checkInItems = checkIns.map((r) => ({
+    id: r.id,
+    check_in_time: r.check_in_time,
+    check_out_time: r.check_out_time ?? null,
+    duration_minutes: r.duration_minutes ?? null,
+    member_name: r.member_name,
+  }))
   const resolveScan = async (value: string) => {
     const member = await findMemberByQrOrId(value)
     if (!member) return null
@@ -25,6 +34,13 @@ export function QRScannerPageClient({ initialCheckIns }: QRScannerPageClientProp
   return (
     <main className="p-6 lg:p-8">
       <div className="max-w-6xl mx-auto space-y-6">
+        {checkInsError && (
+          <Alert variant="destructive" className="border-destructive/50">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Could not load check-ins</AlertTitle>
+            <AlertDescription>{checkInsError}</AlertDescription>
+          </Alert>
+        )}
         <div>
           <h1 className="text-3xl font-bold text-foreground">QR Access Control</h1>
           <p className="text-muted-foreground mt-1">Scan member QR codes for access</p>

@@ -21,6 +21,7 @@ Ubicados en `scripts/`. Ejecutar en orden (ver `scripts/README.md`). No usar `04
 | 13 | ALTER `users`: password_hash nullable |
 | 12 | RLS en todas las tablas |
 | 14 | Políticas Storage (avatars, exercises, progress-photos) |
+| 17 | `platform_subscriptions`, `platform_payments` (gym→platform) |
 
 ---
 
@@ -69,7 +70,7 @@ Miembros del gimnasio. Cada miembro pertenece a un user (gym owner).
 | email | VARCHAR(255) | Opcional |
 | phone | VARCHAR(20) | Opcional |
 | membership_type | VARCHAR(50) | `'premium'`, `'standard'`, `'basic'` |
-| status | VARCHAR(50) | `'active'`, `'suspended'`, `'inactive'` |
+| status | VARCHAR(50) | `'active'`, `'suspended'`, `'inactive'`. **Por defecto al crear:** `'inactive'`. El gym owner debe cambiar a `'active'` al recibir el pago. |
 | join_date | DATE | — |
 | expiry_date | DATE | Nullable |
 | qr_code | VARCHAR(255) UNIQUE | Código QR para check-in |
@@ -171,6 +172,35 @@ Asignación miembro–entrenador (script 07). UNIQUE(trainer_id, member_id).
 ### membership_plans
 Planes de membresía por gym owner (script 08). Conectado a `/dashboard/plans`.
 
+### platform_subscriptions (script 17)
+Suscripción activa de un gym owner a un plan de la plataforma.
+
+| Columna | Tipo | Notas |
+|---------|------|-------|
+| id | SERIAL PK | — |
+| user_id | INTEGER FK → users(id) | Gym owner |
+| platform_plan_id | INTEGER FK → platform_plans(id) | Plan SaaS |
+| status | VARCHAR(50) | `'active'`, `'cancelled'`, `'past_due'` |
+| started_at, ended_at | TIMESTAMP | — |
+| created_at, updated_at | TIMESTAMP | — |
+
+**Índices:** `idx_platform_subscriptions_user_id`, `idx_platform_subscriptions_status`.
+
+### platform_payments (script 17)
+Pagos de gym owners a la plataforma (suscripciones SaaS).
+
+| Columna | Tipo | Notas |
+|---------|------|-------|
+| id | SERIAL PK | — |
+| user_id | INTEGER FK → users(id) | Gym owner |
+| amount | DECIMAL(10,2) | — |
+| period_start, period_end | DATE | Período facturado |
+| status | VARCHAR(50) | `'pending'`, `'completed'`, `'failed'` |
+| paid_at | TIMESTAMP | Nullable hasta completar |
+| created_at | TIMESTAMP | — |
+
+**Índices:** `idx_platform_payments_user_id`, `idx_platform_payments_status`, `idx_platform_payments_paid_at`.
+
 ---
 
 ## Diagrama de relaciones
@@ -183,6 +213,9 @@ users (1) ──→ (N) revenue_summary
 users (1) ──→ (N) branches
 users (1) ──→ (N) trainers
 users (1) ──→ (N) membership_plans
+users (1) ──→ (N) platform_subscriptions
+users (1) ──→ (N) platform_payments
+platform_plans (1) ──→ (N) platform_subscriptions
 members (1) ──→ (N) check_ins
 members (1) ──→ (N) payments (nullable FK)
 members ──→ branch_id (nullable)
