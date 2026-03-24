@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import {
@@ -24,6 +25,7 @@ interface PlatformPaymentsTableProps {
 }
 
 export function PlatformPaymentsTable({ payments, clients, plans, clientActiveUsers }: PlatformPaymentsTableProps) {
+  const t = useTranslations('admin')
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
   const handleOpenDialog = () => {
@@ -37,13 +39,13 @@ export function PlatformPaymentsTable({ payments, clients, plans, clientActiveUs
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'completed':
-        return <Badge className="bg-green-900 text-green-100">Completed</Badge>
+        return <Badge className="bg-green-900 text-green-100">{t('completed')}</Badge>
       case 'pending':
-        return <Badge className="bg-yellow-900 text-yellow-100">Pending</Badge>
+        return <Badge className="bg-yellow-900 text-yellow-100">{t('pending')}</Badge>
       case 'failed':
-        return <Badge className="bg-red-900 text-red-100">Failed</Badge>
+        return <Badge className="bg-red-900 text-red-100">{t('failed')}</Badge>
       default:
-        return <Badge>Unknown</Badge>
+        return <Badge>{t('unknown')}</Badge>
     }
   }
 
@@ -70,9 +72,9 @@ export function PlatformPaymentsTable({ payments, clients, plans, clientActiveUs
       <Card className="bg-card border-border overflow-hidden">
         <div className="p-6 border-b border-border flex items-center justify-between gap-3">
           <div>
-            <h3 className="font-semibold text-foreground">Platform Payments</h3>
+            <h3 className="font-semibold text-foreground">{t('platformPayments')}</h3>
             <p className="text-sm text-muted-foreground mt-1">
-              Payments from gym clients to the platform
+              {t('paymentsSubtitle')}
             </p>
           </div>
           <Button
@@ -83,7 +85,7 @@ export function PlatformPaymentsTable({ payments, clients, plans, clientActiveUs
             disabled={clients.length === 0}
           >
             <Plus className="w-4 h-4" />
-            Charge client
+            {t('chargeClient')}
           </Button>
         </div>
 
@@ -91,11 +93,11 @@ export function PlatformPaymentsTable({ payments, clients, plans, clientActiveUs
           <Table>
             <TableHeader>
               <TableRow className="border-border hover:bg-transparent">
-                <TableHead>Gym Client</TableHead>
-                <TableHead>Amount</TableHead>
-                <TableHead>Period</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Date</TableHead>
+                <TableHead>{t('gymClient')}</TableHead>
+                <TableHead>{t('amount')}</TableHead>
+                <TableHead>{t('period')}</TableHead>
+                <TableHead>{t('status')}</TableHead>
+                <TableHead>{t('date')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -121,7 +123,7 @@ export function PlatformPaymentsTable({ payments, clients, plans, clientActiveUs
               ) : (
                 <TableRow>
                   <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
-                    No platform payments found
+                    {t('noPaymentsFound')}
                   </TableCell>
                 </TableRow>
               )}

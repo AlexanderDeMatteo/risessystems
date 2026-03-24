@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -13,7 +14,6 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Checkbox } from '@/components/ui/checkbox'
-import { MOCK_BRANCHES } from '@/lib/mocks/branches'
 
 export type BranchOption = { id: string; name: string }
 
@@ -59,7 +59,9 @@ export function TrainerForm({
   submitLabel,
   branchOptions,
 }: TrainerFormProps) {
-  const branches = branchOptions ?? MOCK_BRANCHES
+  const t = useTranslations('trainers')
+  const tCommon = useTranslations('common')
+  const branches = branchOptions ?? []
   const [formData, setFormData] = useState<TrainerFormData>({
     ...emptyFormData,
     ...initialData,
@@ -87,12 +89,12 @@ export function TrainerForm({
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-2">
         <Label htmlFor="name" className="text-foreground">
-          Full Name
+          {t('fullName')}
         </Label>
         <Input
           id="name"
           name="name"
-          placeholder="Enter trainer name"
+          placeholder={t('enterTrainerName')}
           value={formData.name}
           onChange={handleChange}
           className="bg-secondary/50 border-border"
@@ -102,7 +104,7 @@ export function TrainerForm({
 
       <div className="space-y-2">
         <Label htmlFor="email" className="text-foreground">
-          Email
+          {tCommon('email')}
         </Label>
         <Input
           id="email"
@@ -118,7 +120,7 @@ export function TrainerForm({
 
       <div className="space-y-2">
         <Label htmlFor="phone" className="text-foreground">
-          Phone
+          {tCommon('phone')}
         </Label>
         <Input
           id="phone"
@@ -132,14 +134,14 @@ export function TrainerForm({
 
       <div className="space-y-2">
         <Label className="text-foreground">
-          Branch
+          {t('branch')}
         </Label>
         <Select
           value={formData.branchId}
           onValueChange={(value) => setFormData((prev) => ({ ...prev, branchId: value }))}
         >
           <SelectTrigger className="bg-secondary/50 border-border">
-            <SelectValue placeholder="Select branch" />
+            <SelectValue placeholder={t('selectBranch')} />
           </SelectTrigger>
           <SelectContent>
             {branches.map((branch) => (
@@ -149,7 +151,7 @@ export function TrainerForm({
             ))}
           </SelectContent>
         </Select>
-        <p className="text-xs text-muted-foreground">Where the trainer will work</p>
+        <p className="text-xs text-muted-foreground">{t('branchHint')}</p>
       </div>
 
       <div className="flex items-center space-x-2">
@@ -164,21 +166,21 @@ export function TrainerForm({
           htmlFor="isPrimaryForBranch"
           className="text-sm font-medium text-foreground cursor-pointer leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
         >
-          Primary trainer for this branch
+          {t('primaryTrainerForBranch')}
         </Label>
       </div>
       <p className="text-xs text-muted-foreground -mt-1">
-        The primary trainer oversees all trainers at this location
+        {t('primaryTrainerHint')}
       </p>
 
       <div className="space-y-2">
         <Label htmlFor="specialties" className="text-foreground">
-          Specialties (comma separated)
+          {t('specialtiesHint')}
         </Label>
         <Textarea
           id="specialties"
           name="specialties"
-          placeholder="e.g. CrossFit, Strength Training"
+          placeholder={t('specialtiesPlaceholder')}
           value={formData.specialties}
           onChange={handleChange}
           className="bg-secondary/50 border-border min-h-16"
@@ -188,7 +190,7 @@ export function TrainerForm({
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label className="text-foreground">
-            Status
+            {tCommon('status')}
           </Label>
           <Select
             value={formData.status}
@@ -200,15 +202,15 @@ export function TrainerForm({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="active">Active</SelectItem>
-              <SelectItem value="inactive">Inactive</SelectItem>
+              <SelectItem value="active">{tCommon('active')}</SelectItem>
+              <SelectItem value="inactive">{tCommon('inactive')}</SelectItem>
             </SelectContent>
           </Select>
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="hireDate" className="text-foreground">
-            Hire Date
+            {t('hireDate')}
           </Label>
           <Input
             id="hireDate"
@@ -223,12 +225,12 @@ export function TrainerForm({
 
       <div className="space-y-2">
         <Label htmlFor="notes" className="text-foreground">
-          Notes
+          {t('notes')}
         </Label>
         <Textarea
           id="notes"
           name="notes"
-          placeholder="Additional information..."
+          placeholder={t('notesPlaceholder')}
           value={formData.notes}
           onChange={handleChange}
           className="bg-secondary/50 border-border min-h-16"
@@ -237,7 +239,7 @@ export function TrainerForm({
 
       <div className="flex gap-3 justify-end">
         <Button type="button" variant="outline" onClick={onCancel}>
-          Cancel
+          {tCommon('cancel')}
         </Button>
         <Button type="submit">{submitLabel}</Button>
       </div>

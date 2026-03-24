@@ -1,9 +1,10 @@
 'use client'
 
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { Bell, User, Settings, LayoutDashboard, Building2, BarChart3, DollarSign, CreditCard, LogOut } from 'lucide-react'
+import { Link, usePathname } from '@/i18n/routing'
+import { useTranslations } from 'next-intl'
+import { User, LayoutDashboard, Building2, BarChart3, DollarSign, CreditCard, LogOut, Trophy } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { AdminNotificationsPopover } from '@/components/admin/admin-notifications-popover'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,15 +15,17 @@ import {
 
 export function AdminHeader() {
   const pathname = usePathname()
+  const t = useTranslations('admin')
 
   const isActive = (path: string) => pathname === path
 
   const navItems = [
-    { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
-    { href: '/admin/clients', label: 'Clients', icon: Building2 },
-    { href: '/admin/plans', label: 'Plans & Pricing', icon: CreditCard },
-    { href: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
-    { href: '/admin/accounting', label: 'Accounting', icon: DollarSign },
+    { href: '/admin', labelKey: 'dashboard', icon: LayoutDashboard },
+    { href: '/admin/clients', labelKey: 'clients', icon: Building2 },
+    { href: '/admin/plans', labelKey: 'plansAndPricing', icon: CreditCard },
+    { href: '/admin/analytics', labelKey: 'analytics', icon: BarChart3 },
+    { href: '/admin/competitions', labelKey: 'competitions', icon: Trophy },
+    { href: '/admin/accounting', labelKey: 'accounting', icon: DollarSign },
   ]
 
   return (
@@ -36,17 +39,12 @@ export function AdminHeader() {
             </div>
             <div>
               <h1 className="text-xl font-bold text-foreground">RisesSystem Admin</h1>
-              <p className="text-xs text-muted-foreground">Administration Panel</p>
+              <p className="text-xs text-muted-foreground">{t('subtitle')}</p>
             </div>
           </Link>
 
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon">
-              <Bell className="w-5 h-5" />
-            </Button>
-            <Button variant="ghost" size="icon">
-              <Settings className="w-5 h-5" />
-            </Button>
+            <AdminNotificationsPopover />
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -56,16 +54,16 @@ export function AdminHeader() {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="bg-card border-border/50 shadow-[0_0_20px_hsl(var(--primary)_/_0.1)]">
                 <Link href="/admin/profile">
-                  <DropdownMenuItem className="uppercase text-xs tracking-wider cursor-pointer hover:bg-secondary/50 hover:text-primary transition-colors">Profile</DropdownMenuItem>
+                  <DropdownMenuItem className="uppercase text-xs tracking-wider cursor-pointer hover:bg-secondary/50 hover:text-primary transition-colors">{t('profile')}</DropdownMenuItem>
                 </Link>
                 <Link href="/admin/settings">
-                  <DropdownMenuItem className="uppercase text-xs tracking-wider cursor-pointer hover:bg-secondary/50 hover:text-primary transition-colors">Settings</DropdownMenuItem>
+                  <DropdownMenuItem className="uppercase text-xs tracking-wider cursor-pointer hover:bg-secondary/50 hover:text-primary transition-colors">{t('settings')}</DropdownMenuItem>
                 </Link>
                 <DropdownMenuSeparator className="bg-border/30" />
                 <Link href="/logout">
                   <DropdownMenuItem className="text-destructive uppercase text-xs tracking-wider cursor-pointer hover:bg-destructive/10">
                     <LogOut className="w-4 h-4 mr-2" />
-                    Logout
+                    {t('logout')}
                   </DropdownMenuItem>
                 </Link>
               </DropdownMenuContent>
@@ -88,7 +86,7 @@ export function AdminHeader() {
                 }`}
               >
                 <Icon className="w-4 h-4" />
-                <span>{item.label}</span>
+                <span>{t(item.labelKey)}</span>
               </Link>
             )
           })}

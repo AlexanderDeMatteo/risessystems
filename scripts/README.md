@@ -20,6 +20,9 @@ Run in **Supabase Dashboard → SQL Editor** in this order:
 | 14 | `16-create-platform-plans.sql` | platform_plans table and RLS (admin manage, authenticated read) |
 | 15 | `17-platform-subscriptions.sql` | platform_subscriptions, platform_payments (gym→platform revenue) |
 | 16 | `14-storage-policies.sql` | Storage RLS for avatars, exercises, progress-photos |
+| 17 | `21-create-competitions.sql` | Competencias (internal + versus), retos, scores, RPC `refresh_competition_scores`, RLS (después de `15-add-admin-rls.sql`) |
+| — | `22-fix-competition-rls-recursion.sql` | **Solo si ya corriste un `21` antiguo:** corrige el error PostgreSQL *infinite recursion detected in policy for relation "competition_gyms"* (función `is_user_participant_in_competition` + políticas sin subconsultas recursivas) |
+| 18 | `23-mobile-rls-policies.sql` | App móvil: `get_my_member_id` / `get_my_trainer_id` + políticas SELECT/UPDATE para miembros y entrenadores vinculados con `auth_user_id` |
 
 **Note:** `04-create-checkins-table.sql` is not used; check_ins is already created in `02-create-members-table.sql`. Skip script 04.
 

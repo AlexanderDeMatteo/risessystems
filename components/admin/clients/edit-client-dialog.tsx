@@ -1,7 +1,8 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter } from '@/i18n/routing'
+import { useTranslations } from 'next-intl'
 import {
   Dialog,
   DialogContent,
@@ -30,6 +31,8 @@ interface EditClientDialogProps {
 }
 
 export function EditClientDialog({ open, onOpenChange, client }: EditClientDialogProps) {
+  const t = useTranslations('admin')
+  const tCommon = useTranslations('common')
   const router = useRouter()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -58,17 +61,17 @@ export function EditClientDialog({ open, onOpenChange, client }: EditClientDialo
     setError(null)
 
     if (!client) {
-      setError('No client selected.')
+      setError(t('noClientSelected'))
       return
     }
 
     if (!name.trim()) {
-      setError('Name is required.')
+      setError(t('nameRequired'))
       return
     }
 
     if (!email.trim()) {
-      setError('Email is required.')
+      setError(t('emailRequired'))
       return
     }
 
@@ -87,7 +90,7 @@ export function EditClientDialog({ open, onOpenChange, client }: EditClientDialo
       return
     }
 
-    toast.success('Client updated successfully.')
+    toast.success(t('clientUpdated'))
     handleClose(false)
     router.refresh()
   }
@@ -98,16 +101,16 @@ export function EditClientDialog({ open, onOpenChange, client }: EditClientDialo
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-foreground">
             <Edit className="w-4 h-4 text-primary" />
-            Edit Client
+            {t('editClient')}
           </DialogTitle>
           <DialogDescription>
-            Update the gym client&apos;s information.
+            {t('editClientDesc')}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name">Gym Name</Label>
+            <Label htmlFor="name">{t('gymName')}</Label>
             <Input
               id="name"
               type="text"
@@ -120,7 +123,7 @@ export function EditClientDialog({ open, onOpenChange, client }: EditClientDialo
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">{t('email')}</Label>
             <Input
               id="email"
               type="email"
@@ -133,7 +136,7 @@ export function EditClientDialog({ open, onOpenChange, client }: EditClientDialo
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="phone">Phone (optional)</Label>
+            <Label htmlFor="phone">{t('phoneOptional')}</Label>
             <Input
               id="phone"
               type="tel"
@@ -145,15 +148,15 @@ export function EditClientDialog({ open, onOpenChange, client }: EditClientDialo
           </div>
 
           <div className="space-y-2">
-            <Label>Status</Label>
+            <Label>{t('status')}</Label>
             <Select value={status} onValueChange={(v: 'active' | 'inactive' | 'suspended') => setStatus(v)}>
               <SelectTrigger className="bg-secondary/50 border-border">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="z-[100]">
-                <SelectItem value="active">Active</SelectItem>
-                <SelectItem value="inactive">Inactive</SelectItem>
-                <SelectItem value="suspended">Suspended</SelectItem>
+                <SelectItem value="active">{t('active')}</SelectItem>
+                <SelectItem value="inactive">{t('inactive')}</SelectItem>
+                <SelectItem value="suspended">{t('suspended')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -162,16 +165,16 @@ export function EditClientDialog({ open, onOpenChange, client }: EditClientDialo
 
           <div className="flex justify-end gap-2 pt-2">
             <Button type="button" variant="outline" onClick={() => handleClose(false)} disabled={submitting}>
-              Cancel
+              {tCommon('cancel')}
             </Button>
             <Button type="submit" disabled={submitting}>
               {submitting ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                  Saving...
+                  {t('saving')}
                 </>
               ) : (
-                'Save Changes'
+                t('saveChanges')
               )}
             </Button>
           </div>

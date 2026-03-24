@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import {
   Dialog,
   DialogContent,
@@ -7,9 +8,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { TrainerForm, type TrainerFormData } from './trainer-form'
-import { MOCK_BRANCHES } from '@/lib/mocks/branches'
-
-const defaultBranches = MOCK_BRANCHES
 
 export interface Trainer {
   id: number
@@ -52,7 +50,8 @@ export function EditTrainerDialog({
   onClearPrimaryForBranch,
   branchOptions,
 }: EditTrainerDialogProps) {
-  const branches = branchOptions ?? defaultBranches
+  const t = useTranslations('trainers')
+  const branches = branchOptions ?? []
   const initialData: Partial<TrainerFormData> | undefined = trainer
     ? {
         name: trainer.name,
@@ -102,7 +101,7 @@ export function EditTrainerDialog({
       <DialogContent className="bg-card border-border max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-foreground">
-            Edit Trainer{trainer ? ` — ${trainer.name}` : ''}
+            {t('editTrainer')}{trainer ? ` — ${trainer.name}` : ''}
           </DialogTitle>
         </DialogHeader>
 
@@ -113,7 +112,7 @@ export function EditTrainerDialog({
             initialData={initialData}
             onSubmit={handleSubmit}
             onCancel={() => onOpenChange(false)}
-            submitLabel="Save Changes"
+            submitLabel={t('saveChanges')}
             branchOptions={branchOptions}
           />
         )}

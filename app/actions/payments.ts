@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { getCurrentAppUserId } from '@/lib/supabase/get-app-user-id'
 import { revalidatePath } from 'next/cache'
+import { getTranslations } from 'next-intl/server'
 
 export type PaymentRow = {
   id: number
@@ -19,8 +20,9 @@ export type GetPaymentsResult =
   | { payments: PaymentRow[]; error: string }
 
 export async function getPayments(limit = 50): Promise<GetPaymentsResult> {
+  const t = await getTranslations('errors')
   const userId = await getCurrentAppUserId()
-  if (!userId) return { payments: [], error: 'Not authenticated' }
+  if (!userId) return { payments: [], error: t('notAuthenticated') }
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('payments')
@@ -189,8 +191,9 @@ export type CreatePaymentInput = {
 export async function createPayment(
   input: CreatePaymentInput
 ): Promise<{ ok: true; id: number } | { ok: false; error: string }> {
+  const t = await getTranslations('errors')
   const userId = await getCurrentAppUserId()
-  if (!userId) return { ok: false, error: 'Not authenticated' }
+  if (!userId) return { ok: false, error: t('notAuthenticated') }
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('payments')
@@ -233,8 +236,9 @@ export async function updatePayment(
   id: number,
   input: UpdatePaymentInput
 ): Promise<{ ok: true } | { ok: false; error: string }> {
+  const t = await getTranslations('errors')
   const userId = await getCurrentAppUserId()
-  if (!userId) return { ok: false, error: 'Not authenticated' }
+  if (!userId) return { ok: false, error: t('notAuthenticated') }
   const supabase = await createClient()
   const payload: Record<string, unknown> = {}
   if (input.amount !== undefined) payload.amount = input.amount
@@ -250,8 +254,9 @@ export async function updatePayment(
 }
 
 export async function deletePayment(id: number): Promise<{ ok: true } | { ok: false; error: string }> {
+  const t = await getTranslations('errors')
   const userId = await getCurrentAppUserId()
-  if (!userId) return { ok: false, error: 'Not authenticated' }
+  if (!userId) return { ok: false, error: t('notAuthenticated') }
   const supabase = await createClient()
   const { error } = await supabase.from('payments').delete().eq('id', id).eq('user_id', userId)
   if (error) return { ok: false, error: error.message }

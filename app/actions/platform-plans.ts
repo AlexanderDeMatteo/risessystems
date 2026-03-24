@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { isCurrentUserAdmin } from '@/app/actions/admin'
 import { revalidatePath } from 'next/cache'
+import { getTranslations } from 'next-intl/server'
 import type { PlatformPlan } from '@/lib/types/platform-plans'
 
 export type GetPlatformPlansResult =
@@ -70,7 +71,10 @@ export async function createPlatformPlan(
   input: CreatePlatformPlanInput
 ): Promise<{ ok: true; id: number } | { ok: false; error: string }> {
   const admin = await isCurrentUserAdmin()
-  if (!admin) return { ok: false, error: 'Not authorized' }
+  if (!admin) {
+    const t = await getTranslations('errors')
+    return { ok: false, error: t('notAuthorized') }
+  }
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('platform_plans')
@@ -96,7 +100,10 @@ export async function updatePlatformPlan(
   input: Partial<CreatePlatformPlanInput>
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   const admin = await isCurrentUserAdmin()
-  if (!admin) return { ok: false, error: 'Not authorized' }
+  if (!admin) {
+    const t = await getTranslations('errors')
+    return { ok: false, error: t('notAuthorized') }
+  }
   const supabase = await createClient()
   const payload: Record<string, unknown> = {}
   if (input.name !== undefined) payload.name = input.name
@@ -116,7 +123,10 @@ export async function updatePlatformPlan(
 
 export async function deletePlatformPlan(id: number): Promise<{ ok: true } | { ok: false; error: string }> {
   const admin = await isCurrentUserAdmin()
-  if (!admin) return { ok: false, error: 'Not authorized' }
+  if (!admin) {
+    const t = await getTranslations('errors')
+    return { ok: false, error: t('notAuthorized') }
+  }
   const supabase = await createClient()
   const { error } = await supabase.from('platform_plans').delete().eq('id', id)
   if (error) return { ok: false, error: error.message }

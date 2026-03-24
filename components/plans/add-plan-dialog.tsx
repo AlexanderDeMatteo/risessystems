@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import {
   Dialog,
   DialogContent,
@@ -27,14 +28,17 @@ interface AddPlanDialogProps {
   onPlanAdded?: (data: AddPlanFormData) => void
 }
 
-const DURATION_OPTIONS = [
-  { value: 30, label: '1 month' },
-  { value: 90, label: '3 months' },
-  { value: 180, label: '6 months' },
-  { value: 365, label: '1 year' },
-]
-
 export function AddPlanDialog({ isOpen, onOpenChange, onPlanAdded }: AddPlanDialogProps) {
+  const t = useTranslations('plans')
+  const tCommon = useTranslations('common')
+
+  const DURATION_OPTIONS = [
+    { value: 30, label: t('duration1Month') },
+    { value: 90, label: t('duration3Months') },
+    { value: 180, label: t('duration6Months') },
+    { value: 365, label: t('duration1Year') },
+  ]
+
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -69,19 +73,19 @@ export function AddPlanDialog({ isOpen, onOpenChange, onPlanAdded }: AddPlanDial
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="bg-card border-border">
         <DialogHeader>
-          <DialogTitle>Add New Plan</DialogTitle>
+          <DialogTitle>{t('addNewPlan')}</DialogTitle>
           <DialogDescription>
-            Create a new membership plan with its price and duration
+            {t('createDescription')}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name">Plan Name</Label>
+            <Label htmlFor="name">{t('planName')}</Label>
             <Input
               id="name"
               name="name"
-              placeholder="e.g. Monthly Premium"
+              placeholder={t('planNamePlaceholder')}
               value={formData.name}
               onChange={handleChange}
               required
@@ -89,11 +93,11 @@ export function AddPlanDialog({ isOpen, onOpenChange, onPlanAdded }: AddPlanDial
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">Description (optional)</Label>
+            <Label htmlFor="description">{t('descriptionOptional')}</Label>
             <Textarea
               id="description"
               name="description"
-              placeholder="What does this plan include?"
+              placeholder={t('descriptionPlaceholder')}
               value={formData.description}
               onChange={handleChange}
               className="min-h-20"
@@ -102,21 +106,21 @@ export function AddPlanDialog({ isOpen, onOpenChange, onPlanAdded }: AddPlanDial
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="price">Price ($)</Label>
+              <Label htmlFor="price">{t('price')} ($)</Label>
               <Input
                 id="price"
                 name="price"
                 type="number"
                 step="0.01"
                 min="0"
-                placeholder="49.99"
+                placeholder={t('pricePlaceholder')}
                 value={formData.price}
                 onChange={handleChange}
                 required
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="duration">Duration</Label>
+              <Label htmlFor="duration">{t('duration')}</Label>
               <Select
                 value={String(formData.duration_days)}
                 onValueChange={(value) =>
@@ -139,9 +143,9 @@ export function AddPlanDialog({ isOpen, onOpenChange, onPlanAdded }: AddPlanDial
 
           <div className="flex gap-2 justify-end pt-4">
             <Button variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
+              {tCommon('cancel')}
             </Button>
-            <Button type="submit">Add Plan</Button>
+            <Button type="submit">{t('addPlan')}</Button>
           </div>
         </form>
       </DialogContent>

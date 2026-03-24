@@ -1,8 +1,8 @@
 'use client'
 
 import React from "react"
-
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import {
   Dialog,
   DialogContent,
@@ -39,6 +39,9 @@ const initialFormData: AddMemberFormData = {
 }
 
 export function AddMemberDialog({ isOpen, onOpenChange, onMemberAdded, plans }: AddMemberDialogProps) {
+  const t = useTranslations('members')
+  const tCommon = useTranslations('common')
+  const tPlans = useTranslations('plans')
   const [formData, setFormData] = useState<AddMemberFormData>(initialFormData)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -58,16 +61,16 @@ export function AddMemberDialog({ isOpen, onOpenChange, onMemberAdded, plans }: 
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="bg-card border-border">
         <DialogHeader>
-          <DialogTitle>Add New Member</DialogTitle>
+          <DialogTitle>{t('addMember')}</DialogTitle>
           <DialogDescription>
-            Add a new member to your gym
+            {t('memberAdded').replace(' successfully', '')}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="firstName">First Name</Label>
+              <Label htmlFor="firstName">{tCommon('name')}</Label>
               <Input
                 id="firstName"
                 name="firstName"
@@ -78,7 +81,7 @@ export function AddMemberDialog({ isOpen, onOpenChange, onMemberAdded, plans }: 
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="lastName">Last Name</Label>
+              <Label htmlFor="lastName">{tCommon('name')}</Label>
               <Input
                 id="lastName"
                 name="lastName"
@@ -91,7 +94,7 @@ export function AddMemberDialog({ isOpen, onOpenChange, onMemberAdded, plans }: 
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">{tCommon('email')}</Label>
             <Input
               id="email"
               name="email"
@@ -104,7 +107,7 @@ export function AddMemberDialog({ isOpen, onOpenChange, onMemberAdded, plans }: 
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="phone">Phone</Label>
+            <Label htmlFor="phone">{tCommon('phone')}</Label>
             <Input
               id="phone"
               name="phone"
@@ -115,7 +118,7 @@ export function AddMemberDialog({ isOpen, onOpenChange, onMemberAdded, plans }: 
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="plan">Membership Plan</Label>
+            <Label htmlFor="plan">{t('membershipType')}</Label>
             <Select
               value={formData.planId?.toString() ?? ''}
               onValueChange={(value) =>
@@ -123,7 +126,7 @@ export function AddMemberDialog({ isOpen, onOpenChange, onMemberAdded, plans }: 
               }
             >
               <SelectTrigger>
-                <SelectValue placeholder={plans.length ? 'Select a plan' : 'Create a plan in Plans first'} />
+                <SelectValue placeholder={plans.length ? tPlans('title') : tPlans('noPlans')} />
               </SelectTrigger>
               <SelectContent>
                 {plans.map((plan) => (
@@ -137,10 +140,10 @@ export function AddMemberDialog({ isOpen, onOpenChange, onMemberAdded, plans }: 
 
           <div className="flex gap-2 justify-end pt-4">
             <Button variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
+              {tCommon('cancel')}
             </Button>
             <Button type="submit" disabled={!formData.planId || plans.length === 0}>
-              Add Member
+              {t('addMember')}
             </Button>
           </div>
         </form>

@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { getCurrentAppUserId } from '@/lib/supabase/get-app-user-id'
 import { revalidatePath } from 'next/cache'
+import { getTranslations } from 'next-intl/server'
 
 export type PlanRow = {
   id: number
@@ -18,8 +19,9 @@ export type GetMembershipPlansResult =
   | { plans: PlanRow[]; error: string }
 
 export async function getMembershipPlans(): Promise<GetMembershipPlansResult> {
+  const t = await getTranslations('errors')
   const userId = await getCurrentAppUserId()
-  if (!userId) return { plans: [], error: 'Not authenticated' }
+  if (!userId) return { plans: [], error: t('notAuthenticated') }
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('membership_plans')
@@ -46,8 +48,9 @@ export type CreatePlanInput = {
 }
 
 export async function createPlan(input: CreatePlanInput): Promise<{ ok: true; id: number } | { ok: false; error: string }> {
+  const t = await getTranslations('errors')
   const userId = await getCurrentAppUserId()
-  if (!userId) return { ok: false, error: 'Not authenticated' }
+  if (!userId) return { ok: false, error: t('notAuthenticated') }
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('membership_plans')
@@ -67,8 +70,9 @@ export async function createPlan(input: CreatePlanInput): Promise<{ ok: true; id
 }
 
 export async function updatePlan(id: number, input: Partial<CreatePlanInput>): Promise<{ ok: true } | { ok: false; error: string }> {
+  const t = await getTranslations('errors')
   const userId = await getCurrentAppUserId()
-  if (!userId) return { ok: false, error: 'Not authenticated' }
+  if (!userId) return { ok: false, error: t('notAuthenticated') }
   const supabase = await createClient()
   const payload: Record<string, unknown> = {}
   if (input.name !== undefined) payload.name = input.name
@@ -82,8 +86,9 @@ export async function updatePlan(id: number, input: Partial<CreatePlanInput>): P
 }
 
 export async function deletePlan(id: number): Promise<{ ok: true } | { ok: false; error: string }> {
+  const t = await getTranslations('errors')
   const userId = await getCurrentAppUserId()
-  if (!userId) return { ok: false, error: 'Not authenticated' }
+  if (!userId) return { ok: false, error: t('notAuthenticated') }
   const supabase = await createClient()
   const { error } = await supabase.from('membership_plans').delete().eq('id', id).eq('user_id', userId)
   if (error) return { ok: false, error: error.message }

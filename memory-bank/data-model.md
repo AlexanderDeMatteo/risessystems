@@ -22,6 +22,8 @@ Ubicados en `scripts/`. Ejecutar en orden (ver `scripts/README.md`). No usar `04
 | 12 | RLS en todas las tablas |
 | 14 | Políticas Storage (avatars, exercises, progress-photos) |
 | 17 | `platform_subscriptions`, `platform_payments` (gym→platform) |
+| 21 | `competitions`, `competition_gyms`, `challenges`, `challenge_gym_scores` + RPC refresh |
+| 23 | `get_my_member_id`, `get_my_trainer_id` + RLS para app móvil (miembro/entrenador vía `auth_user_id`) |
 
 ---
 
@@ -201,6 +203,23 @@ Pagos de gym owners a la plataforma (suscripciones SaaS).
 
 **Índices:** `idx_platform_payments_user_id`, `idx_platform_payments_status`, `idx_platform_payments_paid_at`.
 
+### Competencias y gamificación (script `21-create-competitions.sql`)
+
+Flujo **admin-controlled** para `scope = 'versus'`: el administrador de plataforma crea la competencia, asigna dos gym owners (`users.id` con `role = 'owner'`) y los retos. Los owners solo ven versus en lectura en el dashboard.
+
+`scope = 'internal'`: el gym owner crea competencias para su propio gimnasio (una fila en `competition_gyms`).
+
+| Tabla | Rol |
+|--------|-----|
+| `competitions` | Cabecera: `scope`, `status`, fechas, `public_slug`, `is_public_leaderboard`, `winner_user_id`, `created_by_user_id` |
+| `competition_gyms` | Participantes: `user_id` (owner), `gym_name_snapshot`, `active_members_snapshot` |
+| `challenges` | Retos por competencia: `metric_type` (MVP: `check_in_count`), `normalization`, `points_weight` |
+| `challenge_gym_scores` | Agregado por reto y gym: `raw_value`, `normalized_value`, `weighted_points` |
+
+**RPC:** `refresh_competition_scores(competition_id)` recalcula scores desde `check_ins` + `members` en la ventana `starts_at`–`ends_at`. Puede ejecutarlo admin o un participante.
+
+**Público:** RLS permite `SELECT` a `anon`/`authenticated` en competencias con `is_public_leaderboard` y `public_slug` (ruta `/versus/[slug]`).
+
 ---
 
 ## Diagrama de relaciones
@@ -221,6 +240,12 @@ members (1) ──→ (N) payments (nullable FK)
 members ──→ branch_id (nullable)
 trainers ──→ branch_id (nullable)
 trainer_members: trainers ↔ members
+users (1) ──→ (N) competitions (created_by_user_id)
+competitions (1) ──→ (N) competition_gyms
+competitions (1) ──→ (N) challenges
+challenges (1) ──→ (N) challenge_gym_scores
+users (1) ──→ (N) challenge_gym_scores (por gym)
+competitions ──→ winner_user_id (nullable)
 ```
 
 ---

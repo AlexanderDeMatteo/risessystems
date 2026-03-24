@@ -1,3 +1,6 @@
+'use client'
+
+import { useTranslations } from 'next-intl'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import type { AdminClient } from '@/app/actions/admin'
@@ -7,12 +10,14 @@ interface ClientsOverviewProps {
 }
 
 export function ClientsOverview({ clients }: ClientsOverviewProps) {
+  const t = useTranslations('admin')
+
   return (
     <Card className="bg-card border-border p-6">
       <div className="space-y-4">
         <div>
-          <h2 className="text-xl font-semibold text-foreground">Top Clients</h2>
-          <p className="text-sm text-muted-foreground">By active users</p>
+          <h2 className="text-xl font-semibold text-foreground">{t('topClients')}</h2>
+          <p className="text-sm text-muted-foreground">{t('byActiveUsers')}</p>
         </div>
 
         <div className="space-y-3">
@@ -21,15 +26,15 @@ export function ClientsOverview({ clients }: ClientsOverviewProps) {
               <div key={client.id} className="flex items-center justify-between p-3 bg-secondary/50 rounded-lg border border-border/50">
                 <div className="flex-1">
                   <p className="font-medium text-foreground text-sm">{client.name}</p>
-                  <p className="text-xs text-muted-foreground">{client.branches} branches • {client.activeUsers} users</p>
+                  <p className="text-xs text-muted-foreground">{client.branches} {t('branches')} • {client.activeUsers} {t('users')}</p>
                 </div>
                 <Badge className={client.status === 'active' ? 'bg-green-900 text-green-100' : 'bg-gray-700 text-gray-100'}>
-                  {client.status}
+                  {client.status === 'active' ? t('active') : t('inactive')}
                 </Badge>
               </div>
             ))
           ) : (
-            <p className="text-sm text-muted-foreground py-4">No clients yet</p>
+            <p className="text-sm text-muted-foreground py-4">{t('noClientsYet')}</p>
           )}
         </div>
       </div>

@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter } from '@/i18n/routing'
+import { useTranslations } from 'next-intl'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -20,18 +21,6 @@ interface CheckInHistoryProps {
   checkIns?: CheckInItem[]
 }
 
-function formatTime(dateString: string): string {
-  const date = new Date(dateString)
-  const now = new Date()
-  const diff = now.getTime() - date.getTime()
-  const minutes = Math.floor(diff / 60000)
-  if (minutes < 1) return 'Just now'
-  if (minutes < 60) return `${minutes}m ago`
-  const hours = Math.floor(minutes / 60)
-  if (hours < 24) return `${hours}h ago`
-  return date.toLocaleDateString()
-}
-
 function formatDuration(minutes: number): string {
   if (minutes < 60) return `${minutes}m`
   const h = Math.floor(minutes / 60)
@@ -41,7 +30,20 @@ function formatDuration(minutes: number): string {
 
 export function CheckInHistory({ checkIns = [] }: CheckInHistoryProps) {
   const router = useRouter()
+  const t = useTranslations('qr')
   const [checkingOutId, setCheckingOutId] = useState<number | null>(null)
+
+  const formatTime = (dateString: string): string => {
+    const date = new Date(dateString)
+    const now = new Date()
+    const diff = now.getTime() - date.getTime()
+    const minutes = Math.floor(diff / 60000)
+    if (minutes < 1) return t('justNow')
+    if (minutes < 60) return t('minutesAgo', { minutes })
+    const hours = Math.floor(minutes / 60)
+    if (hours < 24) return t('hoursAgo', { hours })
+    return date.toLocaleDateString()
+  }
 
   const handleCheckOut = useCallback(
     async (id: number) => {
@@ -57,8 +59,8 @@ export function CheckInHistory({ checkIns = [] }: CheckInHistoryProps) {
     <Card className="bg-card border-border p-6">
       <div className="space-y-4">
         <div>
-          <h2 className="text-xl font-semibold text-foreground">Check-In History</h2>
-          <p className="text-sm text-muted-foreground">Recent member check-ins (live)</p>
+          <h2 className="text-xl font-semibold text-foreground">{t('checkInHistory')}</h2>
+          <p className="text-sm text-muted-foreground">{t('recentCheckIns')}</p>
         </div>
         <div className="space-y-3 max-h-96 overflow-y-auto">
           {checkIns.length > 0 ? (
@@ -87,7 +89,7 @@ export function CheckInHistory({ checkIns = [] }: CheckInHistoryProps) {
                   <div className="flex items-center gap-2">
                     {isCheckedOut ? (
                       <Badge variant="secondary" className="bg-muted text-muted-foreground">
-                        Checked out
+                        {t('checkedOut')}
                       </Badge>
                     ) : (
                       <Button
@@ -98,7 +100,7 @@ export function CheckInHistory({ checkIns = [] }: CheckInHistoryProps) {
                         disabled={checkingOutId === checkin.id}
                       >
                         <LogOut className="w-3 h-3" />
-                        {checkingOutId === checkin.id ? 'Checking out...' : 'Check out'}
+                        {checkingOutId === checkin.id ? t('checkingOut') : t('checkOut')}
                       </Button>
                     )}
                   </div>
@@ -106,7 +108,7 @@ export function CheckInHistory({ checkIns = [] }: CheckInHistoryProps) {
               )
             })
           ) : (
-            <p className="text-center text-muted-foreground py-8">No check-ins yet</p>
+            <p className="text-center text-muted-foreground py-8">{t('noCheckIns')}</p>
           )}
         </div>
       </div>

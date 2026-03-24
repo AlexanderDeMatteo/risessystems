@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import {
   Table,
   TableBody,
@@ -14,7 +15,7 @@ import { Card } from '@/components/ui/card'
 import { Edit, Trash2, RefreshCw } from 'lucide-react'
 import type { AdminClient, PlatformPlan } from '@/app/actions/admin'
 import { cn } from '@/lib/utils'
-import { getPlanForActiveCount, getMonthlyPriceBreakdown } from '@/lib/mocks/platform-plans'
+import { getPlanForActiveCount, getMonthlyPriceBreakdown } from '@/lib/utils/platform-pricing'
 import type { PlatformPlan as PlatformPlanType } from '@/lib/types/platform-plans'
 
 interface ClientsTableProps {
@@ -33,11 +34,11 @@ function getDaysUntilExpiry(dateStr?: string): number | null {
   return Math.ceil((expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
 }
 
-function SubscriptionCell({ endDate, hasSubscription }: { endDate?: string; hasSubscription: boolean }) {
+function SubscriptionCell({ endDate, hasSubscription, t }: { endDate?: string; hasSubscription: boolean; t: (key: string) => string }) {
   if (!hasSubscription) {
     return (
       <Badge className="bg-muted text-muted-foreground border border-border">
-        No subscription
+        {t('noSubscription')}
       </Badge>
     )
   }
@@ -49,17 +50,17 @@ function SubscriptionCell({ endDate, hasSubscription }: { endDate?: string; hasS
   if (days < 0) {
     return (
       <Badge className="bg-destructive/20 text-destructive border border-destructive/50">
-        Expired {Math.abs(days)}d ago
+        {t('expired')} {Math.abs(days)}{t('daysAgo')}
       </Badge>
     )
   }
   if (days === 0) {
-    return <Badge className="bg-amber-500/20 text-amber-400 border border-amber-500/40">Today</Badge>
+    return <Badge className="bg-amber-500/20 text-amber-400 border border-amber-500/40">{t('today')}</Badge>
   }
   if (days <= 7) {
     return (
       <Badge className="bg-amber-500/20 text-amber-400 border border-amber-500/40">
-        {days}d left
+        {days}{t('daysLeft')}
       </Badge>
     )
   }
@@ -85,6 +86,7 @@ function adaptPlansForCalculation(plans: PlatformPlan[]): PlatformPlanType[] {
 }
 
 export function ClientsTable({ clients, plans, onChargeClient, onEditClient }: ClientsTableProps) {
+  const t = useTranslations('admin')
   const planTiers = adaptPlansForCalculation(plans)
   return (
     <Card className="bg-card border-border overflow-hidden">
@@ -92,14 +94,14 @@ export function ClientsTable({ clients, plans, onChargeClient, onEditClient }: C
         <Table>
           <TableHeader>
             <TableRow className="border-border hover:bg-transparent">
-              <TableHead>Gym Name</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>Plan</TableHead>
-              <TableHead>Branches</TableHead>
-              <TableHead>Active Users</TableHead>
-              <TableHead>Subscription</TableHead>
-              <TableHead>Join Date</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead>{t('gymName')}</TableHead>
+              <TableHead>{t('email')}</TableHead>
+              <TableHead>{t('plan')}</TableHead>
+              <TableHead>{t('branches')}</TableHead>
+              <TableHead>{t('activeUsers')}</TableHead>
+              <TableHead>{t('subscription')}</TableHead>
+              <TableHead>{t('joinDate')}</TableHead>
+              <TableHead className="text-right">{t('actions')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -148,7 +150,7 @@ export function ClientsTable({ clients, plans, onChargeClient, onEditClient }: C
                   </TableCell>
                   <TableCell className="font-medium text-primary">{client.activeUsers}</TableCell>
                   <TableCell>
-                    <SubscriptionCell endDate={client.subscriptionEndDate} hasSubscription={!hasNoSubscription} />
+                    <SubscriptionCell endDate={client.subscriptionEndDate} hasSubscription={!hasNoSubscription} t={t} />
                   </TableCell>
                   <TableCell className="text-muted-foreground text-sm">{client.joinDate}</TableCell>
                   <TableCell className="text-right">
@@ -161,7 +163,7 @@ export function ClientsTable({ clients, plans, onChargeClient, onEditClient }: C
                           onClick={() => onChargeClient(client)}
                         >
                           <RefreshCw className="w-3.5 h-3.5" />
-                          {hasNoSubscription ? 'Activate' : 'Renew'}
+                          {hasNoSubscription ? t('activate') : t('renew')}
                         </Button>
                       )}
                       <Button
@@ -182,7 +184,7 @@ export function ClientsTable({ clients, plans, onChargeClient, onEditClient }: C
             }) : (
               <TableRow>
                 <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
-                  No clients found
+                  {t('noClientsFound')}
                 </TableCell>
               </TableRow>
             )}

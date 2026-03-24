@@ -11,6 +11,7 @@ import {
   ResponsiveContainer,
 } from 'recharts'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { useTranslations } from 'next-intl'
 
 export type SalesChartPoint = {
   date: string
@@ -24,10 +25,11 @@ interface SalesChartProps {
 }
 
 export function SalesChart({ data = [] }: SalesChartProps) {
+  const t = useTranslations('dashboard')
   return (
     <Card className="bg-card border-border">
       <CardHeader>
-        <CardTitle>Sales Performance</CardTitle>
+        <CardTitle>{t('salesPerformance')}</CardTitle>
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={300}>

@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { Card } from '@/components/ui/card'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import type { AdminRevenueChartPoint } from '@/app/actions/admin'
@@ -9,12 +10,14 @@ interface RevenueChartProps {
 }
 
 export function RevenueChart({ data }: RevenueChartProps) {
+  const t = useTranslations('admin')
+
   return (
     <Card className="bg-card border-border p-6">
       <div className="space-y-6">
         <div>
-          <h2 className="text-xl font-semibold text-foreground">Revenue Trend</h2>
-          <p className="text-sm text-muted-foreground">Monthly revenue breakdown</p>
+          <h2 className="text-xl font-semibold text-foreground">{t('revenueTrend')}</h2>
+          <p className="text-sm text-muted-foreground">{t('monthlyRevenueBreakdown')}</p>
         </div>
 
         <ResponsiveContainer width="100%" height={300}>

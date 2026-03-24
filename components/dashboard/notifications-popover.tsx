@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
-import Link from 'next/link'
+import { useState, useCallback, useEffect } from 'react'
+import { useTranslations } from 'next-intl'
+import { Link, useRouter } from '@/i18n/routing'
 import { Bell, UserPlus, CreditCard, AlertTriangle, Scan, Clock, UserMinus, Check, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
@@ -10,7 +10,7 @@ import { getNotifications } from '@/app/actions/notifications'
 import { getReadIds, addReadId, addReadIds } from '@/lib/notification-reads'
 import type { NotificationType, NotificationItem } from '@/lib/types/notifications'
 
-const notificationConfig: Record<NotificationType, { icon: typeof Bell; colorClass: string }> = {
+const notificationConfig: Record<string, { icon: typeof Bell; colorClass: string }> = {
   expiring: { icon: AlertTriangle, colorClass: 'text-amber-400 bg-amber-400/10' },
   payment: { icon: CreditCard, colorClass: 'text-emerald-400 bg-emerald-400/10' },
   new_member: { icon: UserPlus, colorClass: 'text-primary bg-primary/10' },
@@ -19,24 +19,29 @@ const notificationConfig: Record<NotificationType, { icon: typeof Bell; colorCla
   expired: { icon: UserMinus, colorClass: 'text-destructive bg-destructive/10' },
 }
 
-function timeAgo(iso: string): string {
-  const d = new Date(iso)
-  const sec = Math.floor((Date.now() - d.getTime()) / 1000)
-  if (sec < 0) return 'Upcoming'
-  if (sec < 60) return 'Just now'
-  if (sec < 3600) return `${Math.floor(sec / 60)} min ago`
-  if (sec < 86400) return `${Math.floor(sec / 3600)}h ago`
-  const days = Math.floor(sec / 86400)
-  if (days === 1) return 'Yesterday'
-  return `${days}d ago`
-}
-
 export function NotificationsPopover() {
+  const t = useTranslations('notifications')
+  const tCommon = useTranslations('common')
   const router = useRouter()
+
+  const timeAgo = useCallback((iso: string): string => {
+    const d = new Date(iso)
+    const sec = Math.floor((Date.now() - d.getTime()) / 1000)
+    if (sec < 0) return t('upcoming')
+    if (sec < 60) return t('justNow')
+    if (sec < 3600) return t('minutesAgo', { minutes: Math.floor(sec / 60) })
+    if (sec < 86400) return t('hoursAgo', { hours: Math.floor(sec / 3600) })
+    const days = Math.floor(sec / 86400)
+    if (days === 1) return t('yesterday')
+    return t('daysAgo', { days })
+  }, [t])
+  const [mounted, setMounted] = useState(false)
   const [items, setItems] = useState<NotificationItem[]>([])
   const [readIds, setReadIds] = useState<Set<string>>(() => getReadIds())
   const [loading, setLoading] = useState(false)
   const [open, setOpen] = useState(false)
+
+  useEffect(() => setMounted(true), [])
 
   const unreadCount = items.filter(n => !readIds.has(n.id)).length
 
@@ -79,6 +84,14 @@ export function NotificationsPopover() {
     })
   }, [items])
 
+  if (!mounted) {
+    return (
+      <Button variant="ghost" size="icon" className="relative">
+        <Bell className="w-5 h-5" />
+      </Button>
+    )
+  }
+
   return (
     <Popover open={open} onOpenChange={handleOpenChange}>
       <PopoverTrigger asChild>
@@ -99,7 +112,7 @@ export function NotificationsPopover() {
       >
         <div className="flex items-center justify-between px-4 py-3 border-b border-border/30">
           <h3 className="text-sm font-bold uppercase tracking-wider text-foreground">
-            Notifications
+            {t('title')}
           </h3>
           {unreadCount > 0 && (
             <button
@@ -107,7 +120,7 @@ export function NotificationsPopover() {
               className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground hover:text-primary transition-colors"
             >
               <Check className="w-3 h-3" />
-              Mark all read
+              {t('markAllRead')}
             </button>
           )}
         </div>
@@ -116,18 +129,18 @@ export function NotificationsPopover() {
           {loading ? (
             <div className="px-4 py-8 text-center">
               <Loader2 className="w-6 h-6 text-primary mx-auto mb-2 animate-spin" />
-              <p className="text-xs text-muted-foreground uppercase tracking-wider">Loading...</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">{tCommon('loading')}</p>
             </div>
           ) : items.length === 0 ? (
             <div className="px-4 py-8 text-center">
               <Bell className="w-8 h-8 text-muted-foreground/50 mx-auto mb-2" />
               <p className="text-xs text-muted-foreground uppercase tracking-wider">
-                No notifications
+                {t('noNotifications')}
               </p>
             </div>
           ) : (
             items.map(notification => {
-              const config = notificationConfig[notification.type]
+              const config = notificationConfig[notification.type] ?? { icon: Bell, colorClass: 'text-muted-foreground bg-muted' }
               const Icon = config.icon
               const isRead = readIds.has(notification.id)
               return (
@@ -173,7 +186,7 @@ export function NotificationsPopover() {
             onClick={() => setOpen(false)}
             className="block w-full text-center text-[10px] font-semibold uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors"
           >
-            View all notifications
+            {t('viewAll')}
           </Link>
         </div>
       </PopoverContent>

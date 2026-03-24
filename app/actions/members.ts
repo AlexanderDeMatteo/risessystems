@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { getCurrentAppUserId } from '@/lib/supabase/get-app-user-id'
 import { revalidatePath } from 'next/cache'
+import { getTranslations } from 'next-intl/server'
 
 export type MemberRow = {
   id: number
@@ -20,8 +21,9 @@ export type GetMembersResult =
   | { members: MemberRow[]; error: string }
 
 export async function getMembers(): Promise<GetMembersResult> {
+  const t = await getTranslations('errors')
   const userId = await getCurrentAppUserId()
-  if (!userId) return { members: [], error: 'Not authenticated' }
+  if (!userId) return { members: [], error: t('notAuthenticated') }
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('members')
@@ -73,8 +75,9 @@ export type CreateMemberInput = {
 }
 
 export async function createMember(input: CreateMemberInput): Promise<{ ok: true; id: number } | { ok: false; error: string }> {
+  const t = await getTranslations('errors')
   const userId = await getCurrentAppUserId()
-  if (!userId) return { ok: false, error: 'Not authenticated' }
+  if (!userId) return { ok: false, error: t('notAuthenticated') }
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('members')
@@ -97,8 +100,9 @@ export async function createMember(input: CreateMemberInput): Promise<{ ok: true
 }
 
 export async function updateMember(id: number, input: Partial<CreateMemberInput>): Promise<{ ok: true } | { ok: false; error: string }> {
+  const t = await getTranslations('errors')
   const userId = await getCurrentAppUserId()
-  if (!userId) return { ok: false, error: 'Not authenticated' }
+  if (!userId) return { ok: false, error: t('notAuthenticated') }
   const supabase = await createClient()
   const payload: Record<string, unknown> = {}
   if (input.first_name !== undefined) payload.first_name = input.first_name
@@ -116,8 +120,9 @@ export async function updateMember(id: number, input: Partial<CreateMemberInput>
 }
 
 export async function deleteMember(id: number): Promise<{ ok: true } | { ok: false; error: string }> {
+  const t = await getTranslations('errors')
   const userId = await getCurrentAppUserId()
-  if (!userId) return { ok: false, error: 'Not authenticated' }
+  if (!userId) return { ok: false, error: t('notAuthenticated') }
   const supabase = await createClient()
   const { error } = await supabase.from('members').delete().eq('id', id).eq('user_id', userId)
   if (error) return { ok: false, error: error.message }

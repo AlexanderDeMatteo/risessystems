@@ -1,7 +1,8 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { Card } from '@/components/ui/card'
-import { getPlanForActiveCount, getMonthlyPriceBreakdown } from '@/lib/mocks/platform-plans'
+import { getPlanForActiveCount, getMonthlyPriceBreakdown } from '@/lib/utils/platform-pricing'
 import type { PlatformPlan } from '@/lib/types/platform-plans'
 import type { AdminClient } from '@/app/actions/admin'
 
@@ -11,25 +12,27 @@ interface ClientsByPlanProps {
 }
 
 export function ClientsByPlan({ tiers, clients }: ClientsByPlanProps) {
+  const t = useTranslations('admin')
+
   return (
     <Card className="bg-card border-border p-6">
       <div className="space-y-4">
         <div>
           <h2 className="text-xl font-semibold text-foreground">
-            Clients by plan
+            {t('clientsByPlan')}
           </h2>
           <p className="text-sm text-muted-foreground">
-            Assigned plan is calculated from active user count
+            {t('clientsByPlanSubtitle')}
           </p>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border text-left">
-                <th className="pb-2 font-medium text-foreground">Gym</th>
-                <th className="pb-2 font-medium text-foreground">Active users</th>
-                <th className="pb-2 font-medium text-foreground">Assigned plan</th>
-                <th className="pb-2 font-medium text-foreground">Monthly total</th>
+                <th className="pb-2 font-medium text-foreground">{t('gym')}</th>
+                <th className="pb-2 font-medium text-foreground">{t('activeUsers')}</th>
+                <th className="pb-2 font-medium text-foreground">{t('assignedPlan')}</th>
+                <th className="pb-2 font-medium text-foreground">{t('monthlyTotal')}</th>
               </tr>
             </thead>
             <tbody>
@@ -56,7 +59,7 @@ export function ClientsByPlan({ tiers, clients }: ClientsByPlanProps) {
                           <span>
                             ${breakdown.total}
                             <span className="text-xs ml-1 text-primary">
-                              (+${breakdown.overage} overage)
+                              (+${breakdown.overage} {t('overage')})
                             </span>
                           </span>
                         ) : (
@@ -71,7 +74,7 @@ export function ClientsByPlan({ tiers, clients }: ClientsByPlanProps) {
               }) : (
                 <tr>
                   <td colSpan={4} className="py-6 text-center text-muted-foreground">
-                    No clients yet
+                    {t('noClientsYet')}
                   </td>
                 </tr>
               )}

@@ -17,20 +17,33 @@ RisesSystem es una plataforma SaaS de gestión de gimnasios. Permite a dueños d
 | Iconos | Lucide React | 0.544 |
 | Temas | next-themes | 0.4 |
 | Base de datos | Neon (PostgreSQL serverless) | — |
-| Auth (planeado) | bcrypt (hash passwords) | 6.x |
-| Fetching | SWR | 2.x |
+| Auth | Supabase Auth (email, OAuth) | — |
+| i18n | next-intl | 4.x |
+| Backend | Supabase (PostgreSQL, Auth, Storage) | — |
 | Fechas | date-fns | 4.x |
 | Package manager | pnpm | — |
+| App móvil | Expo (SDK 55) + Expo Router | `mobile/` |
 
 ## Estado actual
-- **Dashboard (gym owner)** y **Accounting** consumen datos reales de Supabase vía Server Actions (`app/actions/payments.ts`, `app/actions/dashboard.ts`): KPIs, gráficos (ventas, membresías, ingresos), actividad reciente y lista de pagos. Overview y contabilidad ya no usan mocks.
+- **Dashboard (gym owner)** y **Accounting** consumen datos reales de Supabase vía Server Actions (`app/actions/payments.ts`, `app/actions/dashboard.ts`): KPIs, gráficos (ventas, membresías, ingresos), actividad reciente y lista de pagos.
 - **Otras pantallas** (Members, Branches, Trainers, Plans, Check-ins) también conectadas a Supabase con Server Actions en `app/actions/`.
-- **Admin** y **login/registro**: según implementación actual (Auth con Supabase; admin puede usar datos de demo o propios).
-- **Scripts SQL** en `scripts/`; RLS (script 12) incluye `payments` y tablas del dashboard.
-- **ThemeProvider** existe en `components/theme-provider.tsx`; tema dark por defecto en `<html>`.
+- **Admin**: panel completo con KPIs, clientes, analytics, accounting, planes de plataforma y notificaciones.
+- **Notificaciones**: sistema completo en dashboard y admin con popover, página dedicada, filtros por tipo y lectura/marca como leídas.
+- **i18n**: `next-intl` con soporte para `en` y `es`. Server actions usan `getTranslations('errors')`. Componentes usan `useTranslations`. Archivos de traducción: `messages/en.json`, `messages/es.json`.
+- **Error handling**: estandarizado en todas las server actions con `getTranslations`.
+- **Loading states**: `loading.tsx` en rutas principales (dashboard, admin, members, accounting, plans, trainers, branches, admin/clients).
+- **Auth**: Supabase Auth con login/registro, Google OAuth callback, logout, rutas protegidas con locale.
+- **Scripts SQL** en `scripts/`; RLS incluye todas las tablas.
+- **Build**: compila sin errores TypeScript (`next build` exitoso).
+- **App móvil** (`mobile/`): Expo + Supabase Auth (AsyncStorage), navegación por rol (member / trainer / owner / admin), NativeWind (tema Neon Rise), i18n `en`/`es`. Ejecutar `scripts/23-mobile-rls-policies.sql` en Supabase para políticas de miembros y entrenadores. Ver `mobile/README.md`.
 
 ## Configuración relevante
 - `tsconfig.json`: alias `@/*` → `./*`, target ES6, strict mode.
 - `tailwind.config.ts`: darkMode `class`, colores y radios desde variables CSS, plugin `tailwindcss-animate`.
-- `next.config.mjs`: `ignoreBuildErrors: true` (temporal), imágenes sin optimizar, Turbopack habilitado.
+- `next.config.mjs`: imágenes sin optimizar, Turbopack habilitado.
 - `components.json`: config de shadcn/ui (estilo default, RSC true, aliases definidos).
+
+## Utilidades (antes en mocks)
+- `lib/utils/platform-pricing.ts`: `getPlanForActiveCount`, `getMonthlyPriceBreakdown`, `getMonthlyPrice` para planes de plataforma.
+- `lib/types/plans.ts`: tipo `MembershipPlan` para la UI de planes del gym.
+- **QR Scanner:** `QRScanner` requiere `resolveScan` para resolver códigos; sin él no hay lookup local.

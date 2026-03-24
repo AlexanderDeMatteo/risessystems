@@ -2,6 +2,7 @@
 
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend } from 'recharts'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { useTranslations } from 'next-intl'
 
 export type MembershipPieSegment = {
   name: string
@@ -14,12 +15,13 @@ interface MemberInsightsProps {
 }
 
 export function MemberInsights({ data = [] }: MemberInsightsProps) {
+  const t = useTranslations('dashboard')
   const total = data.reduce((sum, item) => sum + item.value, 0)
 
   return (
     <Card className="bg-card border-border">
       <CardHeader>
-        <CardTitle>Membership Distribution</CardTitle>
+        <CardTitle>{t('membershipDistribution')}</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-6">
@@ -62,7 +64,7 @@ export function MemberInsights({ data = [] }: MemberInsightsProps) {
           </div>
 
           <div className="pt-3 border-t border-border">
-            <p className="text-sm text-muted-foreground">Total Members</p>
+            <p className="text-sm text-muted-foreground">{t('totalMembers')}</p>
             <p className="text-2xl font-bold text-foreground">{total}</p>
           </div>
         </div>

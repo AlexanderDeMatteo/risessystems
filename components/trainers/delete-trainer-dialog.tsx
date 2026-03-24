@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,6 +26,9 @@ export function DeleteTrainerDialog({
   trainer,
   onConfirm,
 }: DeleteTrainerDialogProps) {
+  const t = useTranslations('trainers')
+  const tCommon = useTranslations('common')
+
   const handleConfirm = () => {
     if (trainer) {
       onConfirm(trainer)
@@ -37,21 +41,21 @@ export function DeleteTrainerDialog({
       <AlertDialogContent className="bg-card border-border">
         <AlertDialogHeader>
           <AlertDialogTitle className="text-foreground">
-            Delete Trainer
+            {t('deleteTrainer')}
           </AlertDialogTitle>
           <AlertDialogDescription>
-            Are you sure you want to delete{' '}
+            {t('deleteConfirmText')}{' '}
             <span className="font-semibold text-foreground">{trainer?.name}</span>?
-            This action cannot be undone.
+            {' '}{t('deleteWarning')}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel>{tCommon('cancel')}</AlertDialogCancel>
           <AlertDialogAction
             onClick={handleConfirm}
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
           >
-            Delete
+            {tCommon('delete')}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

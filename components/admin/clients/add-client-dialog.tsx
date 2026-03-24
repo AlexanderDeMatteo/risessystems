@@ -2,6 +2,7 @@
 
 import React from 'react'
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import {
   Dialog,
   DialogContent,
@@ -22,6 +23,8 @@ interface AddClientDialogProps {
 }
 
 export function AddClientDialog({ open, onOpenChange }: AddClientDialogProps) {
+  const t = useTranslations('admin')
+  const tCommon = useTranslations('common')
   const [formData, setFormData] = useState({
     gymName: '',
     email: '',
@@ -42,11 +45,11 @@ export function AddClientDialog({ open, onOpenChange }: AddClientDialogProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (formData.password.length < 6) {
-      setFeedback({ type: 'error', message: 'Password must be at least 6 characters.' })
+      setFeedback({ type: 'error', message: t('passwordMinLength') })
       return
     }
     if (formData.password !== formData.passwordConfirm) {
-      setFeedback({ type: 'error', message: 'Passwords do not match.' })
+      setFeedback({ type: 'error', message: t('passwordsDoNotMatch') })
       return
     }
     setLoading(true)
@@ -73,16 +76,16 @@ export function AddClientDialog({ open, onOpenChange }: AddClientDialogProps) {
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Building2 className="w-5 h-5" />
-            Add New Client
+            {t('addNewClient')}
           </DialogTitle>
           <DialogDescription>
-            Register a new gym as a client in the RisesSystem platform
+            {t('addNewClientDesc')}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="gymName">Gym Name</Label>
+            <Label htmlFor="gymName">{t('gymName')}</Label>
             <Input
               id="gymName"
               name="gymName"
@@ -94,11 +97,11 @@ export function AddClientDialog({ open, onOpenChange }: AddClientDialogProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="contactPerson">Contact Person</Label>
+            <Label htmlFor="contactPerson">{t('contactPerson')}</Label>
             <Input
               id="contactPerson"
               name="contactPerson"
-              placeholder="Name of contact"
+              placeholder={t('nameOfContact')}
               value={formData.contactPerson}
               onChange={handleChange}
               required
@@ -106,7 +109,7 @@ export function AddClientDialog({ open, onOpenChange }: AddClientDialogProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">{t('email')}</Label>
             <Input
               id="email"
               name="email"
@@ -119,7 +122,7 @@ export function AddClientDialog({ open, onOpenChange }: AddClientDialogProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="phone">Phone</Label>
+            <Label htmlFor="phone">{t('phone')}</Label>
             <Input
               id="phone"
               name="phone"
@@ -131,12 +134,12 @@ export function AddClientDialog({ open, onOpenChange }: AddClientDialogProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="password">Provisional password</Label>
+            <Label htmlFor="password">{t('provisionalPassword')}</Label>
             <Input
               id="password"
               name="password"
               type="password"
-              placeholder="Min. 6 characters"
+              placeholder={t('minCharacters', { min: 6 })}
               value={formData.password}
               onChange={handleChange}
               required
@@ -145,12 +148,12 @@ export function AddClientDialog({ open, onOpenChange }: AddClientDialogProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="passwordConfirm">Confirm password</Label>
+            <Label htmlFor="passwordConfirm">{t('confirmPassword')}</Label>
             <Input
               id="passwordConfirm"
               name="passwordConfirm"
               type="password"
-              placeholder="Repeat password"
+              placeholder={t('repeatPassword')}
               value={formData.passwordConfirm}
               onChange={handleChange}
               required
@@ -171,16 +174,16 @@ export function AddClientDialog({ open, onOpenChange }: AddClientDialogProps) {
 
           <div className="flex gap-2 justify-end pt-4">
             <Button variant="outline" onClick={() => onOpenChange(false)} disabled={loading}>
-              Cancel
+              {tCommon('cancel')}
             </Button>
             <Button type="submit" disabled={loading}>
               {loading ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                  Creating...
+                  {t('creatingClient')}
                 </>
               ) : (
-                'Create client'
+                t('createClient')
               )}
             </Button>
           </div>

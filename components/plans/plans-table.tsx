@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import {
   Table,
   TableBody,
@@ -11,27 +12,27 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Edit, Trash2, CreditCard } from 'lucide-react'
-import { MOCK_PLANS, type MembershipPlan } from '@/lib/mocks/plans'
-
-export { MOCK_PLANS }
-export type { MembershipPlan }
+import type { MembershipPlan } from '@/lib/types/plans'
 
 interface PlansTableProps {
   searchTerm: string
-  plans?: MembershipPlan[]
+  plans: MembershipPlan[]
   onEditClick?: (plan: MembershipPlan) => void
   onDeleteClick?: (plan: MembershipPlan) => void
 }
 
-function formatDuration(days: number): string {
-  if (days === 30) return '1 month'
-  if (days === 90) return '3 months'
-  if (days === 180) return '6 months'
-  if (days === 365) return '1 year'
-  return `${days} days`
-}
+export function PlansTable({ searchTerm, plans, onEditClick, onDeleteClick }: PlansTableProps) {
+  const t = useTranslations('plans')
+  const tCommon = useTranslations('common')
 
-export function PlansTable({ searchTerm, plans = MOCK_PLANS, onEditClick, onDeleteClick }: PlansTableProps) {
+  const formatDuration = (days: number): string => {
+    if (days === 30) return t('duration1Month')
+    if (days === 90) return t('duration3Months')
+    if (days === 180) return t('duration6Months')
+    if (days === 365) return t('duration1Year')
+    return t('durationDays', { days })
+  }
+
   const filteredPlans = plans.filter(
     (plan) =>
       plan.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -43,12 +44,12 @@ export function PlansTable({ searchTerm, plans = MOCK_PLANS, onEditClick, onDele
       <Table>
         <TableHeader className="bg-secondary/30 border-border">
           <TableRow className="border-border/50 hover:bg-transparent">
-            <TableHead className="uppercase text-xs tracking-wider text-muted-foreground">Plan</TableHead>
-            <TableHead className="uppercase text-xs tracking-wider text-muted-foreground">Description</TableHead>
-            <TableHead className="uppercase text-xs tracking-wider text-muted-foreground">Price</TableHead>
-            <TableHead className="uppercase text-xs tracking-wider text-muted-foreground">Duration</TableHead>
-            <TableHead className="uppercase text-xs tracking-wider text-muted-foreground">Status</TableHead>
-            <TableHead className="text-right uppercase text-xs tracking-wider text-muted-foreground">Actions</TableHead>
+            <TableHead className="uppercase text-xs tracking-wider text-muted-foreground">{t('planName')}</TableHead>
+            <TableHead className="uppercase text-xs tracking-wider text-muted-foreground">{t('description')}</TableHead>
+            <TableHead className="uppercase text-xs tracking-wider text-muted-foreground">{t('price')}</TableHead>
+            <TableHead className="uppercase text-xs tracking-wider text-muted-foreground">{t('duration')}</TableHead>
+            <TableHead className="uppercase text-xs tracking-wider text-muted-foreground">{tCommon('status')}</TableHead>
+            <TableHead className="text-right uppercase text-xs tracking-wider text-muted-foreground">{tCommon('actions')}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -72,9 +73,9 @@ export function PlansTable({ searchTerm, plans = MOCK_PLANS, onEditClick, onDele
                 </TableCell>
                 <TableCell>
                   {plan.is_active ? (
-                    <Badge className="bg-green-900 text-green-100">Active</Badge>
+                    <Badge className="bg-green-900 text-green-100">{tCommon('active')}</Badge>
                   ) : (
-                    <Badge className="bg-muted/50 text-muted-foreground">Inactive</Badge>
+                    <Badge className="bg-muted/50 text-muted-foreground">{tCommon('inactive')}</Badge>
                   )}
                 </TableCell>
                 <TableCell className="text-right">
@@ -92,7 +93,7 @@ export function PlansTable({ searchTerm, plans = MOCK_PLANS, onEditClick, onDele
                       size="sm"
                       className="hover:bg-destructive/20 text-destructive"
                       onClick={() => onDeleteClick?.(plan)}
-                      aria-label="Delete plan"
+                      aria-label={t('deletePlan')}
                     >
                       <Trash2 className="w-4 h-4" />
                     </Button>
@@ -103,7 +104,7 @@ export function PlansTable({ searchTerm, plans = MOCK_PLANS, onEditClick, onDele
           ) : (
             <TableRow>
               <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
-                No plans found
+                {t('noPlans')}
               </TableCell>
             </TableRow>
           )}

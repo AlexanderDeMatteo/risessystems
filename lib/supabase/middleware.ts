@@ -2,6 +2,31 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import { getRedirectPathForCurrentUser } from '@/lib/supabase/get-redirect-path'
 
+const LOCALES = ['en', 'es']
+
+function getLocaleFromPath(pathname: string): string | null {
+  const segments = pathname.split('/')
+  if (segments.length > 1 && LOCALES.includes(segments[1])) {
+    return segments[1]
+  }
+  return null
+}
+
+function getPathWithoutLocale(pathname: string): string {
+  const locale = getLocaleFromPath(pathname)
+  if (locale) {
+    return pathname.replace(`/${locale}`, '') || '/'
+  }
+  return pathname
+}
+
+function addLocaleToPath(pathname: string, locale: string): string {
+  if (pathname.startsWith(`/${locale}`)) {
+    return pathname
+  }
+  return `/${locale}${pathname === '/' ? '' : pathname}`
+}
+
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request })
 
@@ -26,17 +51,21 @@ export async function updateSession(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser()
 
+  const pathname = request.nextUrl.pathname
+  const locale = getLocaleFromPath(pathname) || 'en'
+  const pathWithoutLocale = getPathWithoutLocale(pathname)
+
   const isProtected =
-    request.nextUrl.pathname.startsWith('/dashboard') ||
-    request.nextUrl.pathname.startsWith('/admin')
+    pathWithoutLocale.startsWith('/dashboard') ||
+    pathWithoutLocale.startsWith('/admin')
   const isAuthRoute =
-    request.nextUrl.pathname.startsWith('/login') ||
-    request.nextUrl.pathname.startsWith('/register')
-  const isAdminRoute = request.nextUrl.pathname.startsWith('/admin')
+    pathWithoutLocale.startsWith('/login') ||
+    pathWithoutLocale.startsWith('/register')
+  const isAdminRoute = pathWithoutLocale.startsWith('/admin')
 
   if (isProtected && !user) {
     const url = request.nextUrl.clone()
-    url.pathname = '/login'
+    url.pathname = addLocaleToPath('/login', locale)
     const redirect = NextResponse.redirect(url)
     supabaseResponse.cookies.getAll().forEach((c) =>
       redirect.cookies.set(c.name, c.value)
@@ -47,7 +76,7 @@ export async function updateSession(request: NextRequest) {
   if (user && isAuthRoute) {
     const path = await getRedirectPathForCurrentUser(supabase)
     const url = request.nextUrl.clone()
-    url.pathname = path
+    url.pathname = addLocaleToPath(path, locale)
     const redirect = NextResponse.redirect(url)
     supabaseResponse.cookies.getAll().forEach((c) =>
       redirect.cookies.set(c.name, c.value)
@@ -59,7 +88,7 @@ export async function updateSession(request: NextRequest) {
     const path = await getRedirectPathForCurrentUser(supabase)
     if (path !== '/admin') {
       const url = request.nextUrl.clone()
-      url.pathname = path === '/pending-payment' ? '/pending-payment' : '/dashboard'
+      url.pathname = addLocaleToPath(path === '/pending-payment' ? '/pending-payment' : '/dashboard', locale)
       const redirect = NextResponse.redirect(url)
       supabaseResponse.cookies.getAll().forEach((c) =>
         redirect.cookies.set(c.name, c.value)
@@ -68,12 +97,11 @@ export async function updateSession(request: NextRequest) {
     }
   }
 
-  // Inactive gym owners should not access /dashboard; send them to pending-payment
-  if (user && request.nextUrl.pathname.startsWith('/dashboard')) {
+  if (user && pathWithoutLocale.startsWith('/dashboard')) {
     const path = await getRedirectPathForCurrentUser(supabase)
     if (path === '/pending-payment') {
       const url = request.nextUrl.clone()
-      url.pathname = '/pending-payment'
+      url.pathname = addLocaleToPath('/pending-payment', locale)
       const redirect = NextResponse.redirect(url)
       supabaseResponse.cookies.getAll().forEach((c) =>
         redirect.cookies.set(c.name, c.value)

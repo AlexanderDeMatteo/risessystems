@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -21,6 +22,9 @@ interface BranchesGridProps {
 }
 
 export function BranchesGrid({ branches, searchTerm }: BranchesGridProps) {
+  const t = useTranslations('branches')
+  const tCommon = useTranslations('common')
+
   const filteredBranches = branches.filter((branch) =>
     branch.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     (branch.address ?? '').toLowerCase().includes(searchTerm.toLowerCase())
@@ -37,7 +41,7 @@ export function BranchesGrid({ branches, searchTerm }: BranchesGridProps) {
                 <div>
                   <h3 className="text-lg font-semibold text-foreground">{branch.name}</h3>
                   <Badge className="mt-2 bg-green-900 text-green-100">
-                    {branch.status === 'active' ? 'Active' : 'Inactive'}
+                    {branch.status === 'active' ? tCommon('active') : tCommon('inactive')}
                   </Badge>
                 </div>
               </div>
@@ -66,7 +70,7 @@ export function BranchesGrid({ branches, searchTerm }: BranchesGridProps) {
                 <Users className="w-5 h-5 text-primary" />
                 <div>
                   <p className="text-2xl font-bold text-foreground">{branch.members ?? 0}</p>
-                  <p className="text-xs text-muted-foreground">Active Members</p>
+                  <p className="text-xs text-muted-foreground">{t('activeMembers')}</p>
                 </div>
               </div>
 
@@ -74,11 +78,11 @@ export function BranchesGrid({ branches, searchTerm }: BranchesGridProps) {
               <div className="flex gap-2 pt-2">
                 <Button variant="outline" size="sm" className="flex-1 gap-2 bg-transparent border-border">
                   <Edit className="w-4 h-4" />
-                  Edit
+                  {tCommon('edit')}
                 </Button>
                 <Button variant="outline" size="sm" className="flex-1 gap-2 bg-transparent border-border text-destructive hover:bg-destructive/20">
                   <Trash2 className="w-4 h-4" />
-                  Delete
+                  {tCommon('delete')}
                 </Button>
               </div>
             </div>
@@ -87,7 +91,7 @@ export function BranchesGrid({ branches, searchTerm }: BranchesGridProps) {
       ) : (
         <div className="col-span-full">
           <Card className="bg-card border-border p-12 text-center">
-            <p className="text-muted-foreground">No branches found</p>
+            <p className="text-muted-foreground">{t('noBranches')}</p>
           </Card>
         </div>
       )}

@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import {
   Table,
   TableBody,
@@ -38,17 +39,19 @@ function formatPrice(tier: PlatformPlan): string {
 }
 
 export function PlansTiersTable({ tiers, onEdit, onDelete }: PlansTiersTableProps) {
+  const t = useTranslations('admin')
+
   return (
     <Card className="bg-card border-border overflow-hidden">
       <div className="overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow className="border-border hover:bg-transparent">
-              <TableHead>Name</TableHead>
-              <TableHead>Active users range</TableHead>
-              <TableHead>Price (monthly)</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead>{t('name')}</TableHead>
+              <TableHead>{t('activeUsersRange')}</TableHead>
+              <TableHead>{t('priceMonthly')}</TableHead>
+              <TableHead>{t('status')}</TableHead>
+              <TableHead className="text-right">{t('actions')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -72,7 +75,7 @@ export function PlansTiersTable({ tiers, onEdit, onDelete }: PlansTiersTableProp
                         : 'bg-gray-700 text-gray-100'
                     }
                   >
-                    {tier.is_active ? 'Active' : 'Inactive'}
+                    {tier.is_active ? t('active') : t('inactive')}
                   </Badge>
                 </TableCell>
                 <TableCell className="text-right">

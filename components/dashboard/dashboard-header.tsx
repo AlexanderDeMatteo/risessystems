@@ -1,8 +1,8 @@
 'use client'
 
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { User, LayoutDashboard, Users, Scan, DollarSign, LogOut, Dumbbell, MapPin, CreditCard } from 'lucide-react'
+import { Link, usePathname } from '@/i18n/routing'
+import { useTranslations } from 'next-intl'
+import { User, LayoutDashboard, Users, Scan, DollarSign, LogOut, Dumbbell, MapPin, CreditCard, Trophy } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { NotificationsPopover } from '@/components/dashboard/notifications-popover'
 import {
@@ -15,17 +15,19 @@ import {
 
 export function DashboardHeader() {
   const pathname = usePathname()
+  const tNav = useTranslations('nav')
 
   const isActive = (path: string) => pathname === path
 
   const navItems = [
-    { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { href: '/dashboard/members', label: 'Members', icon: Users },
-    { href: '/dashboard/plans', label: 'Plans', icon: CreditCard },
-    { href: '/dashboard/trainers', label: 'Trainers', icon: Dumbbell },
-    { href: '/dashboard/branches', label: 'Branches', icon: MapPin },
-    { href: '/dashboard/qr-scanner', label: 'QR Scanner', icon: Scan },
-    { href: '/dashboard/accounting', label: 'Accounting', icon: DollarSign },
+    { href: '/dashboard', labelKey: 'dashboard', icon: LayoutDashboard },
+    { href: '/dashboard/members', labelKey: 'members', icon: Users },
+    { href: '/dashboard/plans', labelKey: 'plans', icon: CreditCard },
+    { href: '/dashboard/trainers', labelKey: 'trainers', icon: Dumbbell },
+    { href: '/dashboard/branches', labelKey: 'branches', icon: MapPin },
+    { href: '/dashboard/qr-scanner', labelKey: 'qrScanner', icon: Scan },
+    { href: '/dashboard/competitions', labelKey: 'competitions', icon: Trophy },
+    { href: '/dashboard/accounting', labelKey: 'accounting', icon: DollarSign },
   ]
 
   return (
@@ -55,19 +57,19 @@ export function DashboardHeader() {
               <DropdownMenuContent align="end" className="bg-card border-border/50 shadow-[0_0_20px_hsl(var(--primary)_/_0.1)]">
                 <Link href="/dashboard/profile">
                   <DropdownMenuItem className="uppercase text-xs tracking-wider cursor-pointer hover:bg-secondary/50 hover:text-primary transition-colors">
-                    Profile
+                    {tNav('profile')}
                   </DropdownMenuItem>
                 </Link>
                 <Link href="/dashboard/settings">
                   <DropdownMenuItem className="uppercase text-xs tracking-wider cursor-pointer hover:bg-secondary/50 hover:text-primary transition-colors">
-                    Settings
+                    {tNav('settings')}
                   </DropdownMenuItem>
                 </Link>
                 <DropdownMenuSeparator className="bg-border/30" />
                 <Link href="/logout">
                   <DropdownMenuItem className="text-destructive uppercase text-xs tracking-wider cursor-pointer hover:bg-destructive/10 transition-colors">
                     <LogOut className="w-4 h-4 mr-2" />
-                    Logout
+                    {tNav('logout')}
                   </DropdownMenuItem>
                 </Link>
               </DropdownMenuContent>
@@ -90,7 +92,7 @@ export function DashboardHeader() {
                 }`}
               >
                 <Icon className="w-4 h-4" />
-                <span>{item.label}</span>
+                <span>{tNav(item.labelKey)}</span>
               </Link>
             )
           })}

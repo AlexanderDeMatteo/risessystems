@@ -3,7 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { getCurrentAppUserId } from '@/lib/supabase/get-app-user-id'
 import { format, addMonths } from 'date-fns'
-import { getPlanForActiveCount, getMonthlyPriceBreakdown } from '@/lib/mocks/platform-plans'
+import { getPlanForActiveCount, getMonthlyPriceBreakdown } from '@/lib/utils/platform-pricing'
 import type { SubscriptionInfo, PlatformPlan } from '@/lib/types/platform-plans'
 
 type SubscriptionRow = {

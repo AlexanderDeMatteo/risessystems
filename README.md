@@ -2,6 +2,8 @@
 
 Plataforma SaaS de gestión de gimnasios. Permite a dueños de gimnasios administrar miembros, entrenadores, sucursales, check-ins por QR y contabilidad. Incluye un panel de administración para gestionar clientes (gimnasios), analytics y contabilidad global.
 
+Este repositorio es un **monorepo**: la **web** vive en la raíz (Next.js) y la **app móvil** en [`mobile/`](mobile/) (Expo). Ambas usan el mismo proyecto **Supabase** (Auth + Postgres con RLS).
+
 ---
 
 ## De qué trata
@@ -9,8 +11,9 @@ Plataforma SaaS de gestión de gimnasios. Permite a dueños de gimnasios adminis
 - **Dashboard (dueño de gimnasio):** overview con KPIs, gestión de miembros, entrenadores y sucursales, escáner QR para check-in, contabilidad y perfil.
 - **Panel Admin:** dashboard global, gestión de clientes (gimnasios), analytics y contabilidad de la plataforma.
 - **Login y registro:** flujo de acceso por tipo de usuario (gym owner / administrador); actualmente con datos de demo.
+- **App móvil:** clientes Expo para miembros, entrenadores, dueños y admin; mismas credenciales Supabase que la web (detalle en [`mobile/README.md`](mobile/README.md)).
 
-Stack: **Next.js 16** (App Router), **React 19**, **TypeScript**, **Tailwind CSS**, **shadcn/ui**, base de datos preparada con **Neon (PostgreSQL)**. Tema visual "Neon Rise" (oscuro, acentos verde lima).
+Stack web: **Next.js 16** (App Router), **React 19**, **TypeScript**, **Tailwind CSS**, **shadcn/ui**. Stack móvil: **Expo** (Expo Router, NativeWind). Base de datos: **Neon (PostgreSQL)** vía Supabase. Tema visual "Neon Rise" (oscuro, acentos verde lima).
 
 ---
 
@@ -19,9 +22,13 @@ Stack: **Next.js 16** (App Router), **React 19**, **TypeScript**, **Tailwind CSS
 ### Requisitos
 
 - **Node.js** 18+ (recomendado 20+)
-- **pnpm** (recomendado) o **npm**
+- **pnpm** (recomendado) o **npm** para la web
+- **npm** en `mobile/` (ver abajo; en Windows suele hacer falta `npm install --legacy-peer-deps`)
+- Para la app móvil: [Expo Go](https://expo.dev/go) en el teléfono o emulador Android / iOS
 
-### Instalación
+### Web (Next.js) — raíz del repo
+
+**Instalación**
 
 ```bash
 # Con pnpm (recomendado)
@@ -31,7 +38,9 @@ pnpm install
 npm install --legacy-peer-deps
 ```
 
-### Desarrollo
+Configura `.env` en la raíz (p. ej. `DATABASE_URL`, `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, etc., según lo que use tu despliegue).
+
+**Desarrollo**
 
 ```bash
 # Con pnpm
@@ -43,7 +52,7 @@ npm run dev
 
 La app se abre en **http://localhost:3000**. La ruta `/` redirige a `/dashboard`.
 
-### Build y producción
+**Build y producción**
 
 ```bash
 # Build
@@ -53,11 +62,36 @@ pnpm build   # o: npm run build
 pnpm start   # o: npm start
 ```
 
-### Linting
+**Linting**
 
 ```bash
 pnpm lint    # o: npm run lint
 ```
+
+### App móvil (Expo) — carpeta `mobile/`
+
+1. En Supabase (SQL Editor), aplica las políticas RLS para móvil si aún no lo hiciste: [`scripts/23-mobile-rls-policies.sql`](scripts/23-mobile-rls-policies.sql).
+2. Crea `mobile/.env` con `EXPO_PUBLIC_SUPABASE_URL` y `EXPO_PUBLIC_SUPABASE_ANON_KEY` (mismos valores que `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY` en la raíz).
+3. Instala y arranca:
+
+```bash
+cd mobile
+npm install --legacy-peer-deps
+npx expo start
+```
+
+Más detalle (roles, stack): [`mobile/README.md`](mobile/README.md).
+
+### Correr web y móvil a la vez
+
+Usa **dos terminales** desde la raíz del repo:
+
+| Terminal | Comando |
+|----------|---------|
+| 1 — Web | `pnpm dev` o `npm run dev` (en la raíz) |
+| 2 — Móvil | `cd mobile` → `npx expo start` (tras `npm install --legacy-peer-deps` la primera vez) |
+
+La web en **http://localhost:3000**; Expo abre el dev server y el QR para Expo Go o atajos para emulador.
 
 ---
 
@@ -96,10 +130,11 @@ El repo está en [github.com/AlexanderDeMatteo/risessystems](https://github.com/
 | Carpeta      | Descripción                                      |
 |-------------|---------------------------------------------------|
 | `app/`      | Rutas Next.js: `dashboard/`, `admin/`, `login/`, `register/` |
+| `mobile/`   | App Expo (Expo Router, Supabase Auth, roles miembro / entrenador / owner / admin) |
 | `components/` | Componentes por dominio y `ui/` (shadcn)        |
 | `lib/`      | Utilidades (p. ej. `cn()` para clases CSS)       |
 | `hooks/`    | Hooks reutilizables                              |
-| `scripts/`  | Scripts SQL para Neon (usuarios, miembros, pagos, check-ins) |
+| `scripts/`  | Scripts SQL para Neon (usuarios, miembros, pagos, check-ins, RLS móvil `23-…`) |
 | `memory-bank/` | Documentación del proyecto (arquitectura, diseño, convenciones) |
 
 ---

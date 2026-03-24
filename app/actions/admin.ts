@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { getCurrentAppUserId } from '@/lib/supabase/get-app-user-id'
+import { getTranslations } from 'next-intl/server'
 
 export type InviteClientResult = { ok: true; message: string } | { ok: false; error: string }
 
@@ -16,9 +17,11 @@ export async function createClientWithPassword(payload: {
   contactPerson: string
   gymName: string
 }): Promise<CreateClientResult> {
+  const t = await getTranslations('errors')
+  const tSuccess = await getTranslations('success')
   const admin = await isCurrentUserAdmin()
   if (!admin) {
-    return { ok: false, error: 'Only admins can create clients.' }
+    return { ok: false, error: t('onlyAdminsCanCreateClients') }
   }
   try {
     const supabase = createAdminClient()
@@ -35,7 +38,7 @@ export async function createClientWithPassword(payload: {
       return { ok: false, error: createError.message }
     }
     if (!authUser.user) {
-      return { ok: false, error: 'User was not created.' }
+      return { ok: false, error: t('userNotCreated') }
     }
     const name =
       (authUser.user.user_metadata?.full_name as string) ||
@@ -56,10 +59,10 @@ export async function createClientWithPassword(payload: {
     revalidatePath('/admin/clients')
     return {
       ok: true,
-      message: `Client created. ${payload.email} can sign in with the assigned password and change it in Profile.`,
+      message: tSuccess('clientCreated', { email: payload.email }),
     }
   } catch (err) {
-    const msg = err instanceof Error ? err.message : 'Failed to create client.'
+    const msg = err instanceof Error ? err.message : t('failedToCreateClient')
     return { ok: false, error: msg }
   }
 }
@@ -70,9 +73,11 @@ export async function inviteClient(payload: {
   gymName: string
   redirectTo: string
 }): Promise<InviteClientResult> {
+  const t = await getTranslations('errors')
+  const tSuccess = await getTranslations('success')
   const admin = await isCurrentUserAdmin()
   if (!admin) {
-    return { ok: false, error: 'Only admins can invite clients.' }
+    return { ok: false, error: t('onlyAdminsCanInviteClients') }
   }
   try {
     const supabase = createAdminClient()
@@ -87,9 +92,9 @@ export async function inviteClient(payload: {
       return { ok: false, error: error.message }
     }
     revalidatePath('/admin/clients')
-    return { ok: true, message: `Invitation sent to ${payload.email}. The client will receive a magic link to access their account.` }
+    return { ok: true, message: tSuccess('invitationSent', { email: payload.email }) }
   } catch (err) {
-    const msg = err instanceof Error ? err.message : 'Failed to send invitation.'
+    const msg = err instanceof Error ? err.message : t('failedToSendInvitation')
     return { ok: false, error: msg }
   }
 }
@@ -206,7 +211,10 @@ export async function getAdminClients(): Promise<GetAdminClientsResult> {
       .in('user_id', userIds)
       .eq('status', 'active'),
   ])
-  if (branchRes.error || memberRes.error) return { data: [], error: (branchRes.error || memberRes.error)?.message ?? 'Failed to load client data' }
+  if (branchRes.error || memberRes.error) {
+    const t = await getTranslations('errors')
+    return { data: [], error: (branchRes.error || memberRes.error)?.message ?? t('failedToLoadClientData') }
+  }
 
   const branchesByUser: Record<number, number> = {}
   const activeByUser: Record<number, number> = {}
@@ -652,8 +660,10 @@ export type CreatePlatformPaymentResult =
 export async function createPlatformPayment(
   input: CreatePlatformPaymentInput
 ): Promise<CreatePlatformPaymentResult> {
+  const t = await getTranslations('errors')
+  const tSuccess = await getTranslations('success')
   const admin = await isCurrentUserAdmin()
-  if (!admin) return { ok: false, error: 'Not authorized' }
+  if (!admin) return { ok: false, error: t('notAuthorized') }
 
   const supabase = await createClient()
   const status = input.status ?? 'pending'
@@ -698,7 +708,7 @@ export async function createPlatformPayment(
   revalidatePath('/admin/accounting')
   revalidatePath('/admin/clients')
 
-  return { ok: true, message: 'Platform payment recorded.' }
+  return { ok: true, message: tSuccess('platformPaymentRecorded') }
 }
 
 export type UpdatePlatformPaymentStatusInput = {
@@ -713,8 +723,10 @@ export type UpdatePlatformPaymentStatusResult =
 export async function updatePlatformPaymentStatus(
   input: UpdatePlatformPaymentStatusInput
 ): Promise<UpdatePlatformPaymentStatusResult> {
+  const t = await getTranslations('errors')
+  const tSuccess = await getTranslations('success')
   const admin = await isCurrentUserAdmin()
-  if (!admin) return { ok: false, error: 'Not authorized' }
+  if (!admin) return { ok: false, error: t('notAuthorized') }
 
   const supabase = await createClient()
 
@@ -725,7 +737,7 @@ export async function updatePlatformPaymentStatus(
     .maybeSingle()
 
   if (fetchError) return { ok: false, error: fetchError.message }
-  if (!payment) return { ok: false, error: 'Payment not found' }
+  if (!payment) return { ok: false, error: t('paymentNotFound') }
 
   const { error } = await supabase
     .from('platform_payments')
@@ -748,7 +760,7 @@ export async function updatePlatformPaymentStatus(
   revalidatePath('/admin/accounting')
   revalidatePath('/admin/clients')
 
-  return { ok: true, message: 'Platform payment updated.' }
+  return { ok: true, message: tSuccess('platformPaymentUpdated') }
 }
 
 // --- Update Admin Client ---
@@ -768,8 +780,10 @@ export type UpdateAdminClientResult =
 export async function updateAdminClient(
   input: UpdateAdminClientInput
 ): Promise<UpdateAdminClientResult> {
+  const t = await getTranslations('errors')
+  const tSuccess = await getTranslations('success')
   const admin = await isCurrentUserAdmin()
-  if (!admin) return { ok: false, error: 'Not authorized' }
+  if (!admin) return { ok: false, error: t('notAuthorized') }
 
   const supabase = await createClient()
 
@@ -789,7 +803,7 @@ export async function updateAdminClient(
 
   revalidatePath('/admin/clients')
 
-  return { ok: true, message: 'Client updated successfully.' }
+  return { ok: true, message: tSuccess('clientUpdated') }
 }
 
 // --- Admin Analytics ---
@@ -812,7 +826,10 @@ export async function getAdminUserGrowthData(months = 6): Promise<GetAdminUserGr
     supabase.from('users').select('created_at').eq('role', 'owner').gte('created_at', start.toISOString()),
     supabase.from('members').select('created_at').gte('created_at', start.toISOString()),
   ])
-  if (newOwnersRes.error || newMembersRes.error) return { data: [], error: (newOwnersRes.error || newMembersRes.error)?.message ?? 'Failed to load growth data' }
+  if (newOwnersRes.error || newMembersRes.error) {
+    const t = await getTranslations('errors')
+    return { data: [], error: (newOwnersRes.error || newMembersRes.error)?.message ?? t('failedToLoadGrowthData') }
+  }
   const newOwners = newOwnersRes.data
   const newMembers = newMembersRes.data
   const byMonth: Record<string, { newUsers: number; newAffiliados: number }> = {}

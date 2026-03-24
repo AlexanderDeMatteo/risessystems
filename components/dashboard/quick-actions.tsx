@@ -1,6 +1,7 @@
 'use client'
 
-import Link from 'next/link'
+import { useTranslations } from 'next-intl'
+import { Link } from '@/i18n/routing'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Plus, QrCode, Users, CreditCard } from 'lucide-react'
@@ -8,39 +9,41 @@ import { Plus, QrCode, Users, CreditCard } from 'lucide-react'
 const actions = [
   {
     icon: Plus,
-    label: 'Add Member',
-    description: 'Register a new member',
+    labelKey: 'addMember',
+    descKey: 'addMemberDesc',
     color: 'bg-blue-500/10 text-blue-400',
     href: '/dashboard/members',
   },
   {
     icon: QrCode,
-    label: 'QR Scanner',
-    description: 'Scan member access',
+    labelKey: 'qrScanner',
+    descKey: 'qrScannerDesc',
     color: 'bg-emerald-500/10 text-emerald-400',
     href: '/dashboard/qr-scanner',
   },
   {
     icon: CreditCard,
-    label: 'Process Payment',
-    description: 'Record a transaction',
+    labelKey: 'processPayment',
+    descKey: 'processPaymentDesc',
     color: 'bg-purple-500/10 text-purple-400',
     href: '/dashboard/accounting',
   },
   {
     icon: Users,
-    label: 'View Reports',
-    description: 'Access analytics',
+    labelKey: 'viewReports',
+    descKey: 'viewReportsDesc',
     color: 'bg-amber-500/10 text-amber-400',
     href: '/dashboard/accounting',
   },
 ]
 
 export function QuickActions() {
+  const t = useTranslations('quickActions')
+
   return (
     <Card className="bg-card border-border">
       <CardHeader>
-        <CardTitle>Quick Actions</CardTitle>
+        <CardTitle>{t('title')}</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-2 gap-3">
@@ -56,8 +59,8 @@ export function QuickActions() {
                     <Icon className="w-5 h-5" />
                   </div>
                   <div className="text-center">
-                    <p className="text-sm font-medium text-foreground">{action.label}</p>
-                    <p className="text-xs text-muted-foreground">{action.description}</p>
+                    <p className="text-sm font-medium text-foreground">{t(action.labelKey)}</p>
+                    <p className="text-xs text-muted-foreground">{t(action.descKey)}</p>
                   </div>
                 </Button>
               </Link>

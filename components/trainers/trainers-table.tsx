@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import {
   Table,
   TableBody,
@@ -41,6 +42,8 @@ export function TrainersTable({
   onDeleteTrainer,
   branchOptions,
 }: TrainersTableProps) {
+  const t = useTranslations('trainers')
+  const tCommon = useTranslations('common')
   const [editDialogOpen, setEditDialogOpen] = useState(false)
   const [trainerToEdit, setTrainerToEdit] = useState<Trainer | null>(null)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
@@ -88,13 +91,13 @@ export function TrainersTable({
           <TableHeader>
             <TableRow className="border-border hover:bg-transparent">
               <TableHead className="w-8"></TableHead>
-              <TableHead>Name</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>Phone</TableHead>
-              <TableHead>Branch</TableHead>
-              <TableHead>Specialties</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead>{tCommon('name')}</TableHead>
+              <TableHead>{tCommon('email')}</TableHead>
+              <TableHead>{tCommon('phone')}</TableHead>
+              <TableHead>{t('branch')}</TableHead>
+              <TableHead>{t('specialties')}</TableHead>
+              <TableHead>{tCommon('status')}</TableHead>
+              <TableHead className="text-right">{tCommon('actions')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -104,7 +107,7 @@ export function TrainersTable({
                   <TableCell>
                     <div
                       className={`inline-flex p-1 ${primaryTrainerByBranch[trainer.branch] === trainer.id ? 'text-yellow-500' : 'text-muted-foreground'}`}
-                      title={primaryTrainerByBranch[trainer.branch] === trainer.id ? 'Primary trainer for this branch' : undefined}
+                      title={primaryTrainerByBranch[trainer.branch] === trainer.id ? t('primaryTrainerForBranch') : undefined}
                     >
                       <Star
                         className="w-4 h-4"
@@ -120,9 +123,9 @@ export function TrainersTable({
                   <TableCell className="text-sm text-muted-foreground">{trainer.specialties}</TableCell>
                   <TableCell>
                     {trainer.status === 'active' ? (
-                      <Badge className="bg-green-900 text-green-100">Active</Badge>
+                      <Badge className="bg-green-900 text-green-100">{tCommon('active')}</Badge>
                     ) : (
-                      <Badge className="bg-gray-700 text-gray-100">Inactive</Badge>
+                      <Badge className="bg-gray-700 text-gray-100">{tCommon('inactive')}</Badge>
                     )}
                   </TableCell>
                   <TableCell className="text-right">
@@ -132,7 +135,7 @@ export function TrainersTable({
                         size="sm"
                         className="hover:bg-secondary"
                         onClick={() => handleEditClick(trainer)}
-                        aria-label="Edit trainer"
+                        aria-label={t('editTrainer')}
                       >
                         <Edit className="w-4 h-4" />
                       </Button>
@@ -141,7 +144,7 @@ export function TrainersTable({
                         size="sm"
                         className="hover:bg-destructive/20 text-destructive"
                         onClick={() => handleDeleteClick(trainer)}
-                        aria-label="Delete trainer"
+                        aria-label={t('deleteTrainer')}
                       >
                         <Trash2 className="w-4 h-4" />
                       </Button>
@@ -152,7 +155,7 @@ export function TrainersTable({
             ) : (
               <TableRow>
                 <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
-                  No trainers found
+                  {t('noTrainers')}
                 </TableCell>
               </TableRow>
             )}

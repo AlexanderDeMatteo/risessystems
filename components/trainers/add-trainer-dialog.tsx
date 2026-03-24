@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import {
   Dialog,
   DialogContent,
@@ -16,6 +17,8 @@ interface AddTrainerDialogProps {
 }
 
 export function AddTrainerDialog({ open, onOpenChange, onTrainerAdded, branchOptions }: AddTrainerDialogProps) {
+  const t = useTranslations('trainers')
+
   const handleSubmit = (data: TrainerFormData) => {
     onTrainerAdded?.(data)
     onOpenChange(false)
@@ -25,14 +28,14 @@ export function AddTrainerDialog({ open, onOpenChange, onTrainerAdded, branchOpt
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="bg-card border-border max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-foreground">Add New Trainer</DialogTitle>
+          <DialogTitle className="text-foreground">{t('addNewTrainer')}</DialogTitle>
         </DialogHeader>
 
         <TrainerForm
           formKey={open ? 'add' : 'add-closed'}
           onSubmit={handleSubmit}
           onCancel={() => onOpenChange(false)}
-          submitLabel="Add Trainer"
+          submitLabel={t('addTrainer')}
           branchOptions={branchOptions}
         />
       </DialogContent>

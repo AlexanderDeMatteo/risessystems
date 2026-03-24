@@ -5,6 +5,7 @@ import { getCurrentAppUserId } from '@/lib/supabase/get-app-user-id'
 import type { DashboardCounts, SalesChartPoint, MembershipPieSegment, RevenueChartPoint, RecentActivityItem } from '@/lib/types/dashboard'
 import { getCheckIns } from './check-ins'
 import { getPayments } from './payments'
+import { getTranslations } from 'next-intl/server'
 
 const emptyCounts: DashboardCounts = {
   memberCount: 0,
@@ -42,8 +43,9 @@ export async function getDashboardCounts(): Promise<GetDashboardCountsResult> {
   ])
 
   if (membersRes.error || trainersRes.error || branchesRes.error || paymentsThisMonthRes.error || paymentsLastMonthRes.error || membersThisMonthRes.error) {
+    const t = await getTranslations('errors')
     const err = membersRes.error || trainersRes.error || branchesRes.error || paymentsThisMonthRes.error || membersThisMonthRes.error
-    return { counts: emptyCounts, error: err?.message ?? 'Failed to load dashboard counts' }
+    return { counts: emptyCounts, error: err?.message ?? t('failedToLoadDashboardCounts') }
   }
 
   const checkInsToday = await (async () => {
@@ -87,8 +89,9 @@ export type GetSalesChartResult =
   | { data: SalesChartPoint[]; error: string }
 
 export async function getSalesChartData(days = 30): Promise<GetSalesChartResult> {
+  const t = await getTranslations('errors')
   const userId = await getCurrentAppUserId()
-  if (!userId) return { data: [], error: 'Not authenticated' }
+  if (!userId) return { data: [], error: t('notAuthenticated') }
   const supabase = await createClient()
   const end = new Date()
   const start = new Date(end)
@@ -113,7 +116,7 @@ export async function getSalesChartData(days = 30): Promise<GetSalesChartResult>
     ])
     if (paymentsRes.error || checkInsRes.error) {
       const err = paymentsRes.error || checkInsRes.error
-      return { data: [], error: err?.message ?? 'Failed to load sales chart data' }
+      return { data: [], error: err?.message ?? t('failedToLoadSalesChartData') }
     }
     const byDate: Record<string, { sales: number; checkins: number }> = {}
     for (let i = 0; i < days; i++) {
@@ -151,8 +154,9 @@ export type GetMembershipDistResult =
   | { data: MembershipPieSegment[]; error: string }
 
 export async function getMembershipDistribution(): Promise<GetMembershipDistResult> {
+  const t = await getTranslations('errors')
   const userId = await getCurrentAppUserId()
-  if (!userId) return { data: [], error: 'Not authenticated' }
+  if (!userId) return { data: [], error: t('notAuthenticated') }
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('members')
@@ -178,8 +182,9 @@ export type GetRevenueChartResult =
   | { data: RevenueChartPoint[]; error: string }
 
 export async function getRevenueChartData(months = 6): Promise<GetRevenueChartResult> {
+  const t = await getTranslations('errors')
   const userId = await getCurrentAppUserId()
-  if (!userId) return { data: [], error: 'Not authenticated' }
+  if (!userId) return { data: [], error: t('notAuthenticated') }
   const supabase = await createClient()
   const end = new Date()
   const start = new Date(end.getFullYear(), end.getMonth() - months, 1)

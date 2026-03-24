@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, useMemo, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useMemo, useCallback, useEffect } from 'react'
+import { useTranslations } from 'next-intl'
+import { useRouter } from '@/i18n/routing'
 import {
   Bell,
   UserPlus,
@@ -17,47 +18,52 @@ import { Card } from '@/components/ui/card'
 import { getReadIds, addReadId, addReadIds } from '@/lib/notification-reads'
 import type { NotificationType, NotificationItem } from '@/lib/types/notifications'
 
-const notificationConfig: Record<
+const notificationConfig: Partial<Record<
   NotificationType,
-  { icon: typeof Bell; colorClass: string; label: string }
-> = {
-  expiring: { icon: AlertTriangle, colorClass: 'text-amber-400 bg-amber-400/10', label: 'Expiring' },
-  payment: { icon: CreditCard, colorClass: 'text-emerald-400 bg-emerald-400/10', label: 'Payments' },
-  new_member: { icon: UserPlus, colorClass: 'text-primary bg-primary/10', label: 'New Members' },
-  checkin: { icon: Scan, colorClass: 'text-blue-400 bg-blue-400/10', label: 'Check-ins' },
-  payment_pending: { icon: Clock, colorClass: 'text-amber-400 bg-amber-400/10', label: 'Pending' },
-  expired: { icon: UserMinus, colorClass: 'text-destructive bg-destructive/10', label: 'Expired' },
-}
-
-const filterOptions: { value: NotificationType | 'all'; label: string }[] = [
-  { value: 'all', label: 'All' },
-  { value: 'expiring', label: 'Expiring' },
-  { value: 'expired', label: 'Expired' },
-  { value: 'payment', label: 'Payments' },
-  { value: 'payment_pending', label: 'Pending' },
-  { value: 'checkin', label: 'Check-ins' },
-  { value: 'new_member', label: 'New Members' },
-]
-
-function timeAgo(iso: string): string {
-  const d = new Date(iso)
-  const sec = Math.floor((Date.now() - d.getTime()) / 1000)
-  if (sec < 0) return 'Upcoming'
-  if (sec < 60) return 'Just now'
-  if (sec < 3600) return `${Math.floor(sec / 60)} min ago`
-  if (sec < 86400) return `${Math.floor(sec / 3600)}h ago`
-  const days = Math.floor(sec / 86400)
-  if (days === 1) return 'Yesterday'
-  if (days < 7) return `${days}d ago`
-  return d.toLocaleDateString()
+  { icon: typeof Bell; colorClass: string }
+>> = {
+  expiring: { icon: AlertTriangle, colorClass: 'text-amber-400 bg-amber-400/10' },
+  payment: { icon: CreditCard, colorClass: 'text-emerald-400 bg-emerald-400/10' },
+  new_member: { icon: UserPlus, colorClass: 'text-primary bg-primary/10' },
+  checkin: { icon: Scan, colorClass: 'text-blue-400 bg-blue-400/10' },
+  payment_pending: { icon: Clock, colorClass: 'text-amber-400 bg-amber-400/10' },
+  expired: { icon: UserMinus, colorClass: 'text-destructive bg-destructive/10' },
 }
 
 type Props = { items: NotificationItem[] }
 
 export function NotificationsList({ items }: Props) {
+  const t = useTranslations('notifications')
+  const tCommon = useTranslations('common')
   const router = useRouter()
+
+  const filterOptions: { value: NotificationType | 'all'; label: string }[] = useMemo(() => [
+    { value: 'all', label: tCommon('all') },
+    { value: 'expiring', label: t('expiring') },
+    { value: 'expired', label: t('expired') },
+    { value: 'payment', label: t('payments') },
+    { value: 'payment_pending', label: tCommon('pending') },
+    { value: 'checkin', label: t('checkIns') },
+    { value: 'new_member', label: t('newMembers') },
+  ], [t, tCommon])
+
+  const timeAgo = useCallback((iso: string): string => {
+    const d = new Date(iso)
+    const sec = Math.floor((Date.now() - d.getTime()) / 1000)
+    if (sec < 0) return t('upcoming')
+    if (sec < 60) return t('justNow')
+    if (sec < 3600) return t('minutesAgo', { minutes: Math.floor(sec / 60) })
+    if (sec < 86400) return t('hoursAgo', { hours: Math.floor(sec / 3600) })
+    const days = Math.floor(sec / 86400)
+    if (days === 1) return t('yesterday')
+    if (days < 7) return t('daysAgo', { days })
+    return d.toLocaleDateString()
+  }, [t])
+  const [mounted, setMounted] = useState(false)
   const [filter, setFilter] = useState<NotificationType | 'all'>('all')
   const [readIds, setReadIds] = useState<Set<string>>(() => getReadIds())
+
+  useEffect(() => setMounted(true), [])
 
   const filtered = useMemo(
     () => (filter === 'all' ? items : items.filter(n => n.type === filter)),
@@ -114,7 +120,7 @@ export function NotificationsList({ items }: Props) {
             className="uppercase text-[10px] tracking-widest font-semibold text-muted-foreground hover:text-primary"
           >
             <Check className="w-3.5 h-3.5 mr-1.5" />
-            Mark all read
+            {t('markAllRead')}
           </Button>
         )}
       </div>
@@ -123,16 +129,16 @@ export function NotificationsList({ items }: Props) {
         <Card className="border-border/50 p-12 text-center">
           <Bell className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
           <p className="text-sm text-muted-foreground uppercase tracking-wider">
-            No notifications
+            {t('noNotifications')}
           </p>
           <p className="text-xs text-muted-foreground/70 mt-1">
-            {filter !== 'all' ? 'Try a different filter' : 'You\'re all caught up'}
+            {filter !== 'all' ? t('tryDifferentFilter') : t('allCaughtUp')}
           </p>
         </Card>
       ) : (
         <div className="space-y-2">
           {filtered.map(notification => {
-            const config = notificationConfig[notification.type]
+            const config = notificationConfig[notification.type] ?? { icon: Bell, colorClass: 'text-muted-foreground bg-muted' }
             const Icon = config.icon
             const isRead = readIds.has(notification.id)
             return (
@@ -157,8 +163,8 @@ export function NotificationsList({ items }: Props) {
                     >
                       {notification.title}
                     </p>
-                    <span className="text-[10px] text-muted-foreground/70 shrink-0">
-                      {timeAgo(notification.timestamp)}
+                    <span className="text-[10px] text-muted-foreground/70 shrink-0" suppressHydrationWarning>
+                      {mounted ? timeAgo(notification.timestamp) : '\u00A0'}
                     </span>
                   </div>
                   <p className="text-sm text-muted-foreground mt-1">

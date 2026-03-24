@@ -3,6 +3,7 @@
 import React from "react"
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import {
   Dialog,
   DialogContent,
@@ -21,6 +22,9 @@ interface AddBranchDialogProps {
 }
 
 export function AddBranchDialog({ open, onOpenChange, onBranchAdded }: AddBranchDialogProps) {
+  const t = useTranslations('branches')
+  const tCommon = useTranslations('common')
+
   const [formData, setFormData] = useState({
     name: '',
     address: '',
@@ -44,18 +48,18 @@ export function AddBranchDialog({ open, onOpenChange, onBranchAdded }: AddBranch
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="bg-card border-border">
         <DialogHeader>
-          <DialogTitle className="text-foreground">Add New Branch</DialogTitle>
+          <DialogTitle className="text-foreground">{t('addNewBranch')}</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="name" className="text-foreground">
-              Branch Name
+              {t('branchName')}
             </Label>
             <Input
               id="name"
               name="name"
-              placeholder="e.g. Downtown Branch"
+              placeholder={t('branchNamePlaceholder')}
               value={formData.name}
               onChange={handleChange}
               className="bg-secondary/50 border-border"
@@ -65,12 +69,12 @@ export function AddBranchDialog({ open, onOpenChange, onBranchAdded }: AddBranch
 
           <div className="space-y-2">
             <Label htmlFor="address" className="text-foreground">
-              Address
+              {t('address')}
             </Label>
             <Textarea
               id="address"
               name="address"
-              placeholder="Enter full address"
+              placeholder={t('enterFullAddress')}
               value={formData.address}
               onChange={handleChange}
               className="bg-secondary/50 border-border min-h-20"
@@ -80,7 +84,7 @@ export function AddBranchDialog({ open, onOpenChange, onBranchAdded }: AddBranch
 
           <div className="space-y-2">
             <Label htmlFor="phone" className="text-foreground">
-              Phone
+              {tCommon('phone')}
             </Label>
             <Input
               id="phone"
@@ -95,7 +99,7 @@ export function AddBranchDialog({ open, onOpenChange, onBranchAdded }: AddBranch
 
           <div className="space-y-2">
             <Label htmlFor="email" className="text-foreground">
-              Email
+              {tCommon('email')}
             </Label>
             <Input
               id="email"
@@ -111,9 +115,9 @@ export function AddBranchDialog({ open, onOpenChange, onBranchAdded }: AddBranch
 
           <div className="flex gap-3 justify-end">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
+              {tCommon('cancel')}
             </Button>
-            <Button type="submit">Add Branch</Button>
+            <Button type="submit">{t('addBranch')}</Button>
           </div>
         </form>
       </DialogContent>

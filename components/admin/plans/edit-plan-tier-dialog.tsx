@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import {
   Dialog,
   DialogContent,
@@ -59,6 +60,8 @@ export function EditPlanTierDialog({
   tier,
   onSave,
 }: EditPlanTierDialogProps) {
+  const t = useTranslations('admin')
+  const tCommon = useTranslations('common')
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     values: tier
@@ -118,9 +121,9 @@ export function EditPlanTierDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="bg-card border-border max-w-md">
         <DialogHeader>
-          <DialogTitle>Edit tier</DialogTitle>
+          <DialogTitle>{t('editTier')}</DialogTitle>
           <DialogDescription>
-            Update platform tier range and price
+            {t('editTierDesc')}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -130,7 +133,7 @@ export function EditPlanTierDialog({
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Name</FormLabel>
+                  <FormLabel>{t('name')}</FormLabel>
                   <FormControl>
                     <Input placeholder="e.g. Growth" {...field} />
                   </FormControl>
@@ -144,7 +147,7 @@ export function EditPlanTierDialog({
                 name="min_active_users"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Min active users</FormLabel>
+                    <FormLabel>{t('minActiveUsers')}</FormLabel>
                     <FormControl>
                       <Input type="number" min={0} {...field} />
                     </FormControl>
@@ -157,12 +160,12 @@ export function EditPlanTierDialog({
                 name="max_active_users"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Max active users (optional)</FormLabel>
+                    <FormLabel>{t('maxActiveUsers')}</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
                         min={0}
-                        placeholder="Leave empty for no cap"
+                        placeholder={t('leaveEmptyNoCap')}
                         value={field.value === '' ? '' : field.value}
                         onChange={e =>
                           field.onChange(
@@ -181,7 +184,7 @@ export function EditPlanTierDialog({
               name="price_monthly"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Price (monthly)</FormLabel>
+                  <FormLabel>{t('priceMonthly')}</FormLabel>
                   <FormControl>
                     <Input type="number" min={0} step={0.01} {...field} />
                   </FormControl>
@@ -195,7 +198,7 @@ export function EditPlanTierDialog({
                 name="overage_threshold"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Overage threshold (optional)</FormLabel>
+                    <FormLabel>{t('overageThreshold')}</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
@@ -218,7 +221,7 @@ export function EditPlanTierDialog({
                 name="overage_price_per_user"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Price per user over threshold ($)</FormLabel>
+                    <FormLabel>{t('pricePerUserOverThreshold')}</FormLabel>
                     <FormControl>
                       <Input type="number" min={0} step={0.01} {...field} />
                     </FormControl>
@@ -232,7 +235,7 @@ export function EditPlanTierDialog({
               name="is_active"
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border border-border p-4">
-                  <FormLabel>Active</FormLabel>
+                  <FormLabel>{t('active')}</FormLabel>
                   <FormControl>
                     <Switch
                       checked={field.value}
@@ -248,9 +251,9 @@ export function EditPlanTierDialog({
                 variant="outline"
                 onClick={() => onOpenChange(false)}
               >
-                Cancel
+                {tCommon('cancel')}
               </Button>
-              <Button type="submit">Save</Button>
+              <Button type="submit">{t('save')}</Button>
             </div>
           </form>
         </Form>

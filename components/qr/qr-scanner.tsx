@@ -3,12 +3,12 @@
 import React from "react"
 
 import { useState, useRef } from 'react'
+import { useTranslations } from 'next-intl'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Scan, CheckCircle, AlertTriangle } from 'lucide-react'
-import { MOCK_QR_MEMBERS } from '@/lib/mocks/qr-members'
 
 interface QRScannerProps {
   onScan?: (memberData: { id: string; name: string }) => void
@@ -17,6 +17,7 @@ interface QRScannerProps {
 }
 
 export function QRScanner({ onScan, resolveScan }: QRScannerProps) {
+  const t = useTranslations('qr')
   const [qrInput, setQrInput] = useState('')
   const [scanResult, setScanResult] = useState<{ type: 'success' | 'error' | null; message: string }>({
     type: null,
@@ -30,20 +31,17 @@ export function QRScanner({ onScan, resolveScan }: QRScannerProps) {
     let member: { id: string; name: string } | null = null
     if (resolveScan) {
       member = await resolveScan(value)
-    } else {
-      const name = MOCK_QR_MEMBERS[value]
-      if (name) member = { id: value, name }
     }
     if (member) {
       setScanResult({
         type: 'success',
-        message: `Welcome, ${member.name}!`,
+        message: t('welcomeMember', { name: member.name }),
       })
       onScan?.({ id: member.id, name: member.name })
     } else {
       setScanResult({
         type: 'error',
-        message: 'Member not found. Please try again.',
+        message: t('memberNotFound'),
       })
     }
     setTimeout(() => {
@@ -70,8 +68,8 @@ export function QRScanner({ onScan, resolveScan }: QRScannerProps) {
             <Scan className="w-6 h-6 text-primary" />
           </div>
           <div>
-            <h2 className="text-xl font-semibold text-foreground">QR Code Scanner</h2>
-            <p className="text-sm text-muted-foreground">Scan or enter QR codes</p>
+            <h2 className="text-xl font-semibold text-foreground">{t('qrCodeScanner')}</h2>
+            <p className="text-sm text-muted-foreground">{t('scanOrEnterQr')}</p>
           </div>
         </div>
 
@@ -80,7 +78,7 @@ export function QRScanner({ onScan, resolveScan }: QRScannerProps) {
           <Input
             ref={inputRef}
             type="text"
-            placeholder="Scan QR code here..."
+            placeholder={t('scanQrPlaceholder')}
             value={qrInput}
             onChange={(e) => setQrInput(e.target.value)}
             className="text-lg p-4"
@@ -88,7 +86,7 @@ export function QRScanner({ onScan, resolveScan }: QRScannerProps) {
           />
 
           <Button type="submit" className="w-full" disabled={!qrInput.trim()}>
-            Process Scan
+            {t('processScan')}
           </Button>
         </form>
 

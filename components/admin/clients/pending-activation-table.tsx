@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -20,6 +21,8 @@ interface PendingActivationTableProps {
 }
 
 export function PendingActivationTable({ clients, onActivate }: PendingActivationTableProps) {
+  const t = useTranslations('admin')
+
   if (clients.length === 0) return null
 
   return (
@@ -27,11 +30,11 @@ export function PendingActivationTable({ clients, onActivate }: PendingActivatio
       <div className="p-6 space-y-4">
         <div className="flex items-center gap-3">
           <h3 className="font-semibold text-foreground">
-            Pending activation
+            {t('pendingActivation')}
             <span className="ml-2 font-normal text-muted-foreground">({clients.length})</span>
           </h3>
           <Badge className="bg-amber-500/20 text-amber-400 border border-amber-500/40">
-            Awaiting first payment
+            {t('awaitingFirstPayment')}
           </Badge>
         </div>
 
@@ -39,11 +42,11 @@ export function PendingActivationTable({ clients, onActivate }: PendingActivatio
           <Table>
             <TableHeader>
               <TableRow className="border-border hover:bg-transparent">
-                <TableHead className="uppercase text-xs tracking-wider text-muted-foreground">Gym Name</TableHead>
-                <TableHead className="uppercase text-xs tracking-wider text-muted-foreground">Email</TableHead>
-                <TableHead className="uppercase text-xs tracking-wider text-muted-foreground">Active Members</TableHead>
-                <TableHead className="uppercase text-xs tracking-wider text-muted-foreground">Joined</TableHead>
-                <TableHead className="text-right uppercase text-xs tracking-wider text-muted-foreground">Action</TableHead>
+                <TableHead className="uppercase text-xs tracking-wider text-muted-foreground">{t('gymName')}</TableHead>
+                <TableHead className="uppercase text-xs tracking-wider text-muted-foreground">{t('email')}</TableHead>
+                <TableHead className="uppercase text-xs tracking-wider text-muted-foreground">{t('activeMembers')}</TableHead>
+                <TableHead className="uppercase text-xs tracking-wider text-muted-foreground">{t('joined')}</TableHead>
+                <TableHead className="text-right uppercase text-xs tracking-wider text-muted-foreground">{t('action')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -61,7 +64,7 @@ export function PendingActivationTable({ clients, onActivate }: PendingActivatio
                       onClick={() => onActivate(client)}
                     >
                       <Zap className="w-3.5 h-3.5" />
-                      Activate & Charge
+                      {t('activateAndCharge')}
                     </Button>
                   </TableCell>
                 </TableRow>

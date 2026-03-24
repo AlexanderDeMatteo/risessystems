@@ -44,7 +44,7 @@ export async function getNotifications(limit = 20): Promise<NotificationItem[]> 
   const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString()
   const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString()
 
-  const queries: Promise<{ data: unknown[] | null }>[] = []
+  const queries: PromiseLike<{ data: unknown[] | null }>[] = []
   const queryKeys: string[] = []
 
   if (prefs.notifyExpiring) {
@@ -121,6 +121,22 @@ export async function getNotifications(limit = 20): Promise<NotificationItem[]> 
     )
     queryKeys.push('newMembers')
   }
+
+  queries.push(
+    supabase
+      .from('competition_gyms')
+      .select(
+        `
+        competition_id,
+        competitions!inner(id, title, status, scope, ends_at)
+      `
+      )
+      .eq('user_id', userId)
+      .eq('competitions.scope', 'versus')
+      .in('competitions.status', ['active', 'completed'])
+      .limit(15)
+  )
+  queryKeys.push('competitions')
 
   const results = await Promise.all(queries)
   const resultMap: Record<string, unknown[] | null> = {}
@@ -218,6 +234,36 @@ export async function getNotifications(limit = 20): Promise<NotificationItem[]> 
       timestamp: row.created_at,
       href: '/dashboard/members',
     })
+  }
+
+  const sixtyDaysAgo = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000).toISOString()
+  for (const row of (resultMap.competitions ?? []) as {
+    competition_id: number
+    competitions:
+      | { id: number; title: string; status: string; scope: string; ends_at: string }
+      | { id: number; title: string; status: string; scope: string; ends_at: string }[]
+  }[]) {
+    const comp = Array.isArray(row.competitions) ? row.competitions[0] : row.competitions
+    if (!comp) continue
+    if (comp.status === 'active') {
+      items.push({
+        id: `versus-active-${comp.id}`,
+        type: 'competition_assigned',
+        title: 'Versus competition active',
+        description: comp.title,
+        timestamp: now.toISOString(),
+        href: `/dashboard/competitions/${comp.id}`,
+      })
+    } else if (comp.status === 'completed' && comp.ends_at >= sixtyDaysAgo) {
+      items.push({
+        id: `versus-done-${comp.id}`,
+        type: 'competition_finished',
+        title: 'Versus competition finished',
+        description: comp.title,
+        timestamp: comp.ends_at,
+        href: `/dashboard/competitions/${comp.id}`,
+      })
+    }
   }
 
   items.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())

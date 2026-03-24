@@ -17,13 +17,20 @@ export const viewport: Viewport = {
   themeColor: '#a3e635',
 }
 
-export default function RootLayout({
-  children,
-}: Readonly<{
+type RootLayoutProps = {
   children: React.ReactNode
-}>) {
+  params?: Promise<{ locale?: string }>
+}
+
+export default async function RootLayout({
+  children,
+  params,
+}: RootLayoutProps) {
+  const resolvedParams = params ? await params : { locale: 'en' }
+  const locale = resolvedParams.locale ?? 'en'
+  
   return (
-    <html lang="en" className={`dark ${inter.variable} ${jetbrainsMono.variable}`}>
+    <html lang={locale} className={`dark ${inter.variable} ${jetbrainsMono.variable}`}>
       <body className="font-sans antialiased bg-background text-foreground">{children}</body>
     </html>
   )

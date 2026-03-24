@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Plus } from 'lucide-react'
 import { AddPlanTierDialog } from './add-plan-tier-dialog'
@@ -13,20 +14,21 @@ interface PlansHeaderProps {
 }
 
 export function PlansHeader({ onTierAdded, currentTiers }: PlansHeaderProps) {
+  const t = useTranslations('admin')
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Plans & Pricing</h1>
+          <h1 className="text-3xl font-bold text-foreground">{t('plansTiersTitle')}</h1>
           <p className="text-muted-foreground mt-1">
-            Define platform tiers by active user range and monthly price
+            {t('plansTiersSubtitle')}
           </p>
         </div>
         <Button onClick={() => setIsDialogOpen(true)} className="gap-2">
           <Plus className="w-4 h-4" />
-          Add tier
+          {t('addTier')}
         </Button>
       </div>
       <AddPlanTierDialog

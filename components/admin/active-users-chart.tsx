@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { Card } from '@/components/ui/card'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import type { ActiveUsersChartPoint } from '@/app/actions/admin'
@@ -9,12 +10,14 @@ interface ActiveUsersChartProps {
 }
 
 export function ActiveUsersChart({ data }: ActiveUsersChartProps) {
+  const t = useTranslations('admin')
+
   return (
     <Card className="bg-card border-border p-6">
       <div className="space-y-6">
         <div>
-          <h2 className="text-xl font-semibold text-foreground">Affiliados by Month</h2>
-          <p className="text-sm text-muted-foreground">New members registered per month across all gyms</p>
+          <h2 className="text-xl font-semibold text-foreground">{t('affiliadosByMonth')}</h2>
+          <p className="text-sm text-muted-foreground">{t('affiliadosSubtitle')}</p>
         </div>
 
         <ResponsiveContainer width="100%" height={300}>

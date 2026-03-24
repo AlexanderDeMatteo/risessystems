@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { getCurrentAppUserId } from '@/lib/supabase/get-app-user-id'
 import { revalidatePath } from 'next/cache'
+import { getTranslations } from 'next-intl/server'
 
 export type CheckInRow = {
   id: number
@@ -18,8 +19,9 @@ export type GetCheckInsResult =
   | { checkIns: CheckInRow[]; error: string }
 
 export async function getCheckIns(limit = 50): Promise<GetCheckInsResult> {
+  const t = await getTranslations('errors')
   const userId = await getCurrentAppUserId()
-  if (!userId) return { checkIns: [], error: 'Not authenticated' }
+  if (!userId) return { checkIns: [], error: t('notAuthenticated') }
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('check_ins')
@@ -58,8 +60,9 @@ export async function getCheckIns(limit = 50): Promise<GetCheckInsResult> {
 }
 
 export async function createCheckIn(memberId: number): Promise<{ ok: true; id: number } | { ok: false; error: string }> {
+  const t = await getTranslations('errors')
   const userId = await getCurrentAppUserId()
-  if (!userId) return { ok: false, error: 'Not authenticated' }
+  if (!userId) return { ok: false, error: t('notAuthenticated') }
   const supabase = await createClient()
   const { data: member } = await supabase
     .from('members')
@@ -67,7 +70,7 @@ export async function createCheckIn(memberId: number): Promise<{ ok: true; id: n
     .eq('id', memberId)
     .eq('user_id', userId)
     .maybeSingle()
-  if (!member) return { ok: false, error: 'Member not found' }
+  if (!member) return { ok: false, error: t('memberNotFound') }
   const { data, error } = await supabase
     .from('check_ins')
     .insert({ member_id: memberId })
@@ -80,8 +83,9 @@ export async function createCheckIn(memberId: number): Promise<{ ok: true; id: n
 
 /** Set check-out time and duration for a check-in. Only allowed if check_out_time is still null and the check-in belongs to the current user's members. */
 export async function createCheckOut(checkInId: number): Promise<{ ok: true } | { ok: false; error: string }> {
+  const t = await getTranslations('errors')
   const userId = await getCurrentAppUserId()
-  if (!userId) return { ok: false, error: 'Not authenticated' }
+  if (!userId) return { ok: false, error: t('notAuthenticated') }
   const supabase = await createClient()
   const { data: existing } = await supabase
     .from('check_ins')
@@ -89,20 +93,20 @@ export async function createCheckOut(checkInId: number): Promise<{ ok: true } | 
     .eq('id', checkInId)
     .is('check_out_time', null)
     .maybeSingle()
-  if (!existing) return { ok: false, error: 'Check-in not found or already checked out' }
+  if (!existing) return { ok: false, error: t('checkInNotFoundOrCheckedOut') }
   const { data: memberRow } = await supabase
     .from('check_ins')
     .select('member_id')
     .eq('id', checkInId)
     .single()
-  if (!memberRow) return { ok: false, error: 'Check-in not found' }
+  if (!memberRow) return { ok: false, error: t('checkInNotFound') }
   const { data: member } = await supabase
     .from('members')
     .select('id')
     .eq('id', (memberRow as { member_id: number }).member_id)
     .eq('user_id', userId)
     .maybeSingle()
-  if (!member) return { ok: false, error: 'Not authorized' }
+  if (!member) return { ok: false, error: t('notAuthorized') }
   const now = new Date()
   const checkInTime = new Date((existing as { check_in_time: string }).check_in_time)
   const durationMinutes = Math.floor((now.getTime() - checkInTime.getTime()) / 60000)

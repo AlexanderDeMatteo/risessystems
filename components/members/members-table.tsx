@@ -1,5 +1,6 @@
- 'use client'
+'use client'
 
+import { useTranslations } from 'next-intl'
 import {
   Table,
   TableBody,
@@ -55,6 +56,9 @@ interface MembersTableProps {
 }
 
 export function MembersTable({ members, searchTerm, filterStatus, onEdit }: MembersTableProps) {
+  const t = useTranslations('members')
+  const tCommon = useTranslations('common')
+
   const filteredMembers = members.filter((member: Member) => {
     const matchesSearch =
       member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -69,13 +73,13 @@ export function MembersTable({ members, searchTerm, filterStatus, onEdit }: Memb
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'active':
-        return <Badge className="bg-green-900 text-green-100">Active</Badge>
+        return <Badge className="bg-green-900 text-green-100">{tCommon('active')}</Badge>
       case 'suspended':
-        return <Badge className="bg-yellow-900 text-yellow-100">Suspended</Badge>
+        return <Badge className="bg-yellow-900 text-yellow-100">{tCommon('pending')}</Badge>
       case 'inactive':
-        return <Badge className="bg-red-900 text-red-100">Inactive</Badge>
+        return <Badge className="bg-red-900 text-red-100">{tCommon('inactive')}</Badge>
       default:
-        return <Badge>Unknown</Badge>
+        return <Badge>{tCommon('status')}</Badge>
     }
   }
 
@@ -88,21 +92,21 @@ export function MembersTable({ members, searchTerm, filterStatus, onEdit }: Memb
   const formatDaysRemaining = (expiryDate?: string) => {
     const days = getDaysRemaining(expiryDate)
     if (days === null) return '—'
-    if (days < 0) return <span className="text-destructive font-medium">Expired {Math.abs(days)}d ago</span>
-    if (days === 0) return <span className="text-amber-500 font-medium">Today</span>
-    if (days <= 7) return <span className="text-amber-500 font-medium">{days} days</span>
-    return <span className="text-muted-foreground">{days} days</span>
+    if (days < 0) return <span className="text-destructive font-medium">{t('expiredDaysAgo', { days: Math.abs(days) })}</span>
+    if (days === 0) return <span className="text-amber-500 font-medium">{t('expiringIn', { days: 0 })}</span>
+    if (days <= 7) return <span className="text-amber-500 font-medium">{t('expiringIn', { days })}</span>
+    return <span className="text-muted-foreground">{t('expiringIn', { days })}</span>
   }
 
   const getRenewalBadge = (member: Member) => {
     const pred = getRenewalPrediction(member)
     switch (pred) {
       case 'likely':
-        return <Badge className="bg-green-900/80 text-green-100 border-green-600/50">Likely to renew</Badge>
+        return <Badge className="bg-green-900/80 text-green-100 border-green-600/50">{t('renewMembership')}</Badge>
       case 'uncertain':
-        return <Badge className="bg-amber-900/80 text-amber-100 border-amber-600/50">Uncertain</Badge>
+        return <Badge className="bg-amber-900/80 text-amber-100 border-amber-600/50">{tCommon('pending')}</Badge>
       case 'at_risk':
-        return <Badge className="bg-red-900/80 text-red-100 border-red-600/50">At risk</Badge>
+        return <Badge className="bg-red-900/80 text-red-100 border-red-600/50">{tCommon('expired')}</Badge>
       default:
         return null
     }
@@ -113,14 +117,14 @@ export function MembersTable({ members, searchTerm, filterStatus, onEdit }: Memb
       <Table>
         <TableHeader className="bg-secondary/30 border-border">
           <TableRow className="border-border/50 hover:bg-transparent">
-            <TableHead className="uppercase text-xs tracking-wider text-muted-foreground">Name</TableHead>
-            <TableHead className="uppercase text-xs tracking-wider text-muted-foreground">Email</TableHead>
-            <TableHead className="uppercase text-xs tracking-wider text-muted-foreground">Phone</TableHead>
-            <TableHead className="uppercase text-xs tracking-wider text-muted-foreground">Membership</TableHead>
-            <TableHead className="uppercase text-xs tracking-wider text-muted-foreground">Status</TableHead>
-            <TableHead className="uppercase text-xs tracking-wider text-muted-foreground">Days left</TableHead>
-            <TableHead className="uppercase text-xs tracking-wider text-muted-foreground">Renewal</TableHead>
-            <TableHead className="text-right uppercase text-xs tracking-wider text-muted-foreground">Actions</TableHead>
+            <TableHead className="uppercase text-xs tracking-wider text-muted-foreground">{tCommon('name')}</TableHead>
+            <TableHead className="uppercase text-xs tracking-wider text-muted-foreground">{tCommon('email')}</TableHead>
+            <TableHead className="uppercase text-xs tracking-wider text-muted-foreground">{tCommon('phone')}</TableHead>
+            <TableHead className="uppercase text-xs tracking-wider text-muted-foreground">{t('membershipType')}</TableHead>
+            <TableHead className="uppercase text-xs tracking-wider text-muted-foreground">{tCommon('status')}</TableHead>
+            <TableHead className="uppercase text-xs tracking-wider text-muted-foreground">{t('expiryDate')}</TableHead>
+            <TableHead className="uppercase text-xs tracking-wider text-muted-foreground">{t('renewMembership')}</TableHead>
+            <TableHead className="text-right uppercase text-xs tracking-wider text-muted-foreground">{tCommon('actions')}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -141,10 +145,11 @@ export function MembersTable({ members, searchTerm, filterStatus, onEdit }: Memb
                       size="sm"
                       className="hover:bg-secondary"
                       onClick={() => onEdit?.(member)}
+                      title={tCommon('edit')}
                     >
                       <Edit className="w-4 h-4" />
                     </Button>
-                    <Button variant="ghost" size="sm" className="hover:bg-destructive/20 text-destructive">
+                    <Button variant="ghost" size="sm" className="hover:bg-destructive/20 text-destructive" title={tCommon('delete')}>
                       <Trash2 className="w-4 h-4" />
                     </Button>
                   </div>
@@ -154,7 +159,7 @@ export function MembersTable({ members, searchTerm, filterStatus, onEdit }: Memb
           ) : (
             <TableRow>
               <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
-                No members found
+                {t('noMembers')}
               </TableCell>
             </TableRow>
           )}

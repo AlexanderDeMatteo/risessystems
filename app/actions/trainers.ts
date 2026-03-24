@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { getCurrentAppUserId } from '@/lib/supabase/get-app-user-id'
 import { revalidatePath } from 'next/cache'
+import { getTranslations } from 'next-intl/server'
 
 export type TrainerRow = {
   id: number
@@ -22,8 +23,9 @@ export type GetTrainersResult =
   | { trainers: TrainerRow[]; error: string }
 
 export async function getTrainers(): Promise<GetTrainersResult> {
+  const t = await getTranslations('errors')
   const userId = await getCurrentAppUserId()
-  if (!userId) return { trainers: [], error: 'Not authenticated' }
+  if (!userId) return { trainers: [], error: t('notAuthenticated') }
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('trainers')
@@ -57,8 +59,9 @@ export type CreateTrainerInput = {
 }
 
 export async function createTrainer(input: CreateTrainerInput): Promise<{ ok: true; id: number } | { ok: false; error: string }> {
+  const t = await getTranslations('errors')
   const userId = await getCurrentAppUserId()
-  if (!userId) return { ok: false, error: 'Not authenticated' }
+  if (!userId) return { ok: false, error: t('notAuthenticated') }
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('trainers')
@@ -81,8 +84,9 @@ export async function createTrainer(input: CreateTrainerInput): Promise<{ ok: tr
 }
 
 export async function updateTrainer(id: number, input: Partial<CreateTrainerInput>): Promise<{ ok: true } | { ok: false; error: string }> {
+  const t = await getTranslations('errors')
   const userId = await getCurrentAppUserId()
-  if (!userId) return { ok: false, error: 'Not authenticated' }
+  if (!userId) return { ok: false, error: t('notAuthenticated') }
   const supabase = await createClient()
   const payload: Record<string, unknown> = {}
   if (input.name !== undefined) payload.name = input.name
@@ -99,8 +103,9 @@ export async function updateTrainer(id: number, input: Partial<CreateTrainerInpu
 }
 
 export async function deleteTrainer(id: number): Promise<{ ok: true } | { ok: false; error: string }> {
+  const t = await getTranslations('errors')
   const userId = await getCurrentAppUserId()
-  if (!userId) return { ok: false, error: 'Not authenticated' }
+  if (!userId) return { ok: false, error: t('notAuthenticated') }
   const supabase = await createClient()
   const { error } = await supabase.from('trainers').delete().eq('id', id).eq('user_id', userId)
   if (error) return { ok: false, error: error.message }

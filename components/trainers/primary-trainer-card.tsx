@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
@@ -13,7 +14,6 @@ import {
 } from '@/components/ui/select'
 import { Star, Mail, Phone, MapPin } from 'lucide-react'
 import type { Trainer } from './edit-trainer-dialog'
-import { MOCK_BRANCHES } from '@/lib/mocks/branches'
 
 interface PrimaryTrainerCardProps {
   trainers: Trainer[]
@@ -26,7 +26,8 @@ export function PrimaryTrainerCard({
   primaryTrainerByBranch,
   branchOptions,
 }: PrimaryTrainerCardProps) {
-  const branches = branchOptions ?? MOCK_BRANCHES
+  const t = useTranslations('trainers')
+  const branches = branchOptions ?? []
   const branchesWithPrimaries = branches.filter(
     (b) => primaryTrainerByBranch[b.name] != null
   )
@@ -42,7 +43,7 @@ export function PrimaryTrainerCard({
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <Star className="w-5 h-5 text-yellow-500 fill-yellow-500 shrink-0" />
-            <h3 className="text-lg font-semibold text-foreground">Primary Trainer</h3>
+            <h3 className="text-lg font-semibold text-foreground">{t('primaryTrainer')}</h3>
           </div>
           <Select
             value={selectedBranch}
@@ -50,7 +51,7 @@ export function PrimaryTrainerCard({
           >
             <SelectTrigger className="h-8 w-[140px] bg-primary/10 border-primary/30 text-xs">
               <MapPin className="w-3 h-3 mr-1 shrink-0" />
-              <SelectValue placeholder="Branch" />
+              <SelectValue placeholder={t('branch')} />
             </SelectTrigger>
             <SelectContent>
               {branches.map((branch) => (
@@ -75,7 +76,7 @@ export function PrimaryTrainerCard({
                 <div>
                   <h4 className="text-lg font-semibold text-foreground">{primaryTrainer.name}</h4>
                   <p className="text-sm text-muted-foreground">
-                    Oversees all trainers at this branch
+                    {t('overseesAllTrainers')}
                   </p>
                 </div>
 
@@ -106,10 +107,10 @@ export function PrimaryTrainerCard({
         ) : (
           <div className="py-8 text-center">
             <p className="text-sm text-muted-foreground">
-              No primary trainer assigned for this branch
+              {t('noPrimaryTrainer')}
             </p>
             <p className="text-xs text-muted-foreground mt-1">
-              Edit a trainer and check &quot;Primary trainer for this branch&quot;
+              {t('noPrimaryTrainerHint')}
             </p>
           </div>
         )}

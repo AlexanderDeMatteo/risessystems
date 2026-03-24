@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { getCurrentAppUserId } from '@/lib/supabase/get-app-user-id'
 import { format } from 'date-fns'
 import { revalidatePath } from 'next/cache'
+import { getTranslations } from 'next-intl/server'
 
 export type ProfileUser = {
   name: string
@@ -44,8 +45,9 @@ export type UpdateProfileInput = {
 }
 
 export async function updateUserProfile(input: UpdateProfileInput): Promise<{ ok: true } | { ok: false; error: string }> {
+  const t = await getTranslations('errors')
   const userId = await getCurrentAppUserId()
-  if (!userId) return { ok: false, error: 'Not authenticated' }
+  if (!userId) return { ok: false, error: t('notAuthenticated') }
   const supabase = await createClient()
   const payload: Record<string, unknown> = {}
   if (input.name !== undefined) payload.name = input.name

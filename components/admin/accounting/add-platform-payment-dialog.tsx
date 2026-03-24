@@ -1,7 +1,8 @@
 'use client'
 
 import { useEffect, useState, useMemo } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter } from '@/i18n/routing'
+import { useTranslations } from 'next-intl'
 import {
   Dialog,
   DialogContent,
@@ -73,6 +74,8 @@ export function AddPlatformPaymentDialog({
   currentPeriodEnd = null,
   initialPlanId = null,
 }: AddPlatformPaymentDialogProps) {
+  const t = useTranslations('admin')
+  const tCommon = useTranslations('common')
   const router = useRouter()
   const [clientId, setClientId] = useState<string>('')
   const [planId, setPlanId] = useState<string>('')
@@ -157,16 +160,16 @@ export function AddPlatformPaymentDialog({
     setError(null)
 
     if (!resolvedClientId || Number.isNaN(resolvedClientId)) {
-      setError('Please select a client.')
+      setError(t('selectClient'))
       return
     }
     const numericAmount = parseFloat(amount)
     if (!numericAmount || numericAmount <= 0) {
-      setError('Amount must be greater than 0.')
+      setError(t('amountMustBePositive'))
       return
     }
     if (!periodStart || !periodEnd) {
-      setError('Please provide a billing period.')
+      setError(t('provideBillingPeriod'))
       return
     }
 
@@ -190,7 +193,7 @@ export function AddPlatformPaymentDialog({
       return
     }
 
-    toast.success(isRenewal ? 'Subscription renewed.' : 'Client activated and payment recorded.')
+    toast.success(isRenewal ? t('subscriptionRenewed') : t('clientActivated'))
     handleClose(false)
     router.refresh()
   }
@@ -201,32 +204,32 @@ export function AddPlatformPaymentDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-foreground">
             <CreditCard className="w-4 h-4 text-primary" />
-            {isRenewal ? 'Renew Subscription' : 'Activate & Charge Client'}
+            {isRenewal ? t('renewSubscription') : t('activateAndChargeClient')}
           </DialogTitle>
           <DialogDescription>
             {isRenewal
-              ? 'Extend the subscription period and register the payment.'
-              : 'Assign a plan, confirm the amount, and activate the gym client.'}
+              ? t('renewSubscriptionDesc')
+              : t('activateDesc')}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {hasPreselectedClient && preselectedClient ? (
             <div className="space-y-1 rounded-md border border-border/60 bg-secondary/30 p-3">
-              <p className="text-xs text-muted-foreground uppercase tracking-wider">Client</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">{t('client')}</p>
               <p className="font-medium text-foreground">{preselectedClient.name}</p>
               {!isNaN(resolvedClientId) && clientActiveUsers[resolvedClientId] != null && (
                 <p className="text-xs text-muted-foreground">
-                  {clientActiveUsers[resolvedClientId]} active members
+                  {t('activeUserCount', { count: clientActiveUsers[resolvedClientId] })}
                 </p>
               )}
             </div>
           ) : (
             <div className="space-y-2">
-              <Label htmlFor="client">Gym client</Label>
+              <Label htmlFor="client">{t('gymClient')}</Label>
               <Select value={clientId} onValueChange={(v) => setClientId(v)} required>
                 <SelectTrigger id="client" className="bg-secondary/50 border-border">
-                  <SelectValue placeholder="Select gym client" />
+                  <SelectValue placeholder={t('selectGymClient')} />
                 </SelectTrigger>
                 <SelectContent className="z-[100]">
                   {clients.map((c) => (
@@ -240,10 +243,10 @@ export function AddPlatformPaymentDialog({
           )}
 
           <div className="space-y-2">
-            <Label>Plan</Label>
+            <Label>{t('plan')}</Label>
             <Select value={planId} onValueChange={(v) => { setPlanId(v); setAmountOverridden(false) }}>
               <SelectTrigger className="bg-secondary/50 border-border">
-                <SelectValue placeholder="Select plan" />
+                <SelectValue placeholder={t('plan')} />
               </SelectTrigger>
               <SelectContent className="z-[100]">
                 {plans.map((p) => (
@@ -256,9 +259,11 @@ export function AddPlatformPaymentDialog({
             {selectedPlan && (
               <p className="text-xs text-muted-foreground flex items-center gap-1">
                 <Info className="w-3 h-3" />
-                Up to {selectedPlan.max_active_users ?? '∞'} members
+                {selectedPlan.max_active_users != null
+                  ? t('upToMembers', { count: selectedPlan.max_active_users })
+                  : t('unlimitedMembers')}
                 {selectedPlan.overage_price_per_user
-                  ? `, $${selectedPlan.overage_price_per_user}/extra`
+                  ? t('extraPerUser', { price: selectedPlan.overage_price_per_user })
                   : ''}
               </p>
             )}
@@ -266,9 +271,9 @@ export function AddPlatformPaymentDialog({
 
           <div className="space-y-2">
             <Label htmlFor="amount">
-              Amount (USD)
+              {t('amountUSD')}
               {calculatedAmount && !amountOverridden && (
-                <span className="ml-2 text-xs text-muted-foreground font-normal">auto-calculated</span>
+                <span className="ml-2 text-xs text-muted-foreground font-normal">{t('autoCalculated')}</span>
               )}
             </Label>
             <Input
@@ -286,7 +291,7 @@ export function AddPlatformPaymentDialog({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-2">
-              <Label htmlFor="periodStart">Period start</Label>
+              <Label htmlFor="periodStart">{t('periodStart')}</Label>
               <Input
                 id="periodStart"
                 type="date"
@@ -297,7 +302,7 @@ export function AddPlatformPaymentDialog({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="periodEnd">Period end</Label>
+              <Label htmlFor="periodEnd">{t('periodEnd')}</Label>
               <Input
                 id="periodEnd"
                 type="date"
@@ -311,33 +316,33 @@ export function AddPlatformPaymentDialog({
 
           {periodStart && periodEnd && (
             <p className="text-xs text-muted-foreground bg-secondary/30 rounded-md px-3 py-2">
-              Period: {formatDate(periodStart)} – {formatDate(periodEnd)}
+              {t('period')}: {formatDate(periodStart)} – {formatDate(periodEnd)}
             </p>
           )}
 
           <div className="space-y-2">
-            <Label>Payment method</Label>
+            <Label>{t('paymentMethod')}</Label>
             <Select value={paymentMethod} onValueChange={(v: 'cash' | 'card' | 'bank_transfer') => setPaymentMethod(v)}>
               <SelectTrigger className="bg-secondary/50 border-border">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="z-[100]">
-                <SelectItem value="cash">Cash</SelectItem>
-                <SelectItem value="card">Card</SelectItem>
-                <SelectItem value="bank_transfer">Bank Transfer</SelectItem>
+                <SelectItem value="cash">{t('cash')}</SelectItem>
+                <SelectItem value="card">{t('card')}</SelectItem>
+                <SelectItem value="bank_transfer">{t('bankTransfer')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div className="space-y-2">
-            <Label>Status</Label>
+            <Label>{t('status')}</Label>
             <Select value={status} onValueChange={(v: 'pending' | 'completed') => setStatus(v)}>
               <SelectTrigger className="bg-secondary/50 border-border">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="z-[100]">
-                <SelectItem value="completed">Completed</SelectItem>
-                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="completed">{t('completed')}</SelectItem>
+                <SelectItem value="pending">{t('pending')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -346,16 +351,16 @@ export function AddPlatformPaymentDialog({
 
           <div className="flex justify-end gap-2 pt-2">
             <Button type="button" variant="outline" onClick={() => handleClose(false)} disabled={submitting}>
-              Cancel
+              {tCommon('cancel')}
             </Button>
             <Button type="submit" disabled={submitting || clients.length === 0}>
               {submitting ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                  Saving...
+                  {t('saving')}
                 </>
               ) : (
-                isRenewal ? 'Renew' : 'Activate & Charge'
+                isRenewal ? t('renew') : t('activateAndCharge')
               )}
             </Button>
           </div>

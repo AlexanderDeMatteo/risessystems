@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { getCurrentAppUserId } from '@/lib/supabase/get-app-user-id'
 import { revalidatePath } from 'next/cache'
+import { getTranslations } from 'next-intl/server'
 
 export type UserSettings = {
   colorScheme: string
@@ -12,6 +13,9 @@ export type UserSettings = {
   notifyNewMembers: boolean
   currency: string
   timezone: string
+  exchangeRate: number | null
+  referenceCurrency: string
+  locale: string
 }
 
 const DEFAULT_SETTINGS: UserSettings = {
@@ -22,6 +26,9 @@ const DEFAULT_SETTINGS: UserSettings = {
   notifyNewMembers: true,
   currency: 'USD',
   timezone: 'America/Mexico_City',
+  exchangeRate: null,
+  referenceCurrency: 'USD',
+  locale: 'en',
 }
 
 export async function getUserSettings(): Promise<UserSettings> {
@@ -31,7 +38,7 @@ export async function getUserSettings(): Promise<UserSettings> {
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('user_settings')
-    .select('color_scheme, notify_expiring, notify_payments, notify_checkins, notify_new_members, currency, timezone')
+    .select('color_scheme, notify_expiring, notify_payments, notify_checkins, notify_new_members, currency, timezone, exchange_rate, reference_currency, locale')
     .eq('user_id', userId)
     .maybeSingle()
 
@@ -45,6 +52,9 @@ export async function getUserSettings(): Promise<UserSettings> {
     notifyNewMembers: data.notify_new_members ?? DEFAULT_SETTINGS.notifyNewMembers,
     currency: data.currency ?? DEFAULT_SETTINGS.currency,
     timezone: data.timezone ?? DEFAULT_SETTINGS.timezone,
+    exchangeRate: data.exchange_rate != null ? Number(data.exchange_rate) : null,
+    referenceCurrency: data.reference_currency ?? DEFAULT_SETTINGS.referenceCurrency,
+    locale: data.locale ?? DEFAULT_SETTINGS.locale,
   }
 }
 
@@ -56,13 +66,17 @@ export type UpdateSettingsInput = Partial<{
   notifyNewMembers: boolean
   currency: string
   timezone: string
+  exchangeRate: number | null
+  referenceCurrency: string
+  locale: string
 }>
 
 export async function updateUserSettings(
   input: UpdateSettingsInput
 ): Promise<{ ok: true } | { ok: false; error: string }> {
+  const t = await getTranslations('errors')
   const userId = await getCurrentAppUserId()
-  if (!userId) return { ok: false, error: 'Not authenticated' }
+  if (!userId) return { ok: false, error: t('notAuthenticated') }
 
   const payload: Record<string, unknown> = {}
   if (input.colorScheme !== undefined) payload.color_scheme = input.colorScheme
@@ -72,6 +86,9 @@ export async function updateUserSettings(
   if (input.notifyNewMembers !== undefined) payload.notify_new_members = input.notifyNewMembers
   if (input.currency !== undefined) payload.currency = input.currency
   if (input.timezone !== undefined) payload.timezone = input.timezone
+  if (input.exchangeRate !== undefined) payload.exchange_rate = input.exchangeRate
+  if (input.referenceCurrency !== undefined) payload.reference_currency = input.referenceCurrency
+  if (input.locale !== undefined) payload.locale = input.locale
 
   if (Object.keys(payload).length === 0) return { ok: true }
 

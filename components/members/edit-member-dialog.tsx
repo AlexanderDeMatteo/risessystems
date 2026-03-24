@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useTranslations } from 'next-intl'
 import {
   Dialog,
   DialogContent,
@@ -15,10 +16,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import type { Member } from './members-table'
 
 const STATUS_OPTIONS = [
-  { value: 'active', label: 'Active' },
-  { value: 'inactive', label: 'Inactive' },
-  { value: 'suspended', label: 'Suspended' },
-]
+  { value: 'active', labelKey: 'active' },
+  { value: 'inactive', labelKey: 'inactive' },
+  { value: 'suspended', labelKey: 'pending' },
+] as const
 
 interface EditMemberDialogProps {
   isOpen: boolean
@@ -28,6 +29,8 @@ interface EditMemberDialogProps {
 }
 
 export function EditMemberDialog({ isOpen, onOpenChange, member, onSave }: EditMemberDialogProps) {
+  const t = useTranslations('members')
+  const tCommon = useTranslations('common')
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
   const [email, setEmail] = useState('')
@@ -65,16 +68,16 @@ export function EditMemberDialog({ isOpen, onOpenChange, member, onSave }: EditM
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="bg-card border-border">
         <DialogHeader>
-          <DialogTitle>Edit Member</DialogTitle>
+          <DialogTitle>{t('editMember')}</DialogTitle>
           <DialogDescription>
-            Update member details and status. Set status to Active when payment has been received.
+            {t('memberUpdated').replace(' successfully', '')}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="edit-firstName">First Name</Label>
+              <Label htmlFor="edit-firstName">{tCommon('name')}</Label>
               <Input
                 id="edit-firstName"
                 value={firstName}
@@ -83,7 +86,7 @@ export function EditMemberDialog({ isOpen, onOpenChange, member, onSave }: EditM
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="edit-lastName">Last Name</Label>
+              <Label htmlFor="edit-lastName">{tCommon('name')}</Label>
               <Input
                 id="edit-lastName"
                 value={lastName}
@@ -94,7 +97,7 @@ export function EditMemberDialog({ isOpen, onOpenChange, member, onSave }: EditM
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="edit-email">Email</Label>
+            <Label htmlFor="edit-email">{tCommon('email')}</Label>
             <Input
               id="edit-email"
               type="email"
@@ -104,7 +107,7 @@ export function EditMemberDialog({ isOpen, onOpenChange, member, onSave }: EditM
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="edit-phone">Phone</Label>
+            <Label htmlFor="edit-phone">{tCommon('phone')}</Label>
             <Input
               id="edit-phone"
               value={phone}
@@ -113,7 +116,7 @@ export function EditMemberDialog({ isOpen, onOpenChange, member, onSave }: EditM
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="edit-status">Status</Label>
+            <Label htmlFor="edit-status">{tCommon('status')}</Label>
             <Select value={status} onValueChange={setStatus}>
               <SelectTrigger id="edit-status">
                 <SelectValue />
@@ -121,7 +124,7 @@ export function EditMemberDialog({ isOpen, onOpenChange, member, onSave }: EditM
               <SelectContent>
                 {STATUS_OPTIONS.map((opt) => (
                   <SelectItem key={opt.value} value={opt.value}>
-                    {opt.label}
+                    {tCommon(opt.labelKey)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -130,9 +133,9 @@ export function EditMemberDialog({ isOpen, onOpenChange, member, onSave }: EditM
 
           <div className="flex gap-2 justify-end pt-4">
             <Button variant="outline" type="button" onClick={() => onOpenChange(false)}>
-              Cancel
+              {tCommon('cancel')}
             </Button>
-            <Button type="submit">Save Changes</Button>
+            <Button type="submit">{tCommon('save')}</Button>
           </div>
         </form>
       </DialogContent>

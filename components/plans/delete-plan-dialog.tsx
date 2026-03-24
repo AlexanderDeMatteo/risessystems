@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -10,7 +11,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import type { MembershipPlan } from './plans-table'
+import type { MembershipPlan } from '@/lib/types/plans'
 
 interface DeletePlanDialogProps {
   isOpen: boolean
@@ -25,6 +26,9 @@ export function DeletePlanDialog({
   plan,
   onConfirm,
 }: DeletePlanDialogProps) {
+  const t = useTranslations('plans')
+  const tCommon = useTranslations('common')
+
   const handleConfirm = () => {
     if (plan) {
       onConfirm(plan)
@@ -37,21 +41,21 @@ export function DeletePlanDialog({
       <AlertDialogContent className="bg-card border-border">
         <AlertDialogHeader>
           <AlertDialogTitle className="text-foreground">
-            Delete Plan
+            {t('deletePlan')}
           </AlertDialogTitle>
           <AlertDialogDescription>
-            Are you sure you want to delete{' '}
+            {t('deleteConfirmText')}{' '}
             <span className="font-semibold text-foreground">{plan?.name}</span>?
-            This action cannot be undone.
+            {' '}{t('deleteWarning')}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel>{tCommon('cancel')}</AlertDialogCancel>
           <AlertDialogAction
             onClick={handleConfirm}
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
           >
-            Delete
+            {tCommon('delete')}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
