@@ -1,0 +1,39 @@
+---
+description: Convenciones y contexto para desarrollo mobile (Expo)
+globs: mobile/**
+alwaysApply: false
+---
+
+# Reglas de Contexto Mobile (Expo)
+
+## Ubicación y alcance
+- Todo lo mobile vive en `mobile/` (rutas, componentes, estilos y utilidades).
+- No mezclar componentes web (`components/ui` de shadcn/Radix) con React Native.
+
+## Rutas y estructura
+- Usar Expo Router en `mobile/app/` con grupos: `(auth)`, `(member)`, `(owner)`, `(trainer)`, `(admin)`.
+- Mantener navegación por rol en layouts (`_layout.tsx`) dentro de cada grupo.
+
+## Imports y utilidades
+- Usar alias `@/` apuntando a la raíz de `mobile/`.
+- Preferir imports como `@/lib/*`, `@/theme/*`, `@/components/*`, `@/i18n`.
+
+## Estilo y tema (Neon Rise)
+- Usar NativeWind (`className`) con tokens del tema; evitar colores hardcodeados en pantallas/componentes.
+- Tokens base en `mobile/theme/colors.ts` y `mobile/tailwind.config.js`.
+- Mantener `darkMode: 'class'` en `mobile/tailwind.config.js` para consistencia web/mobile.
+
+## Supabase y entorno
+- Variables obligatorias para mobile: `EXPO_PUBLIC_SUPABASE_URL` y `EXPO_PUBLIC_SUPABASE_ANON_KEY`.
+- Cliente en `mobile/lib/supabase.ts`; autenticación/roles en `mobile/lib/auth-context.tsx`.
+- Si falta configuración, priorizar mensajes claros de diagnóstico antes de romper runtime.
+
+## i18n y lenguaje
+- i18n con `i18next` + `expo-localization`.
+- Código, nombres de variables y componentes en inglés.
+- Documentación del proyecto en español.
+
+## Ejecución y validación nativa
+- Comando base: `cd mobile && npm install --legacy-peer-deps && npx expo start`.
+- Si el puerto por defecto está ocupado en modo no interactivo: usar `npx expo start --port 8083`.
+- Validar UI en nativo (emulador Android/Expo Go), no solo en web responsive.

@@ -25,6 +25,35 @@ To run **web and mobile together** (two terminals), see the root [`README.md`](.
    npx expo start
    ```
 
+## Run native (recommended)
+
+### Android emulator (Windows)
+
+1. Install Android Studio + Android SDK + Virtual Device.
+2. Start an emulator from Device Manager.
+3. In Expo terminal, press `a` (or run `npx expo start --android`).
+
+### Physical phone (Expo Go)
+
+1. Keep Metro running (`npx expo start`).
+2. Open Expo Go and scan the QR.
+3. If QR does not render in Cursor terminal, use **Enter URL manually** with:
+   - `exp://<your-local-ip>:8081`
+   - or `exp://<your-local-ip>:8083` if you started Expo on that port.
+
+### Common issues
+
+- `Cannot determine the project's Expo SDK version`:
+  - You started Expo from the repo root. Run from `mobile/`.
+- `supabaseUrl is required`:
+  - `mobile/.env` is missing `EXPO_PUBLIC_SUPABASE_URL` and/or `EXPO_PUBLIC_SUPABASE_ANON_KEY`.
+- Port 8081 already in use in non-interactive mode:
+  - Start with `npx expo start --port 8083`.
+- Tunnel asks for ngrok package:
+  - Install locally in `mobile/`: `npm install -D @expo/ngrok@^4.1.0 --legacy-peer-deps`.
+- `ngrok tunnel took too long to connect`:
+  - Usually network/firewall/proxy blocks tunnel. Try LAN mode (`npx expo start`) or allow ngrok/node in firewall.
+
 ## Roles
 
 After login, the app resolves the role from `public.users`, `public.trainers`, or `public.members` using `auth_user_id = auth.uid()`.
@@ -35,7 +64,7 @@ After login, the app resolves the role from `public.users`, `public.trainers`, o
 
 ## Stack
 
-- Expo SDK 55, Expo Router, TypeScript
+- Expo SDK 54, Expo Router, TypeScript
 - Supabase Auth + Postgres (RLS)
 - NativeWind v4 + Tailwind (theme aligned with web “Neon Rise”)
 - i18next + expo-localization (`en` / `es`)

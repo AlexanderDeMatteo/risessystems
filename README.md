@@ -72,13 +72,19 @@ pnpm lint    # o: npm run lint
 
 1. En Supabase (SQL Editor), aplica las políticas RLS para móvil si aún no lo hiciste: [`scripts/23-mobile-rls-policies.sql`](scripts/23-mobile-rls-policies.sql).
 2. Crea `mobile/.env` con `EXPO_PUBLIC_SUPABASE_URL` y `EXPO_PUBLIC_SUPABASE_ANON_KEY` (mismos valores que `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY` en la raíz).
-3. Instala y arranca:
+3. Instala y arranca Metro:
 
 ```bash
 cd mobile
 npm install --legacy-peer-deps
 npx expo start
 ```
+
+4. Abrir en **nativo**:
+   - **Android emulator (Windows/macOS/Linux):** con el emulador ya iniciado, presiona `a` en la terminal de Expo.
+   - **Expo Go (teléfono):** escanea el QR o ingresa manualmente la URL `exp://<tu-ip-local>:<puerto>`.
+
+> Nota rápida de operación: si al correr `npx expo start` el puerto 8081 está ocupado (prompt no interactivo), arranca directo con `npx expo start --port 8083`.
 
 Más detalle (roles, stack): [`mobile/README.md`](mobile/README.md).
 

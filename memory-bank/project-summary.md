@@ -22,7 +22,7 @@ RisesSystem es una plataforma SaaS de gestión de gimnasios. Permite a dueños d
 | Backend | Supabase (PostgreSQL, Auth, Storage) | — |
 | Fechas | date-fns | 4.x |
 | Package manager | pnpm | — |
-| App móvil | Expo (SDK 55) + Expo Router | `mobile/` |
+| App móvil | Expo (SDK 54) + Expo Router | `mobile/` |
 
 ## Estado actual
 - **Dashboard (gym owner)** y **Accounting** consumen datos reales de Supabase vía Server Actions (`app/actions/payments.ts`, `app/actions/dashboard.ts`): KPIs, gráficos (ventas, membresías, ingresos), actividad reciente y lista de pagos.

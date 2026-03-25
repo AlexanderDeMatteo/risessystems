@@ -38,7 +38,8 @@
           "cameraPermission": "Allow RisesSystem to scan QR codes for member check-in."
         }
       ],
-      "expo-localization"
+      "expo-localization",
+      "expo-font"
     ],
     "experiments": {
       "typedRoutes": true
